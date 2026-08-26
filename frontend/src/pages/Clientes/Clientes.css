@@ -1,0 +1,3 @@
+.clientes-summary { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:18px 20px; }
+.clientes-summary > div { display:flex; align-items:center; gap:12px; }.clientes-summary svg{width:20px;color:var(--primary)}.clientes-summary small{display:block;color:var(--muted-foreground);font-size:11px}.clientes-summary strong{display:block;margin-top:2px;font-size:22px}.clientes-summary p{margin:0;max-width:520px;color:var(--muted-foreground);font-size:12px;text-align:right}
+@media(max-width:700px){.clientes-summary{align-items:flex-start;flex-direction:column}.clientes-summary p{text-align:left}}

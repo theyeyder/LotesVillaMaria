@@ -1,0 +1,8 @@
+.ui-button { display:inline-flex; align-items:center; justify-content:center; gap:8px; min-height:40px; padding:0 15px; border:1px solid transparent; border-radius:11px; font-size:13px; font-weight:800; transition:.18s ease; }
+.ui-button svg { width:17px; height:17px; }
+.ui-button:hover { transform:translateY(-1px); }
+.ui-button--primary { background:var(--primary); color:#fff; box-shadow:0 8px 18px rgba(31,104,72,.18); }
+.ui-button--primary:hover { background:#195b3e; }
+.ui-button--outline { background:#fff; color:var(--foreground); border-color:var(--border); }
+.ui-button--outline:hover { border-color:#bcb8ab; background:#faf9f5; }
+.ui-button--gold { background:var(--gold); color:#173526; }

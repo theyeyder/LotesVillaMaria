@@ -1,0 +1,7 @@
+.app-shell { min-height:100vh; }
+.app-main { min-height:100vh; margin-left:268px; }
+.app-content { padding:28px 32px 40px; max-width:1600px; margin:0 auto; }
+@media (max-width: 1023px) {
+  .app-main { margin-left:0; }
+  .app-content { padding:22px 18px 34px; }
+}
