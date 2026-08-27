@@ -7,8 +7,9 @@ Base inicial del sistema administrativo para la venta y gestión de lotes.
 - Frontend React + Vite con identidad visual Villa María adaptada del proyecto de referencia.
 - Estructura original por módulos conservada.
 - Login visual temporal para el único usuario Administrador.
-- Dashboard y módulos con datos de muestra para validar diseño antes de conectar MongoDB.
-- Backend Node.js + Express conservado como base.
+- Dashboard y módulos pendientes conservan datos de muestra mientras se desarrollan.
+- **Clientes ya está conectado a MongoDB con CRUD completo.**
+- Backend Node.js + Express organizado por módulos.
 - Base de datos objetivo: `LotesVillaMaria` en MongoDB.
 
 ## Acceso temporal de interfaz
@@ -36,8 +37,20 @@ npm install
 npm run dev
 ```
 
-## Módulos preparados
+## Módulos
 
-Dashboard, Clientes, Lotes, Ventas, Cuotas, Pagos, Facturas, Maquinaria y Horas trabajadas.
+### Clientes — funcional
 
-Los datos visibles actualmente son únicamente datos de muestra para revisar el diseño.
+- Crear cliente
+- Listar y buscar clientes
+- Editar cliente
+- Eliminar cliente
+- Documento único
+- Estado Activo/Inactivo
+- Datos de contacto y observaciones
+- API: `/api/clientes`
+- Colección MongoDB: `clientes`
+
+### Pendientes
+
+Dashboard, Lotes, Ventas, Cuotas, Pagos, Facturas, Maquinaria y Horas trabajadas continuarán desarrollándose módulo por módulo.

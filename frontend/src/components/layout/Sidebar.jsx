@@ -1,33 +1,147 @@
-import { Building2, ChevronRight, LayoutDashboard, Map, ShoppingCart, CalendarClock, WalletCards, ReceiptText, Tractor, Timer, LogOut, UsersRound } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  MapPinned,
+  HandCoins,
+  WalletCards,
+  CreditCard,
+  ReceiptText,
+  Tractor,
+  Clock3,
+  LogOut,
+} from "lucide-react";
+
 import "./Sidebar.css";
 
-const items = [
-  ["dashboard", "Resumen", LayoutDashboard],
-  ["clientes", "Clientes", UsersRound],
-  ["lotes", "Lotes", Map],
-  ["ventas", "Ventas", ShoppingCart],
-  ["cuotas", "Cuotas", CalendarClock],
-  ["pagos", "Pagos", WalletCards],
-  ["facturas", "Facturas", ReceiptText],
-  ["maquinaria", "Maquinaria", Tractor],
-  ["horas", "Horas trabajadas", Timer],
+const menuItems = [
+  {
+    id: "dashboard",
+    label: "Dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    id: "clientes",
+    label: "Clientes",
+    icon: Users,
+  },
+  {
+    id: "lotes",
+    label: "Lotes",
+    icon: MapPinned,
+  },
+  {
+    id: "ventas",
+    label: "Ventas",
+    icon: HandCoins,
+  },
+  {
+    id: "cuotas",
+    label: "Cuotas",
+    icon: WalletCards,
+  },
+  {
+    id: "pagos",
+    label: "Pagos",
+    icon: CreditCard,
+  },
+  {
+    id: "facturas",
+    label: "Facturas",
+    icon: ReceiptText,
+  },
+  {
+    id: "maquinaria",
+    label: "Maquinaria",
+    icon: Tractor,
+  },
+  {
+    id: "horas",
+    label: "Horas trabajadas",
+    icon: Clock3,
+  },
 ];
 
-export default function Sidebar({ active, onNavigate, onLogout }) {
-  return <aside className="sidebar topography">
-    <button className="sidebar-brand" onClick={() => onNavigate("dashboard")}>
-      <span className="sidebar-logo"><Building2 /></span>
-      <span><strong className="serif-title">Villa María</strong><small>Gestión de lotes</small></span>
-    </button>
-    <nav className="sidebar-nav">
-      {items.map(([id,label,Icon]) => <button key={id} className={`sidebar-item ${active===id?"active":""}`} onClick={() => onNavigate(id)}>
-        <Icon /> <span>{label}</span>{active===id && <ChevronRight className="sidebar-arrow" />}
-      </button>)}
-    </nav>
-    <div className="sidebar-user">
-      <span className="sidebar-avatar">AD</span>
-      <div><strong>Administrador</strong><small>@admin</small></div>
-      <button className="sidebar-logout" onClick={onLogout} title="Cerrar sesión"><LogOut /></button>
-    </div>
-  </aside>;
+export default function Sidebar({
+  active,
+  onNavigate,
+  onLogout,
+}) {
+  return (
+    <aside className="sidebar">
+      <div className="sidebar-brand">
+        <div className="sidebar-brand-mark">
+          VM
+        </div>
+
+        <div>
+          <h2>Villa María</h2>
+          <span>Gestión de lotes</span>
+        </div>
+      </div>
+
+      <div className="sidebar-section-title">
+        Menú principal
+      </div>
+
+      <nav className="sidebar-nav">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+
+          const isActive =
+            active === item.id;
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              className={`sidebar-item ${
+                isActive
+                  ? "sidebar-item-active"
+                  : ""
+              }`}
+              onClick={() =>
+                onNavigate(item.id)
+              }
+            >
+              <Icon size={19} />
+
+              <span>
+                {item.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <div className="sidebar-footer">
+        <div className="sidebar-user">
+          <div className="sidebar-user-avatar">
+            A
+          </div>
+
+          <div className="sidebar-user-info">
+            <strong>
+              Administrador
+            </strong>
+
+            <span>
+              @admin
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          className="sidebar-logout"
+          onClick={onLogout}
+        >
+          <LogOut size={18} />
+
+          <span>
+            Cerrar sesión
+          </span>
+        </button>
+      </div>
+    </aside>
+  );
 }

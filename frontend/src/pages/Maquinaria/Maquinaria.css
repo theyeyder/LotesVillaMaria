@@ -1,1 +1,668 @@
-.machine-actions{display:flex;gap:8px}.maquinaria-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}.machine-card{overflow:hidden}.machine-card header{display:flex;align-items:center;gap:11px;padding:19px;background:#173f2e;color:#fff}.machine-card header>svg{width:22px;color:#e7c77d}.machine-card header div{flex:1}.machine-card header strong{display:block;font-size:13px}.machine-card header small{display:block;margin-top:3px;color:rgba(255,255,255,.52);font-size:10px}.machine-body{padding:18px;display:grid;grid-template-columns:1fr 1fr;gap:16px}.machine-body small{display:block;color:var(--muted-foreground);font-size:10px}.machine-body b{display:block;margin-top:4px;font-size:13px}.machine-body p{grid-column:1/-1;margin:0;padding:11px;border-radius:10px;background:#f4f2eb;color:#5e665f;font-size:11px}.machine-body p svg{width:14px;vertical-align:middle;margin-right:5px}@media(max-width:1100px){.maquinaria-grid{grid-template-columns:1fr 1fr}}@media(max-width:720px){.maquinaria-grid{grid-template-columns:1fr}.machine-actions{flex-wrap:wrap}}
+.maquinaria-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 28px;
+  color: #17241d;
+}
+
+.maquinaria-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.maquinaria-kicker {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #b98532;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.maquinaria-header h1 {
+  margin: 0;
+  color: #173f2e;
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.maquinaria-header p {
+  margin: 8px 0 0;
+  color: #6e776f;
+  font-size: 14px;
+}
+
+.maquinaria-new-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: #1f6848;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(31, 104, 72, 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.maquinaria-new-button:hover {
+  transform: translateY(-1px);
+  background: #19583d;
+  box-shadow: 0 10px 22px rgba(31, 104, 72, 0.24);
+}
+
+.maquinaria-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.maquinaria-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 100px;
+  padding: 18px;
+  border: 1px solid #e8e1d2;
+  border-radius: 16px;
+  background: #fffdf7;
+  box-shadow: 0 10px 30px rgba(23, 63, 46, 0.06);
+}
+
+.maquinaria-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 14px;
+  background: #edf4ef;
+  color: #1f6848;
+}
+
+.maquinaria-stat-card div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.maquinaria-stat-card span {
+  color: #7b837d;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.maquinaria-stat-card strong {
+  color: #173f2e;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.maquinaria-panel {
+  overflow: hidden;
+  border: 1px solid #e7dfd0;
+  border-radius: 18px;
+  background: #fffdf7;
+  box-shadow: 0 10px 30px rgba(23, 63, 46, 0.06);
+}
+
+.maquinaria-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border-bottom: 1px solid #eee7da;
+}
+
+.maquinaria-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(560px, 100%);
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dcd7cb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #7c837f;
+}
+
+.maquinaria-search:focus-within {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.09);
+}
+
+.maquinaria-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #17241d;
+  font-size: 14px;
+}
+
+.maquinaria-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.maquinaria-filter {
+  min-height: 44px;
+  padding: 0 38px 0 13px;
+  border: 1px solid #dcd7cb;
+  border-radius: 12px;
+  outline: none;
+  background: #ffffff;
+  color: #313c35;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.maquinaria-refresh-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dcd7cb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f6848;
+  cursor: pointer;
+}
+
+.maquinaria-refresh-button:hover {
+  background: #f1f6f3;
+}
+
+.maquinaria-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 16px 18px 0;
+  padding: 12px 14px;
+  border: 1px solid #e8b3b3;
+  border-radius: 12px;
+  background: #fff3f3;
+  color: #9d2c2c;
+  font-size: 14px;
+}
+
+.maquinaria-error button {
+  border: none;
+  background: transparent;
+  color: #9d2c2c;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.maquinaria-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.maquinaria-table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+.maquinaria-table thead {
+  background: #f7f3ea;
+}
+
+.maquinaria-table th {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e8e1d4;
+  color: #6d766f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.maquinaria-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #f0ebe1;
+  color: #303a34;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.maquinaria-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+.maquinaria-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 220px;
+}
+
+.maquinaria-avatar {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 12px;
+  background: #173f2e;
+  color: #e9c986;
+}
+
+.maquinaria-name-cell > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.maquinaria-name-cell strong {
+  color: #173f2e;
+  font-size: 14px;
+}
+
+.maquinaria-name-cell span {
+  max-width: 240px;
+  overflow: hidden;
+  color: #8a918c;
+  font-size: 12px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.maquinaria-codigo {
+  display: inline-flex;
+  padding: 6px 9px;
+  border-radius: 8px;
+  background: #f1f4f1;
+  color: #47534b;
+  font-weight: 800;
+}
+
+.maquinaria-brand-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.maquinaria-brand-cell strong {
+  color: #3a463f;
+  font-size: 13px;
+}
+
+.maquinaria-brand-cell span {
+  color: #8e958f;
+  font-size: 12px;
+}
+
+.maquinaria-muted {
+  color: #a0a6a2;
+  font-size: 13px;
+}
+
+.maquinaria-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 86px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.maquinaria-status-active {
+  background: #e7f4eb;
+  color: #247043;
+}
+
+.maquinaria-status-maintenance {
+  background: #fff2d7;
+  color: #a56e19;
+}
+
+.maquinaria-status-inactive {
+  background: #f1ece5;
+  color: #8a7257;
+}
+
+.maquinaria-actions-title {
+  text-align: center !important;
+}
+
+.maquinaria-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.maquinaria-action-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.maquinaria-action-button.edit {
+  border-color: #cfded5;
+  background: #eef5f1;
+  color: #1f6848;
+}
+
+.maquinaria-action-button.delete {
+  border-color: #eed0d0;
+  background: #fff1f1;
+  color: #be4343;
+}
+
+.maquinaria-empty {
+  height: 250px;
+  color: #858d88 !important;
+  text-align: center !important;
+}
+
+.maquinaria-empty > * {
+  margin: 0 auto;
+}
+
+.maquinaria-empty strong,
+.maquinaria-empty span {
+  display: block;
+  margin-top: 8px;
+}
+
+.maquinaria-table-footer {
+  padding: 14px 18px;
+  border-top: 1px solid #eee7da;
+  background: #fcfaf5;
+  color: #7e857f;
+  font-size: 13px;
+}
+
+.maquinaria-table-footer strong {
+  color: #173f2e;
+}
+
+/* MODAL */
+
+.maquinaria-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(14, 29, 21, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.maquinaria-modal {
+  width: min(680px, 100%);
+  max-height: 88vh;
+  overflow-y: auto;
+  border: 1px solid rgba(229, 217, 194, 0.95);
+  border-radius: 18px;
+  background: #fffdf7;
+  box-shadow: 0 30px 70px rgba(12, 30, 21, 0.28);
+  animation: maquinariaModalEntrada 0.22s ease;
+}
+
+@keyframes maquinariaModalEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.maquinaria-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #ede5d8;
+}
+
+.maquinaria-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.maquinaria-modal-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #edf4ef;
+  color: #1f6848;
+}
+
+.maquinaria-modal-kicker {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: #b98532;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.maquinaria-modal-header h2 {
+  margin: 0;
+  color: #173f2e;
+  font-size: 22px;
+}
+
+.maquinaria-modal-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #ddd7ca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #59625c;
+  cursor: pointer;
+}
+
+.maquinaria-modal-body {
+  padding: 19px 20px;
+}
+
+.maquinaria-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 16px;
+}
+
+.maquinaria-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.maquinaria-field-full {
+  grid-column: 1 / -1;
+}
+
+.maquinaria-field label {
+  color: #3f4a43;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.maquinaria-field input,
+.maquinaria-field select,
+.maquinaria-field textarea {
+  width: 100%;
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+  outline: none;
+  background: #ffffff;
+  color: #17241d;
+  font: inherit;
+}
+
+.maquinaria-field input,
+.maquinaria-field select {
+  min-height: 40px;
+  padding: 0 11px;
+}
+
+.maquinaria-field textarea {
+  min-height: 90px;
+  padding: 11px;
+  resize: vertical;
+}
+
+.maquinaria-field input:focus,
+.maquinaria-field select:focus,
+.maquinaria-field textarea:focus {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.09);
+}
+
+.maquinaria-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  padding: 14px 20px;
+  border-top: 1px solid #ede5d8;
+  background: #fcfaf5;
+}
+
+.maquinaria-btn-secondary,
+.maquinaria-btn-primary {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.maquinaria-btn-secondary {
+  border: 1px solid #d9d2c5;
+  background: #ffffff;
+  color: #56605a;
+}
+
+.maquinaria-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: #1f6848;
+  color: #ffffff;
+}
+
+.maquinaria-btn-primary:hover {
+  background: #19583d;
+}
+
+.maquinaria-btn-secondary:disabled,
+.maquinaria-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.maquinaria-spin {
+  animation: maquinariaSpin 0.8s linear infinite;
+}
+
+@keyframes maquinariaSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 1100px) {
+  .maquinaria-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .maquinaria-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .maquinaria-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 720px) {
+  .maquinaria-page {
+    padding: 18px;
+  }
+
+  .maquinaria-header {
+    flex-direction: column;
+  }
+
+  .maquinaria-new-button {
+    width: 100%;
+  }
+
+  .maquinaria-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .maquinaria-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .maquinaria-field-full {
+    grid-column: auto;
+  }
+
+  .maquinaria-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .maquinaria-modal {
+    width: 100%;
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .maquinaria-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .maquinaria-btn-secondary,
+  .maquinaria-btn-primary {
+    width: 100%;
+  }
+}

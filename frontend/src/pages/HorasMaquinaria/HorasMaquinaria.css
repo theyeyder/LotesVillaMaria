@@ -1,1 +1,1039 @@
-.horas-total{padding:18px 20px;display:flex;align-items:center;gap:12px}.horas-total>svg{width:21px;color:var(--primary)}.horas-total div{flex:1}.horas-total small{display:block;color:var(--muted-foreground);font-size:10px}.horas-total strong{display:block;margin-top:3px;font-size:20px}.horas-total span{color:var(--muted-foreground);font-size:12px}.horas-total span b{color:var(--foreground)}@media(max-width:650px){.horas-total{align-items:flex-start;flex-direction:column}}
+.horas-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 28px;
+  color: #17241d;
+}
+
+.horas-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.horas-kicker {
+  display: inline-block;
+  margin-bottom: 6px;
+  color: #b98532;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.horas-header h1 {
+  margin: 0;
+  color: #173f2e;
+  font-size: 32px;
+  line-height: 1.1;
+}
+
+.horas-header p {
+  margin: 8px 0 0;
+  color: #6e776f;
+  font-size: 14px;
+}
+
+.horas-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.horas-print-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 44px;
+  padding: 0 16px;
+
+  border: 1px solid #d6c49e;
+  border-radius: 12px;
+
+  background: #fff9ed;
+  color: #8c6525;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border 0.18s ease,
+    transform 0.18s ease;
+}
+
+.horas-print-button:hover {
+  transform: translateY(-1px);
+  border-color: #d9aa58;
+  background: #f8edd8;
+}
+
+.horas-print-header,
+.horas-print-summary {
+  display: none;
+}
+
+.horas-new-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 18px;
+  border: none;
+  border-radius: 12px;
+  background: #1f6848;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(31, 104, 72, 0.18);
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.horas-new-button:hover {
+  transform: translateY(-1px);
+  background: #19583d;
+  box-shadow: 0 10px 22px rgba(31, 104, 72, 0.24);
+}
+
+/* =========================
+   FILTROS DE RESUMEN
+========================= */
+
+.horas-summary-filter {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 16px 18px;
+  border: 1px solid #e7dfd0;
+  border-radius: 16px;
+  background: #fffdf7;
+  box-shadow: 0 8px 24px rgba(23, 63, 46, 0.05);
+}
+
+.horas-filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  min-width: 220px;
+}
+
+.horas-filter-group label {
+  color: #4f5a53;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.horas-filter-group select,
+.horas-filter-group input {
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+  outline: none;
+  background: #ffffff;
+  color: #17241d;
+  font-size: 13px;
+}
+
+.horas-filter-group select:focus,
+.horas-filter-group input:focus {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.08);
+}
+
+.horas-selected-machine {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  padding: 0 13px;
+  border: 1px solid #d5c394;
+  border-radius: 11px;
+  background: #fff7e8;
+  color: #8b6527;
+}
+
+.horas-selected-machine > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.horas-selected-machine span {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.horas-selected-machine strong {
+  font-size: 13px;
+}
+
+/* =========================
+   TARJETAS DE RESUMEN
+========================= */
+
+.horas-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 22px;
+}
+
+.horas-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 105px;
+  padding: 18px;
+  border: 1px solid #e8e1d2;
+  border-radius: 16px;
+  background: #fffdf7;
+  box-shadow: 0 10px 30px rgba(23, 63, 46, 0.06);
+}
+
+.horas-stat-icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  border-radius: 14px;
+  background: #edf4ef;
+  color: #1f6848;
+}
+
+.horas-stat-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.horas-stat-card span {
+  color: #7b837d;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.horas-stat-card strong {
+  color: #173f2e;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+/* =========================
+   PANEL Y TOOLBAR
+========================= */
+
+.horas-panel {
+  overflow: hidden;
+  border: 1px solid #e7dfd0;
+  border-radius: 18px;
+  background: #fffdf7;
+  box-shadow: 0 10px 30px rgba(23, 63, 46, 0.06);
+}
+
+.horas-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border-bottom: 1px solid #eee7da;
+}
+
+.horas-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(620px, 100%);
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #dcd7cb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #7c837f;
+}
+
+.horas-search:focus-within {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.09);
+}
+
+.horas-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #17241d;
+  font-size: 14px;
+}
+
+.horas-refresh-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #dcd7cb;
+  border-radius: 12px;
+  background: #ffffff;
+  color: #1f6848;
+  cursor: pointer;
+}
+
+.horas-refresh-button:hover {
+  background: #f1f6f3;
+}
+
+/* =========================
+   ERRORES
+========================= */
+
+.horas-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 16px 18px 0;
+  padding: 12px 14px;
+  border: 1px solid #e8b3b3;
+  border-radius: 12px;
+  background: #fff3f3;
+  color: #9d2c2c;
+  font-size: 14px;
+}
+
+.horas-error button {
+  border: none;
+  background: transparent;
+  color: #9d2c2c;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* =========================
+   TABLA
+========================= */
+
+.horas-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.horas-table {
+  width: 100%;
+  min-width: 1050px;
+  border-collapse: collapse;
+}
+
+.horas-table thead {
+  background: #f7f3ea;
+}
+
+.horas-table th {
+  padding: 14px 16px;
+  border-bottom: 1px solid #e8e1d4;
+  color: #6d766f;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.horas-table td {
+  padding: 15px 16px;
+  border-bottom: 1px solid #f0ebe1;
+  color: #303a34;
+  font-size: 14px;
+  vertical-align: middle;
+}
+
+.horas-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+.horas-machine-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 210px;
+}
+
+.horas-machine-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 11px;
+  background: #173f2e;
+  color: #e9c986;
+}
+
+.horas-machine-cell > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.horas-machine-cell strong {
+  color: #173f2e;
+  font-size: 13px;
+}
+
+.horas-machine-cell span {
+  color: #8a918c;
+  font-size: 12px;
+}
+
+.horas-operario {
+  color: #324038;
+}
+
+.horas-time {
+  display: inline-flex;
+  padding: 5px 8px;
+  border-radius: 8px;
+  background: #f1f4f1;
+  color: #405149;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.horas-total {
+  display: inline-flex;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #e7f4eb;
+  color: #247043;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.horas-observacion {
+  display: inline-block;
+  max-width: 220px;
+  overflow: hidden;
+  color: #5e6962;
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.horas-muted {
+  color: #a0a6a2;
+  font-size: 13px;
+}
+
+.horas-actions-title {
+  text-align: center !important;
+}
+
+.horas-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.horas-action-button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  cursor: pointer;
+}
+
+.horas-action-button.edit {
+  border-color: #cfded5;
+  background: #eef5f1;
+  color: #1f6848;
+}
+
+.horas-action-button.delete {
+  border-color: #eed0d0;
+  background: #fff1f1;
+  color: #be4343;
+}
+
+.horas-empty {
+  height: 250px;
+  color: #858d88 !important;
+  text-align: center !important;
+}
+
+.horas-empty > * {
+  margin: 0 auto;
+}
+
+.horas-empty strong,
+.horas-empty span {
+  display: block;
+  margin-top: 8px;
+}
+
+.horas-table-footer {
+  padding: 14px 18px;
+  border-top: 1px solid #eee7da;
+  background: #fcfaf5;
+  color: #7e857f;
+  font-size: 13px;
+}
+
+.horas-table-footer strong {
+  color: #173f2e;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.horas-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(14, 29, 21, 0.62);
+  backdrop-filter: blur(4px);
+}
+
+.horas-modal {
+  width: min(650px, 100%);
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid rgba(229, 217, 194, 0.95);
+  border-radius: 18px;
+  background: #fffdf7;
+  box-shadow: 0 30px 70px rgba(12, 30, 21, 0.28);
+  animation: horasModalEntrada 0.22s ease;
+}
+
+@keyframes horasModalEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.horas-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 17px 20px;
+  border-bottom: 1px solid #ede5d8;
+}
+
+.horas-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.horas-modal-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: #edf4ef;
+  color: #1f6848;
+}
+
+.horas-modal-kicker {
+  display: inline-block;
+  margin-bottom: 4px;
+  color: #b98532;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.horas-modal-header h2 {
+  margin: 0;
+  color: #173f2e;
+  font-size: 22px;
+}
+
+.horas-modal-close {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: 1px solid #ddd7ca;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #59625c;
+  cursor: pointer;
+}
+
+.horas-modal-body {
+  padding: 19px 20px;
+}
+
+.horas-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 16px;
+}
+
+.horas-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.horas-field-full {
+  grid-column: 1 / -1;
+}
+
+.horas-field label {
+  color: #3f4a43;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.horas-field input,
+.horas-field select,
+.horas-field textarea {
+  width: 100%;
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+  outline: none;
+  background: #ffffff;
+  color: #17241d;
+  font: inherit;
+}
+
+.horas-field input,
+.horas-field select {
+  min-height: 40px;
+  padding: 0 11px;
+}
+
+.horas-field textarea {
+  min-height: 88px;
+  padding: 11px;
+  resize: vertical;
+}
+
+.horas-field input:focus,
+.horas-field select:focus,
+.horas-field textarea:focus {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.09);
+}
+
+.horas-select-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+  background: #ffffff;
+  color: #1f6848;
+}
+
+.horas-select-with-icon select {
+  flex: 1;
+  min-height: 38px;
+  padding: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+.horas-total-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  border: 1px solid #d6c49e;
+  border-radius: 12px;
+  background: #fff7e8;
+  color: #8b6527;
+}
+
+.horas-total-preview > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.horas-total-preview span {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.horas-total-preview strong {
+  color: #173f2e;
+  font-size: 20px;
+}
+
+.horas-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+  padding: 14px 20px;
+  border-top: 1px solid #ede5d8;
+  background: #fcfaf5;
+}
+
+.horas-btn-secondary,
+.horas-btn-primary {
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 11px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.horas-btn-secondary {
+  border: 1px solid #d9d2c5;
+  background: #ffffff;
+  color: #56605a;
+}
+
+.horas-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  background: #1f6848;
+  color: #ffffff;
+}
+
+.horas-btn-primary:hover {
+  background: #19583d;
+}
+
+.horas-btn-secondary:disabled,
+.horas-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================
+   ANIMACIONES
+========================= */
+
+.horas-spin {
+  animation: horasSpin 0.8s linear infinite;
+}
+
+@keyframes horasSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1100px) {
+  .horas-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .horas-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .horas-search {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .horas-page {
+    padding: 18px;
+  }
+
+  .horas-header {
+    flex-direction: column;
+  }
+
+  .horas-header-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  .horas-print-button,
+  .horas-new-button {
+    width: 100%;
+  }
+
+  .horas-summary-filter {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .horas-filter-group {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .horas-selected-machine {
+    width: 100%;
+  }
+
+  .horas-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .horas-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .horas-field-full {
+    grid-column: auto;
+  }
+
+  .horas-modal-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .horas-modal {
+    width: 100%;
+    max-height: 95vh;
+    border-radius: 20px 20px 0 0;
+  }
+
+  .horas-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .horas-btn-secondary,
+  .horas-btn-primary {
+    width: 100%;
+  }
+}
+
+/* =========================
+   IMPRESIÓN
+========================= */
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  body {
+    background: #ffffff !important;
+  }
+
+  .sidebar,
+  .navbar,
+  .horas-header,
+  .horas-summary-filter,
+  .horas-toolbar,
+  .horas-table-footer,
+  .horas-modal-overlay,
+  .toast {
+    display: none !important;
+  }
+
+  .app-shell,
+  .app-main,
+  .app-content,
+  .horas-page,
+  .horas-panel {
+    display: block !important;
+
+    width: 100% !important;
+    min-height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    border: none !important;
+
+    background: #ffffff !important;
+
+    box-shadow: none !important;
+  }
+
+  .horas-print-header {
+    display: block !important;
+
+    margin-bottom: 16px;
+
+    text-align: center;
+  }
+
+  .horas-print-header h1 {
+    margin: 0;
+
+    color: #173f2e;
+
+    font-size: 24px;
+  }
+
+  .horas-print-header h2 {
+    margin: 5px 0 12px;
+
+    color: #333333;
+
+    font-size: 17px;
+  }
+
+  .horas-print-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 25px;
+
+    margin-top: 10px;
+  }
+
+  .horas-print-info p {
+    margin: 0;
+
+    font-size: 11px;
+  }
+
+  /*
+    Ocultamos las tarjetas grandes
+    y usamos una tabla más limpia.
+  */
+  .horas-stats {
+    display: none !important;
+  }
+
+  .horas-print-summary {
+    display: block !important;
+
+    width: 100%;
+    margin-bottom: 18px;
+  }
+
+  .horas-print-summary table {
+    width: 100%;
+
+    border-collapse: collapse;
+  }
+
+  .horas-print-summary th,
+  .horas-print-summary td {
+    padding: 7px 10px;
+
+    border: 1px solid #bdbdbd;
+
+    color: #000000;
+
+    font-size: 11px;
+
+    text-align: center;
+  }
+
+  .horas-print-summary th {
+    background: #eeeeee !important;
+
+    font-weight: 800;
+  }
+
+  .horas-table-wrapper {
+    overflow: visible !important;
+  }
+
+  .horas-table {
+    width: 100% !important;
+    min-width: 0 !important;
+
+    border-collapse: collapse;
+  }
+
+  .horas-table thead {
+    background: #eeeeee !important;
+  }
+
+  .horas-table th,
+  .horas-table td {
+    padding: 6px 6px !important;
+
+    border: 1px solid #bdbdbd !important;
+
+    color: #000000 !important;
+
+    font-size: 9px !important;
+  }
+
+  .horas-machine-icon {
+    display: none !important;
+  }
+
+  .horas-machine-cell {
+    min-width: 0 !important;
+  }
+
+  .horas-machine-cell strong,
+  .horas-machine-cell span {
+    color: #000000 !important;
+  }
+
+  .horas-time,
+  .horas-total {
+    padding: 0 !important;
+
+    background: transparent !important;
+
+    color: #000000 !important;
+
+    font-size: 9px !important;
+  }
+
+  .horas-observacion {
+    max-width: none !important;
+
+    overflow: visible !important;
+
+    color: #000000 !important;
+
+    white-space: normal !important;
+  }
+
+  .horas-actions-title,
+  .horas-actions {
+    display: none !important;
+  }
+
+  .horas-table tbody tr {
+    page-break-inside: avoid;
+  }
+}

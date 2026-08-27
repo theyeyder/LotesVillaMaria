@@ -1,16 +1,115 @@
-import { Bell, Menu, Plus, Search } from "lucide-react";
-import Button from "../ui/Button";
+import {
+  Search,
+  Bell,
+  CircleDollarSign,
+} from "lucide-react";
+
 import "./Navbar.css";
 
-const titles = { dashboard:"Resumen", clientes:"Clientes", lotes:"Lotes", ventas:"Ventas", cuotas:"Cuotas", pagos:"Pagos", facturas:"Facturas", maquinaria:"Maquinaria", horas:"Horas trabajadas" };
-export default function Navbar({ active, search, onSearch, onNewPayment }) {
-  return <header className="navbar">
-    <button className="navbar-mobile"><Menu /></button>
-    <div className="navbar-title"><strong>{titles[active] || "Villa María"}</strong><small>Sistema administrativo Villa María</small></div>
-    <div className="navbar-actions">
-      <label className="navbar-search"><Search /><input value={search} onChange={e=>onSearch(e.target.value)} placeholder="Buscar..." /></label>
-      <button className="navbar-icon"><Bell /></button>
-      <Button onClick={onNewPayment}><Plus /> Registrar pago</Button>
-    </div>
-  </header>;
+const titles = {
+  dashboard: {
+    title: "Dashboard",
+    subtitle: "Resumen general de Villa María",
+  },
+
+  clientes: {
+    title: "Clientes",
+    subtitle: "Administración de compradores y clientes",
+  },
+
+  lotes: {
+    title: "Lotes",
+    subtitle: "Gestión y control de lotes",
+  },
+
+  ventas: {
+    title: "Ventas",
+    subtitle: "Control de ventas realizadas",
+  },
+
+  cuotas: {
+    title: "Cuotas",
+    subtitle: "Seguimiento de cuotas y vencimientos",
+  },
+
+  pagos: {
+    title: "Pagos",
+    subtitle: "Registro y control de pagos",
+  },
+
+  facturas: {
+    title: "Facturas",
+    subtitle: "Facturación y comprobantes",
+  },
+
+  maquinaria: {
+    title: "Maquinaria",
+    subtitle: "Control de maquinaria",
+  },
+
+  horas: {
+    title: "Horas trabajadas",
+    subtitle: "Registro de horas de maquinaria",
+  },
+};
+
+export default function Navbar({
+  active,
+  search,
+  onSearch,
+  onNewPayment,
+}) {
+  const page =
+    titles[active] || titles.dashboard;
+
+  return (
+    <header className="navbar">
+      <div className="navbar-title">
+        <span className="navbar-kicker">
+          Lotes Villa María
+        </span>
+
+        <h1>
+          {page.title}
+        </h1>
+
+        <p>
+          {page.subtitle}
+        </p>
+      </div>
+
+      <div className="navbar-actions">
+        <div className="navbar-search">
+          <Search size={18} />
+
+          <input
+            type="text"
+            value={search}
+            onChange={(e) =>
+              onSearch?.(e.target.value)
+            }
+            placeholder="Buscar..."
+          />
+        </div>
+
+        <button
+          type="button"
+          className="navbar-icon-button"
+          title="Notificaciones"
+        >
+          <Bell size={19} />
+        </button>
+
+        <button
+          type="button"
+          className="navbar-payment-button"
+          onClick={onNewPayment}
+        >
+          <CircleDollarSign size={19} />
+
+          Registrar pago
+        </button>
+      </div>
+    </header>
+  );
 }
