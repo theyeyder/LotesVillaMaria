@@ -74,8 +74,12 @@
   background: #f8edd8;
 }
 
+/* ============================================
+   ELEMENTOS OCULTOS EN PANTALLA (SOLO IMPRESIÓN)
+   ============================================ */
 .horas-print-header,
-.horas-print-summary {
+.horas-print-operarios,
+.horas-print-detalle {
   display: none;
 }
 
@@ -489,14 +493,70 @@
 }
 
 .horas-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
   padding: 14px 18px;
+
   border-top: 1px solid #eee7da;
+
   background: #fcfaf5;
+
   color: #7e857f;
   font-size: 13px;
 }
 
 .horas-table-footer strong {
+  color: #173f2e;
+}
+
+.horas-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.horas-pagination button {
+  min-height: 34px;
+  padding: 0 13px;
+
+  border: 1px solid #d8d2c6;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #1f6848;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border 0.18s ease;
+}
+
+.horas-pagination button:hover:not(:disabled) {
+  border-color: #1f6848;
+  background: #edf4ef;
+}
+
+.horas-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.horas-pagination-current {
+  min-width: 110px;
+  text-align: center;
+
+  color: #667069;
+  font-size: 12px;
+}
+
+.horas-pagination-current strong {
   color: #173f2e;
 }
 
@@ -844,9 +904,293 @@
   }
 }
 
+@media (max-width: 650px) {
+  .horas-table-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .horas-pagination {
+    justify-content: space-between;
+  }
+
+  .horas-pagination button {
+    flex: 1;
+  }
+}
+
+/* ============================================
+   MODAL CON TURNOS
+   ============================================ */
+
+.horas-modal-turnos {
+  width: min(760px, 100%);
+}
+
+.horas-turnos-section {
+  margin-top: 18px;
+}
+
+.horas-turnos-title {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.horas-turnos-title span {
+  display: block;
+  margin-bottom: 3px;
+  color: #b98532;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.horas-turnos-title h3 {
+  margin: 0;
+  color: #173f2e;
+  font-size: 16px;
+}
+
+.horas-turnos-title small {
+  color: #89908b;
+  font-size: 11px;
+}
+
+.horas-turnos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.horas-turno-card {
+  overflow: hidden;
+  border: 1px solid #e3ddd1;
+  border-radius: 13px;
+  background: #ffffff;
+  transition:
+    border 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.horas-turno-card-active {
+  border-color: #bfd4c6;
+  background: #fbfdfb;
+  box-shadow: 0 5px 16px rgba(31, 104, 72, 0.07);
+}
+
+.horas-turno-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 60px;
+  padding: 10px 13px;
+}
+
+.horas-turno-name {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.horas-turno-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 38px;
+  border-radius: 11px;
+  background: #f4f0e7;
+  color: #a57429;
+}
+
+.horas-turno-card-active .horas-turno-icon {
+  background: #e8f4ec;
+  color: #1f6848;
+}
+
+.horas-turno-name > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.horas-turno-name strong {
+  color: #173f2e;
+  font-size: 14px;
+}
+
+.horas-turno-name span {
+  color: #919893;
+  font-size: 11px;
+}
+
+.horas-turno-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 11px;
+  border: 1px solid #ddd6ca;
+  border-radius: 999px;
+  background: #ffffff;
+  color: #737c76;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border 0.18s ease,
+    color 0.18s ease;
+}
+
+.horas-turno-toggle > span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #b8beb9;
+}
+
+.horas-turno-toggle:hover {
+  border-color: #c5cec8;
+  background: #f6f8f6;
+}
+
+.horas-turno-toggle.active {
+  border-color: #bcd4c4;
+  background: #eaf5ed;
+  color: #1f6848;
+}
+
+.horas-turno-toggle.active > span {
+  background: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.1);
+}
+
+/* Contenido del turno activo */
+
+.horas-turno-content {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(0, 1fr)
+    120px;
+  gap: 12px;
+  align-items: end;
+  padding: 12px 13px 14px;
+  border-top: 1px solid #eee8dc;
+  background: #fcfaf5;
+}
+
+.horas-turno-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.horas-turno-field label {
+  color: #4d5851;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.horas-turno-field input {
+  width: 100%;
+  min-height: 39px;
+  padding: 0 10px;
+  border: 1px solid #dcd5c8;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #17241d;
+  font: inherit;
+}
+
+.horas-turno-field input:focus {
+  border-color: #1f6848;
+  box-shadow: 0 0 0 3px rgba(31, 104, 72, 0.08);
+}
+
+.horas-turno-total {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  min-height: 39px;
+  padding: 7px 10px;
+  border: 1px solid #d9c18e;
+  border-radius: 10px;
+  background: #fff7e7;
+}
+
+.horas-turno-total span {
+  color: #9a6b22;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.horas-turno-total strong {
+  color: #173f2e;
+  font-size: 14px;
+}
+
+.horas-turno-night-help {
+  grid-column: 1 / -1;
+  margin-top: -2px;
+  color: #86785e;
+  font-size: 10px;
+}
+
+/* Total general */
+
+.horas-total-preview-general {
+  margin-top: 16px;
+}
+
+.horas-total-preview-general small {
+  color: #8a8375;
+  font-size: 10px;
+}
+
+/* Observaciones */
+
+.horas-observaciones-field {
+  margin-top: 16px;
+}
+
 /* =========================
-   IMPRESIÓN
+   RESPONSIVE TURNOS
 ========================= */
+
+@media (max-width: 700px) {
+  .horas-turnos-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .horas-turno-content {
+    grid-template-columns: 1fr;
+  }
+
+  .horas-turno-total {
+    width: 100%;
+  }
+
+  .horas-turno-night-help {
+    grid-column: auto;
+  }
+}
+
+/* ============================================
+   IMPRESIÓN
+   ============================================ */
 
 @media print {
   @page {
@@ -858,22 +1202,27 @@
     background: #ffffff !important;
   }
 
+  /*
+    No imprimir interfaz del sistema
+  */
   .sidebar,
   .navbar,
   .horas-header,
   .horas-summary-filter,
-  .horas-toolbar,
-  .horas-table-footer,
+  .horas-stats,
+  .horas-panel,
   .horas-modal-overlay,
   .toast {
     display: none !important;
   }
 
+  /*
+    Limpiar estructura
+  */
   .app-shell,
   .app-main,
   .app-content,
-  .horas-page,
-  .horas-panel {
+  .horas-page {
     display: block !important;
 
     width: 100% !important;
@@ -882,17 +1231,17 @@
     margin: 0 !important;
     padding: 0 !important;
 
-    border: none !important;
-
     background: #ffffff !important;
-
-    box-shadow: none !important;
   }
+
+  /* =========================
+     CABECERA
+  ========================= */
 
   .horas-print-header {
     display: block !important;
 
-    margin-bottom: 16px;
+    margin-bottom: 18px;
 
     text-align: center;
   }
@@ -900,140 +1249,135 @@
   .horas-print-header h1 {
     margin: 0;
 
-    color: #173f2e;
+    color: #000000;
 
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .horas-print-header h2 {
-    margin: 5px 0 12px;
+    margin: 4px 0 12px;
 
     color: #333333;
 
-    font-size: 17px;
+    font-size: 16px;
   }
 
   .horas-print-info {
     display: flex;
-    align-items: center;
     justify-content: center;
-    gap: 25px;
-
-    margin-top: 10px;
+    gap: 30px;
   }
 
   .horas-print-info p {
     margin: 0;
 
-    font-size: 11px;
+    color: #000000;
+
+    font-size: 10px;
   }
 
-  /*
-    Ocultamos las tarjetas grandes
-    y usamos una tabla más limpia.
-  */
-  .horas-stats {
-    display: none !important;
-  }
+  /* =========================
+     RESUMEN OPERARIOS
+  ========================= */
 
-  .horas-print-summary {
+  .horas-print-operarios {
     display: block !important;
 
     width: 100%;
-    margin-bottom: 18px;
+
+    margin-bottom: 22px;
   }
 
-  .horas-print-summary table {
+  .horas-print-operarios h3 {
+    margin: 0 0 7px;
+
+    color: #000000;
+
+    font-size: 13px;
+  }
+
+  .horas-print-operarios table {
     width: 100%;
 
     border-collapse: collapse;
   }
 
-  .horas-print-summary th,
-  .horas-print-summary td {
-    padding: 7px 10px;
+  .horas-print-operarios th,
+  .horas-print-operarios td {
+    padding: 6px 7px;
 
-    border: 1px solid #bdbdbd;
+    border: 1px solid #999999;
 
     color: #000000;
 
-    font-size: 11px;
+    font-size: 9px;
+  }
+
+  .horas-print-operarios th {
+    background: #eeeeee !important;
+
+    font-weight: 800;
 
     text-align: center;
   }
 
-  .horas-print-summary th {
+  .horas-print-operarios td:not(:first-child) {
+    text-align: center;
+  }
+
+  .horas-print-total-row {
     background: #eeeeee !important;
-
-    font-weight: 800;
   }
 
-  .horas-table-wrapper {
-    overflow: visible !important;
+  .horas-print-total-row td {
+    border-top: 2px solid #333333 !important;
   }
 
-  .horas-table {
-    width: 100% !important;
-    min-width: 0 !important;
+  /* =========================
+     DETALLE DE JORNADAS (IMPRESIÓN)
+  ========================= */
 
+  .horas-print-detalle {
+    display: block !important;
+    width: 100%;
+  }
+
+  .horas-print-detalle h3 {
+    margin: 0 0 7px;
+    color: #000000;
+    font-size: 13px;
+  }
+
+  .horas-print-detalle table {
+    width: 100%;
     border-collapse: collapse;
   }
 
-  .horas-table thead {
+  .horas-print-detalle th,
+  .horas-print-detalle td {
+    padding: 5px 5px;
+    border: 1px solid #aaaaaa;
+    color: #000000;
+    font-size: 8px;
+    vertical-align: middle;
+  }
+
+  .horas-print-detalle th {
     background: #eeeeee !important;
+    font-weight: 800;
+    text-align: center;
   }
 
-  .horas-table th,
-  .horas-table td {
-    padding: 6px 6px !important;
-
-    border: 1px solid #bdbdbd !important;
-
-    color: #000000 !important;
-
-    font-size: 9px !important;
+  .horas-print-detalle td:not(:first-child) {
+    text-align: center;
   }
 
-  .horas-machine-icon {
-    display: none !important;
-  }
-
-  .horas-machine-cell {
-    min-width: 0 !important;
-  }
-
-  .horas-machine-cell strong,
-  .horas-machine-cell span {
-    color: #000000 !important;
-  }
-
-  .horas-time,
-  .horas-total {
-    padding: 0 !important;
-
-    background: transparent !important;
-
-    color: #000000 !important;
-
-    font-size: 9px !important;
-  }
-
-  .horas-observacion {
-    max-width: none !important;
-
-    overflow: visible !important;
-
-    color: #000000 !important;
-
-    white-space: normal !important;
-  }
-
-  .horas-actions-title,
-  .horas-actions {
-    display: none !important;
-  }
-
-  .horas-table tbody tr {
+  .horas-print-detalle tr {
+    break-inside: avoid;
     page-break-inside: avoid;
+  }
+
+  .horas-print-detalle strong {
+    color: #000000;
   }
 }

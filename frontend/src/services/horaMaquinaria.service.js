@@ -56,6 +56,19 @@ export const obtenerResumenHoras = async (params = {}) => {
   return response.data;
 };
 
+export const obtenerResumenOperarios = async (
+  params = {}
+) => {
+  const response = await api.get(
+    "/horas-maquinaria/resumen-operarios",
+    {
+      params,
+    }
+  );
+
+  return response.data;
+};
+
 const horaMaquinariaService = {
   obtenerHorasMaquinaria,
   obtenerHoraMaquinariaPorId,
@@ -63,6 +76,7 @@ const horaMaquinariaService = {
   actualizarHoraMaquinaria,
   eliminarHoraMaquinaria,
   obtenerResumenHoras,
+  obtenerResumenOperarios,
 };
 
 export default horaMaquinariaService;

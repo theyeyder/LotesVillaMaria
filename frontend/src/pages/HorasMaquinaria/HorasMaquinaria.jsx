@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
   Search,
@@ -23,11 +23,10 @@ import {
   actualizarHoraMaquinaria,
   eliminarHoraMaquinaria,
   obtenerResumenHoras,
+  obtenerResumenOperarios,
 } from "../../services/horaMaquinaria.service";
 
-import {
-  obtenerMaquinarias,
-} from "../../services/maquinaria.service";
+import { obtenerMaquinarias } from "../../services/maquinaria.service";
 
 const formatearMinutos = (minutos = 0) => {
   const valor = Number(minutos) || 0;
@@ -64,91 +63,41 @@ const formatearFecha = (fecha) => {
 const obtenerFechaLocal = () => {
   const hoy = new Date();
 
-  const local = new Date(
-    hoy.getTime() -
-      hoy.getTimezoneOffset() * 60000
-  );
+  const local = new Date(hoy.getTime() - hoy.getTimezoneOffset() * 60000);
 
-  return local
-    .toISOString()
-    .slice(0, 10);
+  return local.toISOString().slice(0, 10);
 };
 
 const fechaUTC = (fecha) => {
   const date = new Date(fecha);
 
-  return new Date(
-    Date.UTC(
-      date.getUTCFullYear(),
-      date.getUTCMonth(),
-      date.getUTCDate()
-    )
-  );
+  return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
 };
 
 const obtenerRangos = (fechaReferencia) => {
-  const referencia = new Date(
-    `${fechaReferencia}T00:00:00.000Z`
-  );
+  const referencia = new Date(`${fechaReferencia}T00:00:00.000Z`);
 
   const inicioDia = fechaUTC(referencia);
 
-  const finDia = new Date(
-    inicioDia.getTime() +
-      24 * 60 * 60 * 1000 -
-      1
-  );
+  const finDia = new Date(inicioDia.getTime() + 24 * 60 * 60 * 1000 - 1);
 
   const inicioSemana = new Date(inicioDia);
 
   const diaSemana = inicioSemana.getUTCDay();
 
-  const diferencia =
-    diaSemana === 0
-      ? -6
-      : 1 - diaSemana;
+  const diferencia = diaSemana === 0 ? -6 : 1 - diaSemana;
 
-  inicioSemana.setUTCDate(
-    inicioSemana.getUTCDate() + diferencia
-  );
+  inicioSemana.setUTCDate(inicioSemana.getUTCDate() + diferencia);
 
-  const finSemana = new Date(
-    inicioSemana.getTime() +
-      7 * 24 * 60 * 60 * 1000 -
-      1
-  );
+  const finSemana = new Date(inicioSemana.getTime() + 7 * 24 * 60 * 60 * 1000 - 1);
 
-  const inicioMes = new Date(
-    Date.UTC(
-      referencia.getUTCFullYear(),
-      referencia.getUTCMonth(),
-      1
-    )
-  );
+  const inicioMes = new Date(Date.UTC(referencia.getUTCFullYear(), referencia.getUTCMonth(), 1));
 
-  const finMes = new Date(
-    Date.UTC(
-      referencia.getUTCFullYear(),
-      referencia.getUTCMonth() + 1,
-      1
-    ) - 1
-  );
+  const finMes = new Date(Date.UTC(referencia.getUTCFullYear(), referencia.getUTCMonth() + 1, 1) - 1);
 
-  const inicioAnio = new Date(
-    Date.UTC(
-      referencia.getUTCFullYear(),
-      0,
-      1
-    )
-  );
+  const inicioAnio = new Date(Date.UTC(referencia.getUTCFullYear(), 0, 1));
 
-  const finAnio = new Date(
-    Date.UTC(
-      referencia.getUTCFullYear() + 1,
-      0,
-      1
-    ) - 1
-  );
+  const finAnio = new Date(Date.UTC(referencia.getUTCFullYear() + 1, 0, 1) - 1);
 
   return {
     inicioDia,
@@ -168,11 +117,9 @@ export default function HorasMaquinaria() {
 
   const [busqueda, setBusqueda] = useState("");
 
-  const [filtroMaquinaria, setFiltroMaquinaria] =
-    useState("");
+  const [filtroMaquinaria, setFiltroMaquinaria] = useState("");
 
-  const [fechaReferencia, setFechaReferencia] =
-    useState(obtenerFechaLocal());
+  const [fechaReferencia, setFechaReferencia] = useState(obtenerFechaLocal());
 
   const [resumen, setResumen] = useState({
     dia: {
@@ -189,31 +136,38 @@ export default function HorasMaquinaria() {
     },
   });
 
+  const [resumenOperarios, setResumenOperarios] = useState([]);
+
+  const [totalOperarios, setTotalOperarios] = useState({
+    dia: 0,
+    semana: 0,
+    mes: 0,
+    anio: 0,
+    total: 0,
+  });
+
   const [cargando, setCargando] = useState(true);
-  const [cargandoResumen, setCargandoResumen] =
-    useState(true);
+  const [cargandoResumen, setCargandoResumen] = useState(true);
 
   const [guardando, setGuardando] = useState(false);
 
   const [error, setError] = useState("");
 
-  const [modalAbierto, setModalAbierto] =
-    useState(false);
+  const [modalAbierto, setModalAbierto] = useState(false);
 
-  const [registroEditar, setRegistroEditar] =
-    useState(null);
+  const [registroEditar, setRegistroEditar] = useState(null);
 
-  const [notificacion, setNotificacion] =
-    useState({
-      visible: false,
-      mensaje: "",
-      tipo: "success",
-    });
+  const [notificacion, setNotificacion] = useState({
+    visible: false,
+    mensaje: "",
+    tipo: "success",
+  });
 
-  const mostrarNotificacion = (
-    mensaje,
-    tipo = "success"
-  ) => {
+  const [paginaActual, setPaginaActual] = useState(1);
+
+  const REGISTROS_POR_PAGINA = 5;
+
+  const mostrarNotificacion = (mensaje, tipo = "success") => {
     setNotificacion({
       visible: true,
       mensaje,
@@ -230,17 +184,11 @@ export default function HorasMaquinaria() {
 
   const cargarMaquinarias = async () => {
     try {
-      const datos =
-        await obtenerMaquinarias();
+      const datos = await obtenerMaquinarias();
 
-      setMaquinarias(
-        Array.isArray(datos) ? datos : []
-      );
+      setMaquinarias(Array.isArray(datos) ? datos : []);
     } catch (error) {
-      console.error(
-        "Error cargando maquinaria:",
-        error
-      );
+      console.error("Error cargando maquinaria:", error);
     }
   };
 
@@ -252,28 +200,22 @@ export default function HorasMaquinaria() {
       const params = {};
 
       if (filtroMaquinaria) {
-        params.maquinaria =
-          filtroMaquinaria;
+        params.maquinaria = filtroMaquinaria;
       }
 
-      const datos =
-        await obtenerHorasMaquinaria(
-          params
-        );
+      if (fechaReferencia) {
+        params.fechaInicio = fechaReferencia;
 
-      setRegistros(
-        Array.isArray(datos) ? datos : []
-      );
+        params.fechaFinal = fechaReferencia;
+      }
+
+      const datos = await obtenerHorasMaquinaria(params);
+
+      setRegistros(Array.isArray(datos) ? datos : []);
     } catch (error) {
-      console.error(
-        "Error cargando horas:",
-        error
-      );
+      console.error("Error cargando horas:", error);
 
-      setError(
-        error?.response?.data?.message ||
-          "No fue posible cargar las horas trabajadas."
-      );
+      setError(error?.response?.data?.message || "No fue posible cargar las horas trabajadas.");
     } finally {
       setCargando(false);
     }
@@ -288,51 +230,64 @@ export default function HorasMaquinaria() {
       };
 
       if (filtroMaquinaria) {
-        params.maquinaria =
-          filtroMaquinaria;
+        params.maquinaria = filtroMaquinaria;
       }
 
-      const datos =
-        await obtenerResumenHoras(
-          params
-        );
+      const datos = await obtenerResumenHoras(params);
 
       setResumen({
         dia: {
-          totalMinutos:
-            datos?.dia?.totalMinutos || 0,
+          totalMinutos: datos?.dia?.totalMinutos || 0,
         },
 
         semana: {
-          totalMinutos:
-            datos?.semana?.totalMinutos ||
-            0,
+          totalMinutos: datos?.semana?.totalMinutos || 0,
         },
 
         mes: {
-          totalMinutos:
-            datos?.mes?.totalMinutos || 0,
+          totalMinutos: datos?.mes?.totalMinutos || 0,
         },
 
         anio: {
-          totalMinutos:
-            datos?.anio?.totalMinutos ||
-            0,
+          totalMinutos: datos?.anio?.totalMinutos || 0,
         },
       });
     } catch (error) {
-      console.error(
-        "Error cargando resumen:",
-        error
-      );
+      console.error("Error cargando resumen:", error);
 
       mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible calcular el resumen de horas.",
+        error?.response?.data?.message || "No fue posible calcular el resumen de horas.",
         "error"
       );
     } finally {
       setCargandoResumen(false);
+    }
+  };
+
+  const cargarResumenOperarios = async () => {
+    try {
+      const params = {
+        fecha: fechaReferencia,
+      };
+
+      if (filtroMaquinaria) {
+        params.maquinaria = filtroMaquinaria;
+      }
+
+      const datos = await obtenerResumenOperarios(params);
+
+      setResumenOperarios(Array.isArray(datos?.operarios) ? datos.operarios : []);
+      setTotalOperarios(
+        datos?.totalGeneral || {
+          dia: 0,
+          semana: 0,
+          mes: 0,
+          anio: 0,
+          total: 0,
+        }
+      );
+    } catch (error) {
+      console.error("Error cargando resumen por operario:", error);
     }
   };
 
@@ -342,177 +297,60 @@ export default function HorasMaquinaria() {
 
   useEffect(() => {
     cargarRegistros();
-  }, [filtroMaquinaria]);
+  }, [filtroMaquinaria, fechaReferencia]);
 
   useEffect(() => {
     cargarResumen();
-  }, [
-    filtroMaquinaria,
-    fechaReferencia,
-  ]);
+  }, [filtroMaquinaria, fechaReferencia]);
 
-  const registrosFiltrados = useMemo(() => {
-    const texto = busqueda
-      .trim()
-      .toLowerCase();
+  useEffect(() => {
+    cargarResumenOperarios();
+  }, [filtroMaquinaria, fechaReferencia]);
+
+  const registrosFiltrados = (() => {
+    const texto = busqueda.trim().toLowerCase();
 
     if (!texto) {
       return registros;
     }
 
-    return registros.filter(
-      (registro) => {
-        const maquinaNombre =
-          registro.maquinaria?.nombre ||
-          "";
+    return registros.filter((registro) => {
+      const maquinaNombre = registro.maquinaria?.nombre || "";
 
-        const maquinaCodigo =
-          registro.maquinaria?.codigo ||
-          "";
+      const maquinaCodigo = registro.maquinaria?.codigo || "";
 
-        const operario =
-          registro.operario || "";
+      const operario = registro.operario || "";
 
-        const observaciones =
-          registro.observaciones || "";
+      const observaciones = registro.observaciones || "";
 
-        const datos = [
-          maquinaNombre,
-          maquinaCodigo,
-          operario,
-          observaciones,
-          registro.horaInicio,
-          registro.horaFinal,
-        ]
-          .join(" ")
-          .toLowerCase();
+      const datos = [maquinaNombre, maquinaCodigo, operario, observaciones]
+        .join(" ")
+        .toLowerCase();
 
-        return datos.includes(texto);
-      }
-    );
-  }, [registros, busqueda]);
+      return datos.includes(texto);
+    });
+  })();
 
-  const resumenOperarios = useMemo(() => {
-    const rangos =
-      obtenerRangos(fechaReferencia);
+  const totalPaginas = Math.max(
+    1,
+    Math.ceil(registrosFiltrados.length / REGISTROS_POR_PAGINA)
+  );
 
-    const operarios = {};
+  const indiceInicial = (paginaActual - 1) * REGISTROS_POR_PAGINA;
 
-    registrosFiltrados.forEach(
-      (registro) => {
-        const nombre =
-          registro.operario?.trim() ||
-          "Sin operario";
+  const indiceFinal = indiceInicial + REGISTROS_POR_PAGINA;
 
-        if (!operarios[nombre]) {
-          operarios[nombre] = {
-            operario: nombre,
-            dia: 0,
-            semana: 0,
-            mes: 0,
-            anio: 0,
-            total: 0,
-          };
-        }
+  const registrosPaginados = registrosFiltrados.slice(indiceInicial, indiceFinal);
 
-        const minutos =
-          Number(
-            registro.totalMinutos
-          ) || 0;
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [busqueda, filtroMaquinaria, fechaReferencia]);
 
-        const fechaRegistro =
-          new Date(registro.fecha);
-
-        operarios[nombre].total +=
-          minutos;
-
-        if (
-          fechaRegistro >=
-            rangos.inicioDia &&
-          fechaRegistro <=
-            rangos.finDia
-        ) {
-          operarios[nombre].dia +=
-            minutos;
-        }
-
-        if (
-          fechaRegistro >=
-            rangos.inicioSemana &&
-          fechaRegistro <=
-            rangos.finSemana
-        ) {
-          operarios[nombre].semana +=
-            minutos;
-        }
-
-        if (
-          fechaRegistro >=
-            rangos.inicioMes &&
-          fechaRegistro <=
-            rangos.finMes
-        ) {
-          operarios[nombre].mes +=
-            minutos;
-        }
-
-        if (
-          fechaRegistro >=
-            rangos.inicioAnio &&
-          fechaRegistro <=
-            rangos.finAnio
-        ) {
-          operarios[nombre].anio +=
-            minutos;
-        }
-      }
-    );
-
-    return Object.values(
-      operarios
-    ).sort((a, b) =>
-      a.operario.localeCompare(
-        b.operario,
-        "es"
-      )
-    );
-  }, [
-    registrosFiltrados,
-    fechaReferencia,
-  ]);
-
-  const totalOperarios = useMemo(() => {
-    return resumenOperarios.reduce(
-      (total, operario) => ({
-        dia:
-          total.dia +
-          operario.dia,
-
-        semana:
-          total.semana +
-          operario.semana,
-
-        mes:
-          total.mes +
-          operario.mes,
-
-        anio:
-          total.anio +
-          operario.anio,
-
-        total:
-          total.total +
-          operario.total,
-      }),
-      {
-        dia: 0,
-        semana: 0,
-        mes: 0,
-        anio: 0,
-        total: 0,
-      }
-    );
-  }, [resumenOperarios]);
+  useEffect(() => {
+    if (paginaActual > totalPaginas) {
+      setPaginaActual(totalPaginas);
+    }
+  }, [paginaActual, totalPaginas]);
 
   const handleImprimir = () => {
     window.print();
@@ -523,9 +361,7 @@ export default function HorasMaquinaria() {
     setModalAbierto(true);
   };
 
-  const abrirEditarRegistro = (
-    registro
-  ) => {
+  const abrirEditarRegistro = (registro) => {
     setRegistroEditar(registro);
     setModalAbierto(true);
   };
@@ -539,51 +375,33 @@ export default function HorasMaquinaria() {
     setRegistroEditar(null);
   };
 
-  const guardarRegistro = async (
-    datos
-  ) => {
+  const guardarRegistro = async (datos) => {
     try {
       setGuardando(true);
 
       if (registroEditar?._id) {
-        const respuesta =
-          await actualizarHoraMaquinaria(
-            registroEditar._id,
-            datos
-          );
+        const respuesta = await actualizarHoraMaquinaria(registroEditar._id, datos);
 
-        mostrarNotificacion(
-          respuesta?.message ||
-            "Registro de horas actualizado correctamente"
-        );
+        mostrarNotificacion(respuesta?.message || "Registro de horas actualizado correctamente");
       } else {
-        const respuesta =
-          await crearHoraMaquinaria(
-            datos
-          );
+        const respuesta = await crearHoraMaquinaria(datos);
 
-        mostrarNotificacion(
-          respuesta?.message ||
-            "Horas de maquinaria registradas correctamente"
-        );
+        mostrarNotificacion(respuesta?.message || "Horas de maquinaria registradas correctamente");
       }
 
       await Promise.all([
         cargarRegistros(),
         cargarResumen(),
+        cargarResumenOperarios(),
       ]);
 
       setModalAbierto(false);
       setRegistroEditar(null);
     } catch (error) {
-      console.error(
-        "Error guardando horas:",
-        error
-      );
+      console.error("Error guardando horas:", error);
 
       mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible guardar el registro de horas.",
+        error?.response?.data?.message || "No fue posible guardar el registro de horas.",
         "error"
       );
     } finally {
@@ -591,15 +409,10 @@ export default function HorasMaquinaria() {
     }
   };
 
-  const handleEliminar = async (
-    registro
-  ) => {
-    const maquina =
-      registro.maquinaria?.nombre ||
-      "la máquina";
+  const handleEliminar = async (registro) => {
+    const maquina = registro.maquinaria?.nombre || "la máquina";
 
-    const fecha =
-      formatearFecha(registro.fecha);
+    const fecha = formatearFecha(registro.fecha);
 
     const confirmar = window.confirm(
       `¿Está seguro de eliminar el registro de ${maquina} del ${fecha}?`
@@ -610,29 +423,20 @@ export default function HorasMaquinaria() {
     }
 
     try {
-      const respuesta =
-        await eliminarHoraMaquinaria(
-          registro._id
-        );
+      const respuesta = await eliminarHoraMaquinaria(registro._id);
 
-      mostrarNotificacion(
-        respuesta?.message ||
-          "Registro de horas eliminado correctamente"
-      );
+      mostrarNotificacion(respuesta?.message || "Registro de horas eliminado correctamente");
 
       await Promise.all([
         cargarRegistros(),
         cargarResumen(),
+        cargarResumenOperarios(),
       ]);
     } catch (error) {
-      console.error(
-        "Error eliminando registro:",
-        error
-      );
+      console.error("Error eliminando registro:", error);
 
       mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible eliminar el registro.",
+        error?.response?.data?.message || "No fue posible eliminar el registro.",
         "error"
       );
     }
@@ -643,60 +447,43 @@ export default function HorasMaquinaria() {
       cargarRegistros(),
       cargarResumen(),
       cargarMaquinarias(),
+      cargarResumenOperarios(),
     ]);
   };
 
-  const maquinaSeleccionada =
-    maquinarias.find(
-      (maquina) =>
-        maquina._id ===
-        filtroMaquinaria
-    );
+  const maquinaSeleccionada = maquinarias.find((maquina) => maquina._id === filtroMaquinaria);
 
   return (
     <section className="horas-page">
       <div className="horas-header">
         <div>
-          <span className="horas-kicker">
-            Control operativo
-          </span>
+          <span className="horas-kicker">Control operativo</span>
 
           <h1>Horas trabajadas</h1>
 
-          <p>
-            Controla las jornadas y el
-            tiempo trabajado por cada
-            máquina.
-          </p>
+          <p>Controla las jornadas y el tiempo trabajado por cada máquina.</p>
         </div>
 
         <div className="horas-header-actions">
-          <button
-            type="button"
-            className="horas-print-button"
-            onClick={handleImprimir}
-          >
+          <button type="button" className="horas-print-button" onClick={handleImprimir}>
             <Printer size={18} />
             Imprimir
           </button>
 
-          <button
-            type="button"
-            className="horas-new-button"
-            onClick={abrirNuevoRegistro}
-          >
+          <button type="button" className="horas-new-button" onClick={abrirNuevoRegistro}>
             <Plus size={19} />
             Registrar horas
           </button>
         </div>
       </div>
 
+      {/* ============================================ */}
+      {/* ENCABEZADO PARA IMPRESIÓN */}
+      {/* ============================================ */}
       <div className="horas-print-header">
         <h1>Lotes Villa María</h1>
 
-        <h2>
-          Reporte de horas trabajadas de maquinaria
-        </h2>
+        <h2>Reporte de horas trabajadas de maquinaria</h2>
 
         <div className="horas-print-info">
           <p>
@@ -708,61 +495,40 @@ export default function HorasMaquinaria() {
 
           <p>
             <strong>Fecha de referencia:</strong>{" "}
-            {fechaReferencia}
+            {formatearFecha(`${fechaReferencia}T00:00:00.000Z`)}
           </p>
 
           <p>
-            <strong>Registros mostrados:</strong>{" "}
-            {registrosFiltrados.length}
+            <strong>Registros mostrados:</strong> {registrosFiltrados.length}
           </p>
         </div>
       </div>
 
       <div className="horas-summary-filter">
         <div className="horas-filter-group">
-          <label>
-            Máquina
-          </label>
+          <label>Máquina</label>
 
           <select
             value={filtroMaquinaria}
-            onChange={(e) =>
-              setFiltroMaquinaria(
-                e.target.value
-              )
-            }
+            onChange={(e) => setFiltroMaquinaria(e.target.value)}
           >
-            <option value="">
-              Todas las máquinas
-            </option>
+            <option value="">Todas las máquinas</option>
 
-            {maquinarias.map(
-              (maquina) => (
-                <option
-                  key={maquina._id}
-                  value={maquina._id}
-                >
-                  {maquina.codigo} -{" "}
-                  {maquina.nombre}
-                </option>
-              )
-            )}
+            {maquinarias.map((maquina) => (
+              <option key={maquina._id} value={maquina._id}>
+                {maquina.codigo} - {maquina.nombre}
+              </option>
+            ))}
           </select>
         </div>
 
         <div className="horas-filter-group">
-          <label>
-            Fecha de referencia
-          </label>
+          <label>Fecha de referencia</label>
 
           <input
             type="date"
             value={fechaReferencia}
-            onChange={(e) =>
-              setFechaReferencia(
-                e.target.value
-              )
-            }
+            onChange={(e) => setFechaReferencia(e.target.value)}
           />
         </div>
 
@@ -771,18 +537,10 @@ export default function HorasMaquinaria() {
             <Tractor size={18} />
 
             <div>
-              <span>
-                Máquina seleccionada
-              </span>
+              <span>Máquina seleccionada</span>
 
               <strong>
-                {
-                  maquinaSeleccionada.codigo
-                }{" "}
-                -{" "}
-                {
-                  maquinaSeleccionada.nombre
-                }
+                {maquinaSeleccionada.codigo} - {maquinaSeleccionada.nombre}
               </strong>
             </div>
           </div>
@@ -796,17 +554,10 @@ export default function HorasMaquinaria() {
           </div>
 
           <div>
-            <span>
-              Día
-            </span>
+            <span>Día</span>
 
             <strong>
-              {cargandoResumen
-                ? "..."
-                : formatearMinutos(
-                    resumen.dia
-                      .totalMinutos
-                  )}
+              {cargandoResumen ? "..." : formatearMinutos(resumen.dia.totalMinutos)}
             </strong>
           </div>
         </article>
@@ -817,17 +568,10 @@ export default function HorasMaquinaria() {
           </div>
 
           <div>
-            <span>
-              Semana
-            </span>
+            <span>Semana</span>
 
             <strong>
-              {cargandoResumen
-                ? "..."
-                : formatearMinutos(
-                    resumen.semana
-                      .totalMinutos
-                  )}
+              {cargandoResumen ? "..." : formatearMinutos(resumen.semana.totalMinutos)}
             </strong>
           </div>
         </article>
@@ -838,17 +582,10 @@ export default function HorasMaquinaria() {
           </div>
 
           <div>
-            <span>
-              Mes
-            </span>
+            <span>Mes</span>
 
             <strong>
-              {cargandoResumen
-                ? "..."
-                : formatearMinutos(
-                    resumen.mes
-                      .totalMinutos
-                  )}
+              {cargandoResumen ? "..." : formatearMinutos(resumen.mes.totalMinutos)}
             </strong>
           </div>
         </article>
@@ -859,26 +596,20 @@ export default function HorasMaquinaria() {
           </div>
 
           <div>
-            <span>
-              Año
-            </span>
+            <span>Año</span>
 
             <strong>
-              {cargandoResumen
-                ? "..."
-                : formatearMinutos(
-                    resumen.anio
-                      .totalMinutos
-                  )}
+              {cargandoResumen ? "..." : formatearMinutos(resumen.anio.totalMinutos)}
             </strong>
           </div>
         </article>
       </div>
 
+      {/* ============================================ */}
+      {/* RESUMEN POR OPERARIO PARA IMPRESIÓN */}
+      {/* ============================================ */}
       <div className="horas-print-operarios">
-        <h3>
-          Resumen de horas por operario
-        </h3>
+        <h3>Resumen de horas por operario</h3>
 
         <table>
           <thead>
@@ -888,106 +619,118 @@ export default function HorasMaquinaria() {
               <th>Semana</th>
               <th>Mes</th>
               <th>Año</th>
-              <th>
-                Total trabajado
-              </th>
+              <th>Total trabajado</th>
             </tr>
           </thead>
 
           <tbody>
-            {resumenOperarios.map(
-              (operario) => (
-                <tr
-                  key={
-                    operario.operario
-                  }
-                >
-                  <td>
-                    {operario.operario}
-                  </td>
+            {resumenOperarios.map((operario) => (
+              <tr key={operario.operario}>
+                <td>{operario.operario}</td>
 
-                  <td>
-                    {formatearMinutos(
-                      operario.dia
-                    )}
-                  </td>
+                <td>{formatearMinutos(operario.dia)}</td>
 
-                  <td>
-                    {formatearMinutos(
-                      operario.semana
-                    )}
-                  </td>
+                <td>{formatearMinutos(operario.semana)}</td>
 
-                  <td>
-                    {formatearMinutos(
-                      operario.mes
-                    )}
-                  </td>
+                <td>{formatearMinutos(operario.mes)}</td>
 
-                  <td>
-                    {formatearMinutos(
-                      operario.anio
-                    )}
-                  </td>
+                <td>{formatearMinutos(operario.anio)}</td>
 
-                  <td>
-                    <strong>
-                      {formatearMinutos(
-                        operario.total
-                      )}
-                    </strong>
-                  </td>
-                </tr>
-              )
-            )}
+                <td>
+                  <strong>{formatearMinutos(operario.total)}</strong>
+                </td>
+              </tr>
+            ))}
 
             <tr className="horas-print-total-row">
               <td>
-                <strong>
-                  TOTAL GENERAL
-                </strong>
+                <strong>TOTAL GENERAL</strong>
               </td>
 
               <td>
-                <strong>
-                  {formatearMinutos(
-                    totalOperarios.dia
-                  )}
-                </strong>
+                <strong>{formatearMinutos(totalOperarios.dia)}</strong>
               </td>
 
               <td>
-                <strong>
-                  {formatearMinutos(
-                    totalOperarios.semana
-                  )}
-                </strong>
+                <strong>{formatearMinutos(totalOperarios.semana)}</strong>
               </td>
 
               <td>
-                <strong>
-                  {formatearMinutos(
-                    totalOperarios.mes
-                  )}
-                </strong>
+                <strong>{formatearMinutos(totalOperarios.mes)}</strong>
               </td>
 
               <td>
-                <strong>
-                  {formatearMinutos(
-                    totalOperarios.anio
-                  )}
-                </strong>
+                <strong>{formatearMinutos(totalOperarios.anio)}</strong>
               </td>
 
               <td>
-                <strong>
-                  {formatearMinutos(
-                    totalOperarios.total
-                  )}
-                </strong>
+                <strong>{formatearMinutos(totalOperarios.total)}</strong>
               </td>
             </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* ============================================ */}
+      {/* DETALLE DE JORNADAS PARA IMPRESIÓN */}
+      {/* ============================================ */}
+      <div className="horas-print-detalle">
+        <h3>Detalle de jornadas</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Máquina</th>
+              <th>Operario</th>
+              <th>Fecha</th>
+              <th>Mañana</th>
+              <th>Tarde</th>
+              <th>Noche</th>
+              <th>Total</th>
+              <th>Observación</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {registrosFiltrados.map((registro) => (
+              <tr key={registro._id}>
+                <td>
+                  {registro.maquinaria?.codigo} - {registro.maquinaria?.nombre}
+                </td>
+
+                <td>{registro.operario}</td>
+
+                <td>{formatearFecha(registro.fecha)}</td>
+
+                {["Mañana", "Tarde", "Noche"].map((periodo) => {
+                  const turno = registro.turnos?.find((item) => item.periodo === periodo);
+
+                  return (
+                    <td key={periodo}>
+                      {turno?.activo ? (
+                        <>
+                          <strong>
+                            {turno.horaInicio} - {turno.horaFinal}
+                          </strong>
+
+                          <br />
+
+                          {formatearMinutos(turno.totalMinutos)}
+                        </>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  );
+                })}
+
+                <td>
+                  <strong>{formatearMinutos(registro.totalMinutos)}</strong>
+                </td>
+
+                <td>{registro.observaciones || "—"}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -1000,11 +743,7 @@ export default function HorasMaquinaria() {
             <input
               type="text"
               value={busqueda}
-              onChange={(e) =>
-                setBusqueda(
-                  e.target.value
-                )
-              }
+              onChange={(e) => setBusqueda(e.target.value)}
               placeholder="Buscar por máquina, código, operario u observación..."
             />
           </div>
@@ -1015,29 +754,15 @@ export default function HorasMaquinaria() {
             onClick={actualizarTodo}
             title="Actualizar registros"
           >
-            <RefreshCw
-              size={18}
-              className={
-                cargando
-                  ? "horas-spin"
-                  : ""
-              }
-            />
+            <RefreshCw size={18} className={cargando ? "horas-spin" : ""} />
           </button>
         </div>
 
         {error && (
           <div className="horas-error">
-            <span>
-              {error}
-            </span>
+            <span>{error}</span>
 
-            <button
-              type="button"
-              onClick={
-                cargarRegistros
-              }
-            >
+            <button type="button" onClick={cargarRegistros}>
               Reintentar
             </button>
           </div>
@@ -1050,181 +775,111 @@ export default function HorasMaquinaria() {
                 <th>Máquina</th>
                 <th>Operario</th>
                 <th>Fecha</th>
-                <th>Inicio</th>
-                <th>Final</th>
+                <th>Mañana</th>
+                <th>Tarde</th>
+                <th>Noche</th>
                 <th>Total</th>
-                <th>
-                  Observaciones
-                </th>
-                <th className="horas-actions-title">
-                  Acciones
-                </th>
+                <th>Observaciones</th>
+                <th className="horas-actions-title">Acciones</th>
               </tr>
             </thead>
 
             <tbody>
               {cargando ? (
                 <tr>
-                  <td
-                    colSpan="8"
-                    className="horas-empty"
-                  >
-                    <RefreshCw
-                      size={24}
-                      className="horas-spin"
-                    />
+                  <td colSpan="9" className="horas-empty">
+                    <RefreshCw size={24} className="horas-spin" />
 
-                    <span>
-                      Cargando registros...
-                    </span>
+                    <span>Cargando registros...</span>
                   </td>
                 </tr>
-              ) : registrosFiltrados.length ===
-                0 ? (
+              ) : registrosPaginados.length === 0 ? (
                 <tr>
-                  <td
-                    colSpan="8"
-                    className="horas-empty"
-                  >
+                  <td colSpan="9" className="horas-empty">
                     <Clock3 size={32} />
 
-                    <strong>
-                      No hay horas registradas
-                    </strong>
+                    <strong>No hay horas registradas</strong>
 
-                    <span>
-                      Registra la primera
-                      jornada de trabajo de
-                      una máquina.
-                    </span>
+                    <span>Registra la primera jornada de trabajo de una máquina.</span>
                   </td>
                 </tr>
               ) : (
-                registrosFiltrados.map(
-                  (registro) => (
-                    <tr
-                      key={
-                        registro._id
-                      }
-                    >
-                      <td>
-                        <div className="horas-machine-cell">
-                          <div className="horas-machine-icon">
-                            <Tractor
-                              size={18}
-                            />
-                          </div>
-
-                          <div>
-                            <strong>
-                              {
-                                registro
-                                  .maquinaria
-                                  ?.codigo
-                              }
-                            </strong>
-
-                            <span>
-                              {
-                                registro
-                                  .maquinaria
-                                  ?.nombre
-                              }
-                            </span>
-                          </div>
+                registrosPaginados.map((registro) => (
+                  <tr key={registro._id}>
+                    <td>
+                      <div className="horas-machine-cell">
+                        <div className="horas-machine-icon">
+                          <Tractor size={18} />
                         </div>
-                      </td>
 
-                      <td>
-                        <strong className="horas-operario">
-                          {
-                            registro.operario
-                          }
-                        </strong>
-                      </td>
+                        <div>
+                          <strong>{registro.maquinaria?.codigo}</strong>
 
-                      <td>
-                        {
-                          formatearFecha(
-                            registro.fecha
-                          )
-                        }
-                      </td>
+                          <span>{registro.maquinaria?.nombre}</span>
+                        </div>
+                      </div>
+                    </td>
 
-                      <td>
-                        <span className="horas-time">
-                          {
-                            registro.horaInicio
-                          }
-                        </span>
-                      </td>
+                    <td>
+                      <strong className="horas-operario">{registro.operario}</strong>
+                    </td>
 
-                      <td>
-                        <span className="horas-time">
-                          {
-                            registro.horaFinal
-                          }
-                        </span>
-                      </td>
+                    <td>{formatearFecha(registro.fecha)}</td>
 
-                      <td>
-                        <span className="horas-total">
-                          {formatearMinutos(
-                            registro.totalMinutos
+                    {["Mañana", "Tarde", "Noche"].map((periodo) => {
+                      const turno = registro.turnos?.find((item) => item.periodo === periodo);
+
+                      return (
+                        <td key={periodo}>
+                          {turno?.activo ? (
+                            <div className="horas-turno-table">
+                              <strong>
+                                {turno.horaInicio} - {turno.horaFinal}
+                              </strong>
+                              <span>{formatearMinutos(turno.totalMinutos)}</span>
+                            </div>
+                          ) : (
+                            <span className="horas-muted">—</span>
                           )}
-                        </span>
-                      </td>
+                        </td>
+                      );
+                    })}
 
-                      <td>
-                        {registro.observaciones ? (
-                          <span className="horas-observacion">
-                            {
-                              registro.observaciones
-                            }
-                          </span>
-                        ) : (
-                          <span className="horas-muted">
-                            Sin observación
-                          </span>
-                        )}
-                      </td>
+                    <td>
+                      <span className="horas-total">{formatearMinutos(registro.totalMinutos)}</span>
+                    </td>
 
-                      <td>
-                        <div className="horas-actions">
-                          <button
-                            type="button"
-                            className="horas-action-button edit"
-                            onClick={() =>
-                              abrirEditarRegistro(
-                                registro
-                              )
-                            }
-                            title="Editar registro"
-                          >
-                            <Pencil
-                              size={17}
-                            />
-                          </button>
+                    <td>
+                      {registro.observaciones ? (
+                        <span className="horas-observacion">{registro.observaciones}</span>
+                      ) : (
+                        <span className="horas-muted">Sin observación</span>
+                      )}
+                    </td>
 
-                          <button
-                            type="button"
-                            className="horas-action-button delete"
-                            onClick={() =>
-                              handleEliminar(
-                                registro
-                              )
-                            }
-                            title="Eliminar registro"
-                          >
-                            <Trash2
-                              size={17}
-                            />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )
+                    <td>
+                      <div className="horas-actions">
+                        <button
+                          type="button"
+                          className="horas-action-button edit"
+                          onClick={() => abrirEditarRegistro(registro)}
+                          title="Editar registro"
+                        >
+                          <Pencil size={17} />
+                        </button>
+
+                        <button
+                          type="button"
+                          className="horas-action-button delete"
+                          onClick={() => handleEliminar(registro)}
+                          title="Eliminar registro"
+                        >
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -1232,17 +887,39 @@ export default function HorasMaquinaria() {
 
         {!cargando && (
           <div className="horas-table-footer">
-            Mostrando{" "}
-            <strong>
-              {
-                registrosFiltrados.length
-              }
-            </strong>{" "}
-            de{" "}
-            <strong>
-              {registros.length}
-            </strong>{" "}
-            registros
+            <div className="horas-pagination-info">
+              {registrosFiltrados.length === 0 ? (
+                <span>No hay registros</span>
+              ) : (
+                <span>
+                  Mostrando <strong>{indiceInicial + 1}</strong> -{" "}
+                  <strong>{Math.min(indiceFinal, registrosFiltrados.length)}</strong> de{" "}
+                  <strong>{registrosFiltrados.length}</strong> registros
+                </span>
+              )}
+            </div>
+
+            <div className="horas-pagination">
+              <button
+                type="button"
+                onClick={() => setPaginaActual((pagina) => Math.max(pagina - 1, 1))}
+                disabled={paginaActual === 1}
+              >
+                Anterior
+              </button>
+
+              <span className="horas-pagination-current">
+                Página <strong>{paginaActual}</strong> de <strong>{totalPaginas}</strong>
+              </span>
+
+              <button
+                type="button"
+                onClick={() => setPaginaActual((pagina) => Math.min(pagina + 1, totalPaginas))}
+                disabled={paginaActual === totalPaginas}
+              >
+                Siguiente
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -1257,16 +934,10 @@ export default function HorasMaquinaria() {
       />
 
       <Toast
-        visible={
-          notificacion.visible
-        }
-        mensaje={
-          notificacion.mensaje
-        }
+        visible={notificacion.visible}
+        mensaje={notificacion.mensaje}
         tipo={notificacion.tipo}
-        onClose={
-          cerrarNotificacion
-        }
+        onClose={cerrarNotificacion}
       />
     </section>
   );

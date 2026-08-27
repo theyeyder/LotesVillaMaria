@@ -1,5 +1,39 @@
 import mongoose from "mongoose";
 
+const turnoSchema = new mongoose.Schema(
+  {
+    periodo: {
+      type: String,
+      enum: ["Mañana", "Tarde", "Noche"],
+      required: true,
+    },
+
+    activo: {
+      type: Boolean,
+      default: false,
+    },
+
+    horaInicio: {
+      type: String,
+      default: "",
+    },
+
+    horaFinal: {
+      type: String,
+      default: "",
+    },
+
+    totalMinutos: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+  },
+  {
+    _id: false,
+  }
+);
+
 const horaMaquinariaSchema = new mongoose.Schema(
   {
     maquinaria: {
@@ -19,21 +53,42 @@ const horaMaquinariaSchema = new mongoose.Schema(
       required: [true, "La fecha es obligatoria"],
     },
 
-    horaInicio: {
-      type: String,
-      required: [true, "La hora de inicio es obligatoria"],
-      trim: true,
+    turnos: {
+      type: [turnoSchema],
+
+      default: [
+        {
+          periodo: "Mañana",
+          activo: false,
+          horaInicio: "",
+          horaFinal: "",
+          totalMinutos: 0,
+        },
+        {
+          periodo: "Tarde",
+          activo: false,
+          horaInicio: "",
+          horaFinal: "",
+          totalMinutos: 0,
+        },
+        {
+          periodo: "Noche",
+          activo: false,
+          horaInicio: "",
+          horaFinal: "",
+          totalMinutos: 0,
+        },
+      ],
     },
 
-    horaFinal: {
-      type: String,
-      required: [true, "La hora final es obligatoria"],
-      trim: true,
-    },
-
+    /*
+      Este será el total de todos los
+      turnos activos del día.
+    */
     totalMinutos: {
       type: Number,
       required: true,
+      default: 0,
       min: 0,
     },
 
@@ -49,16 +104,17 @@ const horaMaquinariaSchema = new mongoose.Schema(
   }
 );
 
-/*
-  Índices para que después los cálculos por:
-  día, semana, mes y año sean rápidos.
-*/
 horaMaquinariaSchema.index({
   maquinaria: 1,
   fecha: 1,
 });
 
 horaMaquinariaSchema.index({
+  fecha: 1,
+});
+
+horaMaquinariaSchema.index({
+  operario: 1,
   fecha: 1,
 });
 

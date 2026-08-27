@@ -7,6 +7,7 @@ import {
   actualizarHoraMaquinaria,
   eliminarHoraMaquinaria,
   obtenerResumenHoras,
+  obtenerResumenOperarios,
 } from "./horaMaquinaria.controller.js";
 
 const router = Router();
@@ -19,6 +20,8 @@ const router = Router();
 */
 
 router.get("/resumen", obtenerResumenHoras);
+
+router.get("/resumen-operarios", obtenerResumenOperarios);
 
 router.get("/", obtenerHorasMaquinaria);
 
