@@ -352,8 +352,115 @@ export default function HorasMaquinaria() {
     }
   }, [paginaActual, totalPaginas]);
 
+  // ============================================================
+  // handleImprimir - VERSIÓN CON INYECCIÓN AUTOMÁTICA DE ESTILOS
+  // ============================================================
   const handleImprimir = () => {
-    window.print();
+    const encabezado = document.querySelector(".horas-print-header");
+    const resumen = document.querySelector(".horas-print-operarios");
+    const detalle = document.querySelector(".horas-print-detalle");
+
+    if (!encabezado || !resumen || !detalle) {
+      mostrarNotificacion("No fue posible generar el reporte.", "error");
+      return;
+    }
+
+    /*
+      Tomamos todos los CSS que actualmente
+      tiene cargados nuestra aplicación.
+
+      Esto incluye HorasMaquinaria.css.
+    */
+    const estilos = Array.from(
+      document.head.querySelectorAll('link[rel="stylesheet"], style')
+    )
+      .map((elemento) => {
+        if (elemento.tagName === "LINK") {
+          return `
+            <link
+              rel="stylesheet"
+              href="${elemento.href}"
+            />
+          `;
+        }
+
+        return `
+          <style>
+            ${elemento.textContent}
+          </style>
+        `;
+      })
+      .join("");
+
+    const ventanaImpresion = window.open("", "_blank", "width=1250,height=850");
+
+    if (!ventanaImpresion) {
+      mostrarNotificacion(
+        "El navegador bloqueó la ventana de impresión. Permita las ventanas emergentes.",
+        "error"
+      );
+
+      return;
+    }
+
+    ventanaImpresion.document.write(`
+      <!DOCTYPE html>
+
+      <html lang="es">
+        <head>
+          <meta charset="UTF-8" />
+
+          <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+          />
+
+          <title>
+            Reporte de horas - Lotes Villa María
+          </title>
+
+          ${estilos}
+        </head>
+
+        <body class="horas-reporte-window">
+
+          <div class="acciones-impresion">
+
+            <button
+              type="button"
+              class="btn-cerrar"
+              onclick="window.close()"
+            >
+              Cerrar
+            </button>
+
+            <button
+              type="button"
+              class="btn-imprimir"
+              onclick="window.print()"
+            >
+              Imprimir reporte
+            </button>
+
+          </div>
+
+          <main class="reporte-contenedor">
+
+            ${encabezado.outerHTML}
+
+            ${resumen.outerHTML}
+
+            ${detalle.outerHTML}
+
+          </main>
+
+        </body>
+      </html>
+    `);
+
+    ventanaImpresion.document.close();
+
+    ventanaImpresion.focus();
   };
 
   const abrirNuevoRegistro = () => {
@@ -611,7 +718,7 @@ export default function HorasMaquinaria() {
       <div className="horas-print-operarios">
         <h3>Resumen de horas por operario</h3>
 
-        <table>
+        <table className="horas-print-table horas-print-table-resumen">
           <thead>
             <tr>
               <th>Operario</th>
@@ -677,7 +784,7 @@ export default function HorasMaquinaria() {
       <div className="horas-print-detalle">
         <h3>Detalle de jornadas</h3>
 
-        <table>
+        <table className="horas-print-table horas-print-table-detalle">
           <thead>
             <tr>
               <th>Máquina</th>
@@ -695,10 +802,15 @@ export default function HorasMaquinaria() {
             {registrosFiltrados.map((registro) => (
               <tr key={registro._id}>
                 <td>
-                  {registro.maquinaria?.codigo} - {registro.maquinaria?.nombre}
+                  <div className="print-maquina">
+                    <strong>{registro.maquinaria?.codigo}</strong>
+                    <span>{registro.maquinaria?.nombre}</span>
+                  </div>
                 </td>
 
-                <td>{registro.operario}</td>
+                <td>
+                  <strong className="print-operario">{registro.operario}</strong>
+                </td>
 
                 <td>{formatearFecha(registro.fecha)}</td>
 
@@ -708,24 +820,21 @@ export default function HorasMaquinaria() {
                   return (
                     <td key={periodo}>
                       {turno?.activo ? (
-                        <>
+                        <div className="print-turno">
                           <strong>
                             {turno.horaInicio} - {turno.horaFinal}
                           </strong>
-
-                          <br />
-
-                          {formatearMinutos(turno.totalMinutos)}
-                        </>
+                          <span>{formatearMinutos(turno.totalMinutos)}</span>
+                        </div>
                       ) : (
-                        "—"
+                        <span className="print-sin-turno">—</span>
                       )}
                     </td>
                   );
                 })}
 
                 <td>
-                  <strong>{formatearMinutos(registro.totalMinutos)}</strong>
+                  <span className="print-total-horas">{formatearMinutos(registro.totalMinutos)}</span>
                 </td>
 
                 <td>{registro.observaciones || "—"}</td>

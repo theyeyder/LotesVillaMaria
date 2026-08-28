@@ -3,7 +3,7 @@ import "./Dashboard.css";
 const money = n => new Intl.NumberFormat("es-CO",{style:"currency",currency:"COP",maximumFractionDigits:0}).format(n);
 const metrics = [
   ["Valor vendido", money(348500000), "8 lotes vendidos", Banknote],
-  ["Cartera pendiente", money(94750000), "Saldo por recaudar", WalletCards],
+  ["Cartera pendiente", money(15000000), "Saldo por recaudar", WalletCards],
   ["Lotes disponibles", "17", "Inventario disponible", Map],
   ["Maquinaria", "4", "1.284 h acumuladas", Tractor],
 ];

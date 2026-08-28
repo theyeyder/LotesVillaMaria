@@ -1,0 +1,431 @@
+/* =========================================================
+   LOTES VILLA MARÍA
+   IMPRESIÓN - HORAS DE MAQUINARIA
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: 30px;
+
+  background: #f4f1e8;
+
+  color: #1f2923;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================================================
+   CONTENEDOR DEL REPORTE
+========================================================= */
+
+.reporte-contenedor {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto;
+
+  padding: 28px;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   BOTONES DE LA PÁGINA DE IMPRESIÓN
+========================================================= */
+
+.acciones-impresion {
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto 15px;
+}
+
+.acciones-impresion button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.btn-imprimir {
+  border: 1px solid #173f2e;
+
+  background: #173f2e;
+
+  color: #ffffff;
+}
+
+.btn-imprimir:hover {
+  background: #20583f;
+}
+
+.btn-cerrar {
+  border: 1px solid #d4cec2;
+
+  background: #ffffff;
+
+  color: #4f5752;
+}
+
+.btn-cerrar:hover {
+  background: #f4f1e8;
+}
+
+/* =========================================================
+   CABECERA DEL REPORTE
+========================================================= */
+
+.horas-print-header {
+  display: block !important;
+
+  margin-bottom: 24px;
+  padding-bottom: 18px;
+
+  border-bottom: 2px solid #173f2e;
+
+  text-align: center;
+}
+
+.horas-print-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 26px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.horas-print-header h2 {
+  margin: 5px 0 16px;
+
+  color: #806128;
+
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.horas-print-info {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 10px 30px;
+}
+
+.horas-print-info p {
+  margin: 0;
+
+  color: #424b45;
+
+  font-size: 12px;
+}
+
+.horas-print-info strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   BLOQUES DE IMPRESIÓN
+========================================================= */
+
+.horas-print-operarios,
+.horas-print-detalle {
+  display: block !important;
+
+  width: 100%;
+}
+
+.horas-print-operarios {
+  margin-bottom: 30px;
+}
+
+.horas-print-operarios h3,
+.horas-print-detalle h3 {
+  margin: 0 0 10px;
+
+  padding-bottom: 7px;
+
+  border-bottom: 1px solid #d9d3c8;
+
+  color: #173f2e;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   TABLAS GENERALES
+========================================================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  border-spacing: 0;
+}
+
+th,
+td {
+  padding: 8px 7px;
+
+  border: 1px solid #d0cbc1;
+
+  font-size: 10px;
+
+  vertical-align: middle;
+}
+
+th {
+  background: #173f2e;
+
+  color: #ffffff;
+
+  font-weight: 800;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+td {
+  color: #303a34;
+}
+
+td:not(:first-child) {
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background: #faf8f2;
+}
+
+/* =========================================================
+   RESUMEN POR OPERARIO
+========================================================= */
+
+.horas-print-operarios table {
+  margin-bottom: 5px;
+}
+
+.horas-print-operarios td:first-child {
+  font-weight: 700;
+
+  text-align: left;
+}
+
+/* =========================================================
+   TOTAL GENERAL
+========================================================= */
+
+.horas-print-total-row {
+  background: #eee5d3 !important;
+}
+
+.horas-print-total-row td {
+  border-top: 2px solid #806128;
+
+  color: #173f2e;
+
+  font-weight: 800;
+}
+
+/* =========================================================
+   DETALLE DE JORNADAS
+========================================================= */
+
+.horas-print-detalle {
+  margin-top: 10px;
+}
+
+.horas-print-detalle th,
+.horas-print-detalle td {
+  padding: 7px 5px;
+
+  font-size: 9px;
+}
+
+.horas-print-detalle td:first-child {
+  min-width: 100px;
+}
+
+.horas-print-detalle strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
+
+@media print {
+  @page {
+    size: landscape;
+    margin: 10mm;
+  }
+
+  html,
+  body {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  body {
+    color: #000000;
+  }
+
+  /* No imprimir botones */
+
+  .acciones-impresion {
+    display: none !important;
+  }
+
+  /* Quitar diseño de tarjeta */
+
+  .reporte-contenedor {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    border-radius: 0;
+
+    background: #ffffff;
+
+    box-shadow: none;
+  }
+
+  /* Cabecera */
+
+  .horas-print-header {
+    margin-bottom: 16px;
+
+    border-bottom: 2px solid #000000;
+  }
+
+  .horas-print-header h1,
+  .horas-print-header h2,
+  .horas-print-header p,
+  .horas-print-header strong {
+    color: #000000 !important;
+  }
+
+  /* Títulos */
+
+  .horas-print-operarios h3,
+  .horas-print-detalle h3 {
+    color: #000000;
+  }
+
+  /* Tablas */
+
+  table {
+    width: 100%;
+
+    border-collapse: collapse;
+  }
+
+  th {
+    background: #eeeeee !important;
+
+    color: #000000 !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  th,
+  td {
+    border: 1px solid #888888;
+
+    color: #000000;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #ffffff;
+  }
+
+  /* Total */
+
+  .horas-print-total-row {
+    background: #eeeeee !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .horas-print-total-row td {
+    border-top: 2px solid #000000;
+
+    color: #000000;
+  }
+
+  /* Evitar partir una fila */
+
+  tr {
+    break-inside: avoid;
+
+    page-break-inside: avoid;
+  }
+
+  /* Encabezado de tabla en páginas siguientes */
+
+  thead {
+    display: table-header-group;
+  }
+
+  /* Pie */
+
+  tfoot {
+    display: table-footer-group;
+  }
+}

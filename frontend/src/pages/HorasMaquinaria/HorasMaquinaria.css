@@ -371,6 +371,49 @@
   background: #fbf9f4;
 }
 
+/* =========================
+   TURNOS EN TABLA PRINCIPAL
+========================= */
+
+.horas-turno-table {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+
+  min-width: 105px;
+}
+
+.horas-turno-table strong {
+  color: #173f2e;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.horas-turno-table span {
+  display: inline-flex;
+
+  padding: 3px 7px;
+
+  border-radius: 999px;
+
+  background: #f3ead8;
+
+  color: #956d2b;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.horas-table td:nth-child(4),
+.horas-table td:nth-child(5),
+.horas-table td:nth-child(6) {
+  min-width: 125px;
+}
+
 .horas-machine-cell {
   display: flex;
   align-items: center;
@@ -1188,45 +1231,512 @@
   }
 }
 
-/* ============================================
-   IMPRESIÓN
-   ============================================ */
+/* =========================================================
+   REPORTE DE HORAS - VENTANA DE IMPRESIÓN
+========================================================= */
+
+.horas-reporte-window {
+  margin: 0;
+  padding: 28px;
+
+  background: #f1eee6;
+
+  color: #28352e;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================
+   ACCIONES
+========================= */
+
+.horas-reporte-window .acciones-impresion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto 15px;
+}
+
+.horas-reporte-window
+  .acciones-impresion button {
+  min-height: 42px;
+
+  padding: 0 18px;
+
+  border-radius: 10px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.horas-reporte-window .btn-cerrar {
+  border: 1px solid #d6d0c5;
+
+  background: #ffffff;
+
+  color: #58615b;
+}
+
+.horas-reporte-window .btn-imprimir {
+  border: 1px solid #173f2e;
+
+  background: #173f2e;
+
+  color: #ffffff;
+}
+
+/* =========================
+   CONTENEDOR
+========================= */
+
+.horas-reporte-window
+  .reporte-contenedor {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto;
+
+  padding: 32px 36px;
+
+  border: 1px solid #e1ddd4;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.08);
+}
+
+/* =========================
+   MOSTRAR BLOQUES
+========================= */
+
+.horas-reporte-window
+  .horas-print-header,
+.horas-reporte-window
+  .horas-print-operarios,
+.horas-reporte-window
+  .horas-print-detalle {
+  display: block !important;
+}
+
+/* =========================
+   CABECERA
+========================= */
+
+.horas-reporte-window
+  .horas-print-header {
+  position: relative;
+
+  margin-bottom: 26px;
+  padding-bottom: 18px;
+
+  border-bottom: 3px solid #173f2e;
+
+  text-align: center;
+}
+
+.horas-reporte-window
+  .horas-print-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -3px;
+
+  width: 160px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #c99a4b;
+}
+
+.horas-reporte-window
+  .horas-print-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 27px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.horas-reporte-window
+  .horas-print-header h2 {
+  margin: 5px 0 15px;
+
+  color: #99702f;
+
+  font-size: 16px;
+}
+
+/* =========================
+   DATOS DEL REPORTE
+========================= */
+
+.horas-reporte-window
+  .horas-print-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 8px;
+}
+
+.horas-reporte-window
+  .horas-print-info p {
+  margin: 0;
+
+  padding: 7px 11px;
+
+  border: 1px solid #ded8cd;
+  border-radius: 8px;
+
+  background: #faf8f3;
+
+  color: #566159;
+
+  font-size: 11px;
+}
+
+.horas-reporte-window
+  .horas-print-info strong {
+  color: #173f2e;
+}
+
+/* =========================
+   TÍTULOS
+========================= */
+
+.horas-reporte-window
+  .horas-print-operarios {
+  margin-bottom: 30px;
+}
+
+.horas-reporte-window
+  .horas-print-operarios h3,
+.horas-reporte-window
+  .horas-print-detalle h3 {
+  margin: 0 0 11px;
+
+  padding-left: 10px;
+
+  border-left: 4px solid #c99a4b;
+
+  color: #173f2e;
+
+  font-size: 15px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   TABLAS DE IMPRESIÓN
+========================================================= */
+
+.horas-reporte-window
+  .horas-print-table {
+  width: 100%;
+
+  border-collapse: separate;
+  border-spacing: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #ded8ce;
+  border-radius: 10px;
+
+  background: #ffffff;
+}
+
+/* CABECERA */
+
+.horas-reporte-window
+  .horas-print-table thead th {
+  padding: 10px 8px;
+
+  border-right: 1px solid
+    rgba(255, 255, 255, 0.13);
+  border-bottom: none;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 0.03em;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+.horas-reporte-window
+  .horas-print-table thead th:last-child {
+  border-right: none;
+}
+
+/* CELDAS */
+
+.horas-reporte-window
+  .horas-print-table tbody td {
+  padding: 9px 8px;
+
+  border-right: 1px solid #ebe6dc;
+  border-bottom: 1px solid #ebe6dc;
+
+  color: #3a463f;
+
+  font-size: 10px;
+
+  vertical-align: middle;
+}
+
+.horas-reporte-window
+  .horas-print-table
+  tbody
+  td:last-child {
+  border-right: none;
+}
+
+.horas-reporte-window
+  .horas-print-table
+  tbody
+  tr:last-child
+  td {
+  border-bottom: none;
+}
+
+.horas-reporte-window
+  .horas-print-table
+  tbody
+  tr:nth-child(even) {
+  background: #faf8f3;
+}
+
+/* =========================================================
+   TABLA RESUMEN
+========================================================= */
+
+.horas-reporte-window
+  .horas-print-table-resumen
+  td:first-child {
+  text-align: left;
+
+  color: #173f2e;
+
+  font-weight: 800;
+}
+
+.horas-reporte-window
+  .horas-print-table-resumen
+  td:not(:first-child) {
+  text-align: center;
+}
+
+.horas-reporte-window
+  .horas-print-table-resumen
+  td:last-child {
+  color: #173f2e;
+
+  font-weight: 900;
+}
+
+/* TOTAL */
+
+.horas-reporte-window
+  .horas-print-total-row {
+  background: #f4ead7 !important;
+}
+
+.horas-reporte-window
+  .horas-print-total-row td {
+  border-top: 2px solid #c49a53;
+
+  color: #173f2e;
+
+  font-weight: 900;
+}
+
+/* =========================================================
+   TABLA DETALLE
+========================================================= */
+
+.horas-reporte-window
+  .horas-print-table-detalle
+  td {
+  text-align: center;
+}
+
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:first-child {
+  min-width: 125px;
+
+  text-align: left;
+}
+
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(2) {
+  min-width: 110px;
+
+  text-align: left;
+}
+
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(3) {
+  min-width: 80px;
+}
+
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(4),
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(5),
+.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(6) {
+  min-width: 95px;
+}
+
+/* =========================
+   MÁQUINA
+========================= */
+
+.horas-reporte-window
+  .print-maquina {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.horas-reporte-window
+  .print-maquina strong {
+  color: #173f2e;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.horas-reporte-window
+  .print-maquina span {
+  color: #7a827d;
+
+  font-size: 9px;
+}
+
+/* =========================
+   OPERARIO
+========================= */
+
+.horas-reporte-window
+  .print-operario {
+  color: #344039;
+
+  font-size: 10px;
+}
+
+/* =========================
+   TURNOS
+========================= */
+
+.horas-reporte-window
+  .print-turno {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 3px;
+}
+
+.horas-reporte-window
+  .print-turno strong {
+  color: #173f2e;
+
+  font-size: 9px;
+
+  white-space: nowrap;
+}
+
+.horas-reporte-window
+  .print-turno span {
+  display: inline-flex;
+
+  padding: 3px 6px;
+
+  border-radius: 999px;
+
+  background: #f2ead9;
+
+  color: #926b2c;
+
+  font-size: 8px;
+  font-weight: 800;
+}
+
+.horas-reporte-window
+  .print-sin-turno {
+  color: #b4b8b5;
+}
+
+/* =========================
+   TOTAL DE HORAS
+========================= */
+
+.horas-reporte-window
+  .print-total-horas {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border-radius: 999px;
+
+  background: #e7f4eb;
+
+  color: #247043;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
 
 @media print {
   @page {
-    size: landscape;
-    margin: 10mm;
+    size: A4 landscape;
+    margin: 9mm;
   }
 
-  body {
-    background: #ffffff !important;
-  }
-
-  /*
-    No imprimir interfaz del sistema
-  */
-  .sidebar,
-  .navbar,
-  .horas-header,
-  .horas-summary-filter,
-  .horas-stats,
-  .horas-panel,
-  .horas-modal-overlay,
-  .toast {
-    display: none !important;
-  }
-
-  /*
-    Limpiar estructura
-  */
-  .app-shell,
-  .app-main,
-  .app-content,
-  .horas-page {
-    display: block !important;
-
+  html,
+  body.horas-reporte-window {
     width: 100% !important;
-    min-height: auto !important;
 
     margin: 0 !important;
     padding: 0 !important;
@@ -1234,150 +1744,117 @@
     background: #ffffff !important;
   }
 
-  /* =========================
-     CABECERA
-  ========================= */
-
-  .horas-print-header {
-    display: block !important;
-
-    margin-bottom: 18px;
-
-    text-align: center;
+  .horas-reporte-window
+    .acciones-impresion {
+    display: none !important;
   }
 
-  .horas-print-header h1 {
-    margin: 0;
+  .horas-reporte-window
+    .reporte-contenedor {
+    width: 100% !important;
+    max-width: none !important;
 
-    color: #000000;
+    margin: 0 !important;
+    padding: 0 !important;
 
-    font-size: 23px;
+    border: none !important;
+    border-radius: 0 !important;
+
+    box-shadow: none !important;
   }
 
-  .horas-print-header h2 {
-    margin: 4px 0 12px;
+  .horas-reporte-window
+    .horas-print-header {
+    margin-bottom: 16px;
+    padding-bottom: 11px;
 
-    color: #333333;
-
-    font-size: 16px;
+    border-bottom: 2px solid #000000;
   }
 
-  .horas-print-info {
-    display: flex;
-    justify-content: center;
-    gap: 30px;
+  .horas-reporte-window
+    .horas-print-header::after {
+    display: none;
   }
 
-  .horas-print-info p {
-    margin: 0;
-
-    color: #000000;
-
-    font-size: 10px;
+  .horas-reporte-window
+    .horas-print-header h1,
+  .horas-reporte-window
+    .horas-print-header h2,
+  .horas-reporte-window
+    .horas-print-header p,
+  .horas-reporte-window
+    .horas-print-header strong {
+    color: #000000 !important;
   }
 
-  /* =========================
-     RESUMEN OPERARIOS
-  ========================= */
+  .horas-reporte-window
+    .horas-print-table {
+    border-radius: 0;
 
-  .horas-print-operarios {
-    display: block !important;
-
-    width: 100%;
-
-    margin-bottom: 22px;
+    border-color: #888888;
   }
 
-  .horas-print-operarios h3 {
-    margin: 0 0 7px;
+  .horas-reporte-window
+    .horas-print-table thead th {
+    padding: 5px;
 
-    color: #000000;
+    border: 1px solid #777777;
 
-    font-size: 13px;
+    background: #eeeeee !important;
+
+    color: #000000 !important;
+
+    font-size: 7.5px;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  .horas-print-operarios table {
-    width: 100%;
-
-    border-collapse: collapse;
-  }
-
-  .horas-print-operarios th,
-  .horas-print-operarios td {
-    padding: 6px 7px;
+  .horas-reporte-window
+    .horas-print-table tbody td {
+    padding: 5px;
 
     border: 1px solid #999999;
 
     color: #000000;
 
-    font-size: 9px;
+    font-size: 7.5px;
   }
 
-  .horas-print-operarios th {
-    background: #eeeeee !important;
-
-    font-weight: 800;
-
-    text-align: center;
-  }
-
-  .horas-print-operarios td:not(:first-child) {
-    text-align: center;
-  }
-
-  .horas-print-total-row {
-    background: #eeeeee !important;
-  }
-
-  .horas-print-total-row td {
-    border-top: 2px solid #333333 !important;
-  }
-
-  /* =========================
-     DETALLE DE JORNADAS (IMPRESIÓN)
-  ========================= */
-
-  .horas-print-detalle {
-    display: block !important;
-    width: 100%;
-  }
-
-  .horas-print-detalle h3 {
-    margin: 0 0 7px;
+  .horas-reporte-window
+    .print-maquina strong,
+  .horas-reporte-window
+    .print-operario,
+  .horas-reporte-window
+    .print-turno strong {
     color: #000000;
-    font-size: 13px;
   }
 
-  .horas-print-detalle table {
-    width: 100%;
-    border-collapse: collapse;
-  }
+  .horas-reporte-window
+    .print-turno span,
+  .horas-reporte-window
+    .print-total-horas {
+    padding: 0;
 
-  .horas-print-detalle th,
-  .horas-print-detalle td {
-    padding: 5px 5px;
-    border: 1px solid #aaaaaa;
+    background: transparent;
+
     color: #000000;
-    font-size: 8px;
-    vertical-align: middle;
   }
 
-  .horas-print-detalle th {
+  .horas-reporte-window
+    .horas-print-total-row {
     background: #eeeeee !important;
-    font-weight: 800;
-    text-align: center;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
-  .horas-print-detalle td:not(:first-child) {
-    text-align: center;
+  .horas-reporte-window thead {
+    display: table-header-group;
   }
 
-  .horas-print-detalle tr {
+  .horas-reporte-window tr {
     break-inside: avoid;
     page-break-inside: avoid;
-  }
-
-  .horas-print-detalle strong {
-    color: #000000;
   }
 }
