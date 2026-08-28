@@ -1,1 +1,1515 @@
-.ventas-banner{padding:18px 20px;display:flex;align-items:center;gap:13px}.ventas-banner>svg{width:22px;color:var(--primary)}.ventas-banner strong{display:block;font-size:14px}.ventas-banner span{display:block;margin-top:4px;color:var(--muted-foreground);font-size:11px}
+/* =========================================================
+   VENTAS
+   LOTES VILLA MARÍA
+========================================================= */
+
+.ventas-page {
+  width: 100%;
+  min-height: 100%;
+
+  padding: 28px;
+
+  color: #17241d;
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.ventas-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 22px;
+
+  margin-bottom: 24px;
+}
+
+.ventas-kicker {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  color: #b98532;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+
+  text-transform: uppercase;
+}
+
+.ventas-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 31px;
+  line-height: 1.1;
+}
+
+.ventas-header p {
+  margin: 8px 0 0;
+
+  max-width: 650px;
+
+  color: #747d77;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.ventas-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+}
+
+/* =========================================================
+   BOTONES CABECERA
+========================================================= */
+
+.ventas-refresh,
+.ventas-new-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 43px;
+
+  padding: 0 15px;
+
+  border-radius: 11px;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.ventas-refresh {
+  border: 1px solid #d9d2c5;
+
+  background: #fffdf8;
+
+  color: #1f6848;
+}
+
+.ventas-refresh:hover {
+  border-color: #b9cec0;
+
+  background: #eef5f0;
+}
+
+.ventas-new-button {
+  border: none;
+
+  background: #1f6848;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 8px 20px
+    rgba(31, 104, 72, 0.18);
+}
+
+.ventas-new-button:hover {
+  transform: translateY(-1px);
+
+  background: #19583d;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+.ventas-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.ventas-stat-card {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+  min-height: 94px;
+
+  padding: 15px;
+
+  border: 1px solid #e5ded1;
+  border-radius: 15px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 7px 22px
+    rgba(23, 63, 46, 0.05);
+}
+
+.ventas-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  border-radius: 12px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.ventas-stat-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+
+  gap: 4px;
+}
+
+.ventas-stat-card span {
+  color: #7d857f;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.ventas-stat-card strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 20px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ventas-stat-card.activa {
+  border-bottom: 3px solid #3d9360;
+}
+
+.ventas-stat-card.pagada {
+  border-bottom: 3px solid #4c7861;
+}
+
+.ventas-stat-card.valor {
+  border-bottom: 3px solid #b98532;
+}
+
+.ventas-stat-card.saldo {
+  border-bottom: 3px solid #d4a24e;
+}
+
+.ventas-stat-card.valor strong,
+.ventas-stat-card.saldo strong {
+  font-size: 15px;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.ventas-panel {
+  overflow: hidden;
+
+  border: 1px solid #e6dfd2;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.06);
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.ventas-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #ece5d9;
+}
+
+.ventas-search {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  width: min(600px, 100%);
+  min-height: 43px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dcd6ca;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #828984;
+}
+
+.ventas-search:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.08);
+}
+
+.ventas-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #17241d;
+
+  font-size: 12px;
+}
+
+.ventas-filters {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.ventas-filters select {
+  min-height: 43px;
+
+  padding: 0 34px 0 12px;
+
+  border: 1px solid #dcd6ca;
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #465149;
+
+  font-size: 11px;
+}
+
+.ventas-filters select:focus {
+  border-color: #1f6848;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.ventas-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.ventas-table {
+  width: 100%;
+  min-width: 1450px;
+
+  border-collapse: collapse;
+}
+
+.ventas-table thead {
+  background: #f6f2e9;
+}
+
+.ventas-table th {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #e7dfd2;
+
+  color: #6c756e;
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-align: left;
+
+  text-transform: uppercase;
+}
+
+.ventas-table td {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #f0ebe1;
+
+  color: #303a34;
+
+  font-size: 12px;
+
+  vertical-align: middle;
+}
+
+.ventas-table tbody tr {
+  transition:
+    background 0.16s ease;
+}
+
+.ventas-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+.venta-row-anulada {
+  opacity: 0.64;
+
+  background: #faf7f3;
+}
+
+/* =========================================================
+   CELDA CÓDIGO
+========================================================= */
+
+.venta-code-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-width: 120px;
+}
+
+.venta-code-icon {
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  border-radius: 10px;
+
+  background: #173f2e;
+
+  color: #e9c986;
+}
+
+.venta-code-cell > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.venta-code-cell strong {
+  color: #173f2e;
+
+  font-size: 12px;
+}
+
+.venta-code-cell span {
+  color: #909691;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   CLIENTE
+========================================================= */
+
+.venta-cliente-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 185px;
+
+  color: #1f6848;
+}
+
+.venta-cliente-cell > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.venta-cliente-cell strong {
+  max-width: 180px;
+
+  overflow: hidden;
+
+  color: #303b34;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.venta-cliente-cell span {
+  color: #8b928d;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   LOTE
+========================================================= */
+
+.venta-lote-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-width: 165px;
+
+  color: #b98532;
+}
+
+.venta-lote-cell > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.venta-lote-cell strong {
+  color: #173f2e;
+
+  font-size: 11px;
+}
+
+.venta-lote-cell span {
+  color: #838b85;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   FECHA
+========================================================= */
+
+.venta-fecha-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  min-width: 100px;
+
+  color: #778079;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.venta-money {
+  color: #8d682b;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.venta-money-secondary {
+  color: #56615a;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+.venta-saldo {
+  color: #a26d24;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.venta-saldo-cero {
+  color: #2d7d4b;
+}
+
+/* =========================================================
+   FORMA DE PAGO
+========================================================= */
+
+.venta-pago-cell {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 145px;
+
+  gap: 2px;
+}
+
+.venta-pago-cell strong {
+  color: #344039;
+
+  font-size: 10px;
+}
+
+.venta-pago-cell span {
+  color: #8c938e;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.venta-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 26px;
+
+  padding: 0 9px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.venta-status-activa {
+  background: #e8f5ec;
+
+  color: #247043;
+}
+
+.venta-status-pagada {
+  background: #e5f0e9;
+
+  color: #325f46;
+}
+
+.venta-status-anulada {
+  background: #f2e9e9;
+
+  color: #a65555;
+}
+
+/* =========================================================
+   ACCIONES
+========================================================= */
+
+.ventas-th-actions {
+  text-align: center !important;
+}
+
+.ventas-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+}
+
+.ventas-actions button {
+  display: grid;
+  place-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.ventas-actions button.edit {
+  border: 1px solid #ceded4;
+
+  background: #edf5f0;
+
+  color: #1f6848;
+}
+
+.ventas-actions button.anular {
+  border: 1px solid #eed1d1;
+
+  background: #fff1f1;
+
+  color: #b84444;
+}
+
+.ventas-actions button:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.ventas-actions button:disabled {
+  opacity: 0.35;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.ventas-empty {
+  height: 230px;
+
+  color: #858d88 !important;
+
+  text-align: center !important;
+}
+
+.ventas-empty svg {
+  display: block;
+
+  margin: 0 auto 8px;
+}
+
+.ventas-empty strong {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #526058;
+}
+
+.ventas-empty span {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   PIE TABLA
+========================================================= */
+
+.ventas-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 13px 17px;
+
+  border-top: 1px solid #ece5d9;
+
+  background: #fcfaf5;
+
+  color: #7d857f;
+
+  font-size: 11px;
+}
+
+.ventas-table-footer strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.ventas-pagination {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+}
+
+.ventas-pagination button {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d9d2c6;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #1f6848;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.ventas-pagination button:hover:not(:disabled) {
+  background: #eef5f0;
+}
+
+.ventas-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.ventas-modal-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1400;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background:
+    rgba(12, 29, 20, 0.65);
+
+  backdrop-filter: blur(4px);
+}
+
+.ventas-modal {
+  width: min(790px, 100%);
+  max-height: 92vh;
+
+  overflow-y: auto;
+
+  border: 1px solid #e3d9c6;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 32px 80px
+    rgba(10, 28, 19, 0.32);
+
+  animation:
+    ventasModalEntrada
+    0.2s ease;
+}
+
+@keyframes ventasModalEntrada {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(12px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   CABECERA MODAL
+========================================================= */
+
+.ventas-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 17px 20px;
+
+  border-bottom: 1px solid #ece4d6;
+}
+
+.ventas-modal-title {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+}
+
+.ventas-modal-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  border-radius: 12px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+}
+
+.ventas-modal-title span {
+  display: inline-block;
+
+  margin-bottom: 2px;
+
+  color: #b98532;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+
+  text-transform: uppercase;
+}
+
+.ventas-modal-title h2 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 20px;
+}
+
+.ventas-modal-close {
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #59625c;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   CUERPO MODAL
+========================================================= */
+
+.ventas-modal-body {
+  padding: 19px 20px;
+}
+
+/* =========================================================
+   CÓDIGO VENTA
+========================================================= */
+
+.venta-code-box {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  margin-bottom: 16px;
+  padding: 11px 13px;
+
+  border: 1px solid #dbc391;
+  border-radius: 11px;
+
+  background: #fff7e8;
+}
+
+.venta-code-box span {
+  color: #8e6727;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.venta-code-box strong {
+  color: #173f2e;
+
+  font-size: 15px;
+}
+
+.venta-code-box small {
+  color: #888276;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   SECCIONES
+========================================================= */
+
+.ventas-section {
+  margin-bottom: 18px;
+}
+
+.ventas-section-title {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 10px;
+
+  color: #b98532;
+}
+
+.ventas-section-title > div {
+  display: flex;
+  flex-direction: column;
+}
+
+.ventas-section-title span {
+  color: #a07938;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+.ventas-section-title h3 {
+  margin: 1px 0 0;
+
+  color: #173f2e;
+
+  font-size: 14px;
+}
+
+/* =========================================================
+   GRID
+========================================================= */
+
+.ventas-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 12px 15px;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.ventas-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.ventas-field label {
+  color: #414b44;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ventas-field input,
+.ventas-field select,
+.ventas-field textarea {
+  width: 100%;
+
+  border: 1px solid #dcd5c8;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #17241d;
+
+  font: inherit;
+}
+
+.ventas-field input,
+.ventas-field select {
+  min-height: 41px;
+
+  padding: 0 11px;
+}
+
+.ventas-field textarea {
+  min-height: 82px;
+
+  padding: 10px 11px;
+
+  resize: vertical;
+}
+
+.ventas-field input:focus,
+.ventas-field select:focus,
+.ventas-field textarea:focus {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.08);
+}
+
+.ventas-field input:disabled,
+.ventas-field select:disabled {
+  background: #f3f1eb;
+
+  color: #8b918d;
+
+  cursor: not-allowed;
+}
+
+.ventas-field small {
+  min-height: 14px;
+
+  color: #8a918c;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PREVIEW DEL LOTE
+========================================================= */
+
+.venta-lote-preview {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 9px;
+
+  margin-top: 11px;
+}
+
+.venta-lote-preview > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  padding: 11px;
+
+  border: 1px solid #dfd9cc;
+  border-radius: 10px;
+
+  background: #faf8f2;
+}
+
+.venta-lote-preview span {
+  color: #858c87;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.venta-lote-preview strong {
+  color: #173f2e;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   DINERO EN MODAL
+========================================================= */
+
+.venta-money-input {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  min-height: 41px;
+
+  border: 1px solid #dcd5c8;
+  border-radius: 10px;
+
+  background: #ffffff;
+}
+
+.venta-money-input:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.08);
+}
+
+.venta-money-input > span {
+  display: grid;
+  place-items: center;
+
+  min-width: 41px;
+  min-height: 41px;
+
+  background: #f5f1e8;
+
+  color: #9c712e;
+
+  font-size: 13px;
+  font-weight: 900;
+}
+
+.venta-money-input input {
+  min-height: 39px !important;
+
+  border: none !important;
+  border-radius: 0 !important;
+
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   RESUMEN ECONÓMICO
+========================================================= */
+
+.venta-calculo-box {
+  margin-bottom: 17px;
+  padding: 14px;
+
+  border: 1px solid #cadfd1;
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f2f8f4 0%,
+      #edf5f0 100%
+    );
+}
+
+.venta-calculo-title {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  margin-bottom: 11px;
+
+  color: #1f6848;
+}
+
+.venta-calculo-title strong {
+  color: #173f2e;
+
+  font-size: 12px;
+}
+
+.venta-calculo-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 8px;
+}
+
+.venta-calculo-grid > div {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+
+  gap: 3px;
+
+  padding: 10px;
+
+  border: 1px solid
+    rgba(31, 104, 72, 0.11);
+  border-radius: 9px;
+
+  background:
+    rgba(255, 255, 255, 0.72);
+}
+
+.venta-calculo-grid span {
+  color: #758078;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.venta-calculo-grid strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 12px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.venta-calculo-cuota {
+  grid-column: 1 / -1;
+}
+
+.venta-calculo-cuota strong {
+  color: #a17127;
+
+  font-size: 17px;
+}
+
+/* =========================================================
+   OBSERVACIONES
+========================================================= */
+
+.venta-observaciones {
+  margin-top: 4px;
+}
+
+/* =========================================================
+   PIE MODAL
+========================================================= */
+
+.ventas-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  padding: 14px 20px;
+
+  border-top: 1px solid #ece4d6;
+
+  background: #fcfaf5;
+}
+
+.ventas-btn-secondary,
+.ventas-btn-primary {
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border-radius: 10px;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.ventas-btn-secondary {
+  border: 1px solid #d9d2c5;
+
+  background: #ffffff;
+
+  color: #56605a;
+}
+
+.ventas-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  border: none;
+
+  background: #1f6848;
+
+  color: #ffffff;
+}
+
+.ventas-btn-primary:hover {
+  background: #19583d;
+}
+
+.ventas-btn-secondary:disabled,
+.ventas-btn-primary:disabled,
+.ventas-modal-close:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   REFRESH
+========================================================= */
+
+.ventas-spin {
+  animation:
+    ventasSpin
+    0.8s linear infinite;
+}
+
+@keyframes ventasSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1250px) {
+  .ventas-stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .ventas-stat-card.valor,
+  .ventas-stat-card.saldo {
+    grid-column: span 1;
+  }
+}
+
+@media (max-width: 950px) {
+  .ventas-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .ventas-search {
+    width: 100%;
+  }
+
+  .ventas-filters {
+    width: 100%;
+  }
+
+  .ventas-filters select {
+    flex: 1;
+  }
+
+  .venta-calculo-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  .ventas-page {
+    padding: 18px;
+  }
+
+  .ventas-header {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .ventas-header-actions {
+    flex-direction: column;
+
+    width: 100%;
+  }
+
+  .ventas-refresh,
+  .ventas-new-button {
+    width: 100%;
+  }
+
+  .ventas-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .ventas-table-footer {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .ventas-pagination {
+    justify-content: space-between;
+
+    width: 100%;
+  }
+
+  .ventas-modal-overlay {
+    align-items: flex-end;
+
+    padding: 0;
+  }
+
+  .ventas-modal {
+    width: 100%;
+    max-height: 95vh;
+
+    border-radius:
+      20px 20px 0 0;
+  }
+
+  .ventas-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .venta-lote-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .ventas-modal-footer {
+    flex-direction: column-reverse;
+  }
+
+  .ventas-btn-secondary,
+  .ventas-btn-primary {
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .ventas-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .ventas-filters {
+    flex-direction: column;
+  }
+
+  .venta-calculo-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .venta-calculo-cuota {
+    grid-column: auto;
+  }
+}
