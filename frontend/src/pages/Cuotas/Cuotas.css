@@ -1,1 +1,897 @@
-.cuotas-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.cuotas-stats article{min-height:90px;padding:17px 19px;display:flex;align-items:center;gap:12px}.cuotas-stats svg{width:21px;color:var(--warning)}.cuotas-stats small{display:block;color:var(--muted-foreground);font-size:11px}.cuotas-stats strong{display:block;margin-top:5px;font-size:21px}@media(max-width:760px){.cuotas-stats{grid-template-columns:1fr}}
+/* =========================================================
+   CUOTAS
+   LOTES VILLA MARÍA
+========================================================= */
+
+.cuotas-page {
+  width: 100%;
+  min-height: 100%;
+  padding: 28px;
+  color: #17241d;
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.cuotas-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 22px;
+  margin-bottom: 24px;
+}
+
+.cuotas-kicker {
+  display: inline-block;
+  margin-bottom: 6px;
+
+  color: #b98532;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.cuotas-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 31px;
+  line-height: 1.1;
+}
+
+.cuotas-header p {
+  max-width: 680px;
+  margin: 8px 0 0;
+
+  color: #747d77;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   ACTUALIZAR
+========================================================= */
+
+.cuotas-refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 0 15px;
+
+  border: 1px solid #cbdad0;
+  border-radius: 11px;
+
+  background: #edf5f0;
+
+  color: #1f6848;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    transform 0.18s ease;
+}
+
+.cuotas-refresh-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #aac4b3;
+
+  background: #e4f0e8;
+}
+
+.cuotas-refresh-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+.cuotas-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 14px;
+}
+
+.cuotas-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+  min-height: 94px;
+
+  padding: 15px;
+
+  border: 1px solid #e5ded1;
+  border-radius: 15px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 7px 22px
+    rgba(23, 63, 46, 0.05);
+}
+
+.cuotas-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  border-radius: 12px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+
+  font-size: 17px;
+  font-weight: 900;
+}
+
+.cuotas-stat > div:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.cuotas-stat span {
+  color: #7d857f;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.cuotas-stat strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 20px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cuotas-stat.pendiente {
+  border-bottom: 3px solid #d5a24b;
+}
+
+.cuotas-stat.vencida {
+  border-bottom: 3px solid #b8544d;
+}
+
+.cuotas-stat.pagada {
+  border-bottom: 3px solid #3b8c5d;
+}
+
+.cuotas-stat.saldo {
+  border-bottom: 3px solid #b98532;
+}
+
+.cuotas-stat.saldo strong {
+  font-size: 15px;
+}
+
+/* =========================================================
+   RESUMEN ECONÓMICO
+========================================================= */
+
+.cuotas-financial-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(5, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.cuotas-financial-summary > div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e2dbce;
+  border-radius: 12px;
+
+  background: #faf8f2;
+}
+
+.cuotas-financial-summary span {
+  color: #838b85;
+
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cuotas-financial-summary strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 14px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cuotas-summary-history {
+  background: #f5f3ef !important;
+}
+
+.cuotas-summary-history strong {
+  color: #787f7a;
+}
+
+.cuotas-summary-history small {
+  color: #9a9f9c;
+
+  font-size: 8px;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.cuotas-panel {
+  overflow: hidden;
+
+  border: 1px solid #e6dfd2;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.06);
+}
+
+/* =========================================================
+   BÚSQUEDA
+========================================================= */
+
+.cuotas-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #ece5d9;
+}
+
+.cuotas-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  width: min(650px, 100%);
+  min-height: 43px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dcd6ca;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #828984;
+}
+
+.cuotas-search:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.08);
+}
+
+.cuotas-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #17241d;
+
+  font-size: 12px;
+}
+
+.cuotas-clear-button {
+  min-height: 40px;
+
+  padding: 0 14px;
+
+  border: 1px solid #ddd5c8;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #7c6650;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.cuotas-clear-button:hover {
+  background: #f8f2e8;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.cuotas-filters {
+  display: grid;
+
+  grid-template-columns:
+    1.4fr 1fr 1fr 1fr;
+
+  gap: 12px;
+
+  padding: 14px 18px;
+
+  border-bottom: 1px solid #ece5d9;
+
+  background: #fcfaf5;
+}
+
+.cuotas-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cuotas-filter-field label {
+  color: #687169;
+
+  font-size: 9px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cuotas-filter-field select,
+.cuotas-filter-field input {
+  width: 100%;
+  min-height: 40px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+  outline: none;
+
+  background: #ffffff;
+
+  color: #354039;
+
+  font-size: 11px;
+}
+
+.cuotas-filter-field select:focus,
+.cuotas-filter-field input:focus {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.cuotas-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.cuotas-table {
+  width: 100%;
+  min-width: 1280px;
+
+  border-collapse: collapse;
+}
+
+.cuotas-table thead {
+  background: #f6f2e9;
+}
+
+.cuotas-table th {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #e7dfd2;
+
+  color: #6c756e;
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.cuotas-table td {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #f0ebe1;
+
+  color: #303a34;
+
+  font-size: 12px;
+
+  vertical-align: middle;
+}
+
+.cuotas-table tbody tr {
+  transition:
+    background 0.16s ease;
+}
+
+.cuotas-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+/* =========================================================
+   CUOTA ANULADA
+========================================================= */
+
+.cuota-row-anulada {
+  opacity: 0.58;
+
+  background: #faf7f4;
+}
+
+/* =========================================================
+   CLIENTE
+========================================================= */
+
+.cuota-client-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  min-width: 185px;
+
+  color: #1f6848;
+}
+
+.cuota-client-cell > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cuota-client-cell strong {
+  max-width: 190px;
+
+  overflow: hidden;
+
+  color: #303b34;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cuota-client-cell span {
+  color: #8b928d;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   VENTA
+========================================================= */
+
+.cuota-venta-code {
+  display: inline-flex;
+
+  min-width: 75px;
+
+  color: #8c672b;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   LOTE
+========================================================= */
+
+.cuota-lote-cell {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  min-width: 150px;
+
+  color: #b98532;
+}
+
+.cuota-lote-cell > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cuota-lote-cell strong {
+  color: #173f2e;
+
+  font-size: 11px;
+}
+
+.cuota-lote-cell span {
+  color: #858c87;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   NÚMERO DE CUOTA
+========================================================= */
+
+.cuota-number {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  min-width: 78px;
+}
+
+.cuota-number span {
+  color: #8c938e;
+
+  font-size: 8px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.cuota-number strong {
+  color: #173f2e;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   FECHA
+========================================================= */
+
+.cuota-date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+
+  min-width: 110px;
+
+  color: #68736c;
+}
+
+.cuota-date span {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.cuota-money {
+  color: #8d682b;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.cuota-paid {
+  color: #39704e;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+.cuota-balance {
+  color: #a16d25;
+
+  font-size: 12px;
+
+  white-space: nowrap;
+}
+
+.cuota-balance-zero {
+  color: #2d7d4b;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.cuota-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 27px;
+
+  padding: 0 10px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.cuota-status-pendiente {
+  background: #fff3dd;
+
+  color: #976822;
+}
+
+.cuota-status-parcial {
+  background: #e7f1f7;
+
+  color: #416e88;
+}
+
+.cuota-status-pagada {
+  background: #e7f4eb;
+
+  color: #287047;
+}
+
+.cuota-status-vencida {
+  background: #fbe7e5;
+
+  color: #aa4e46;
+}
+
+.cuota-status-anulada {
+  background: #ece9e6;
+
+  color: #747772;
+}
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.cuotas-empty {
+  height: 230px;
+
+  color: #858d88 !important;
+
+  text-align: center !important;
+}
+
+.cuotas-empty svg {
+  display: block;
+
+  margin: 0 auto 8px;
+}
+
+.cuotas-empty strong {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #526058;
+}
+
+.cuotas-empty span {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   PIE
+========================================================= */
+
+.cuotas-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 13px 17px;
+
+  border-top: 1px solid #ece5d9;
+
+  background: #fcfaf5;
+
+  color: #7d857f;
+
+  font-size: 11px;
+}
+
+.cuotas-table-footer strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.cuotas-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cuotas-pagination button {
+  min-height: 34px;
+
+  padding: 0 12px;
+
+  border: 1px solid #d9d2c6;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #1f6848;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.cuotas-pagination button:hover:not(:disabled) {
+  background: #eef5f0;
+}
+
+.cuotas-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ANIMACIÓN
+========================================================= */
+
+.cuotas-spin {
+  animation:
+    cuotasSpin
+    0.8s linear infinite;
+}
+
+@keyframes cuotasSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1250px) {
+  .cuotas-stats {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+  .cuotas-financial-summary {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 1000px) {
+  .cuotas-filters {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .cuotas-toolbar {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cuotas-search {
+    width: 100%;
+  }
+
+  .cuotas-clear-button {
+    align-self: flex-start;
+  }
+}
+
+@media (max-width: 760px) {
+  .cuotas-page {
+    padding: 18px;
+  }
+
+  .cuotas-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .cuotas-refresh-button {
+    width: 100%;
+  }
+
+  .cuotas-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .cuotas-financial-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .cuotas-table-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .cuotas-pagination {
+    justify-content: space-between;
+
+    width: 100%;
+  }
+}
+
+@media (max-width: 520px) {
+  .cuotas-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .cuotas-financial-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .cuotas-filters {
+    grid-template-columns: 1fr;
+  }
+
+  .cuotas-clear-button {
+    width: 100%;
+  }
+}

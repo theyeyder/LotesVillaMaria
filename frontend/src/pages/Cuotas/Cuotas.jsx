@@ -1,4 +1,1303 @@
-import { CalendarClock } from "lucide-react"; import "./Cuotas.css";
-const rows=[["VM-008","Diana Torres","12 / 24","22 ago 2026","$ 2.000.000","$ 0","Vencida"],["VM-014","Carlos Ramírez","10 / 20","30 ago 2026","$ 2.500.000","$ 0","Pendiente"],["VM-021","Andrés Gómez","01 / 24","02 sep 2026","$ 2.500.000","$ 1.000.000","Parcial"],["VM-005","Martha Rodríguez","18 / 18","15 ago 2026","$ 1.900.000","$ 1.900.000","Pagada"]];
-const cls=s=>s==="Pagada"?"badge-success":s==="Vencida"?"badge-danger":s==="Parcial"?"badge-warning":"badge-neutral";
-export default function Cuotas({search}){const t=search.toLowerCase();const f=rows.filter(r=>r.join(" ").toLowerCase().includes(t));return <div className="cuotas-page page-stack"><header className="page-header"><div><p className="page-eyebrow">Cartera</p><h1 className="page-title">Cuotas</h1><p className="page-description">Seguimiento de vencimientos, abonos parciales y cuotas pagadas.</p></div></header><section className="cuotas-stats"><article className="surface"><CalendarClock/><div><small>Vencidas</small><strong>3</strong></div></article><article className="surface"><small>Vencen este mes</small><strong>11</strong></article><article className="surface"><small>Saldo del mes</small><strong>$ 24.500.000</strong></article></section><section className="surface table-shell"><div className="table-scroll"><table className="data-table"><thead><tr><th>Lote</th><th>Cliente</th><th>Cuota</th><th>Vencimiento</th><th className="text-right">Valor</th><th className="text-right">Pagado</th><th>Estado</th></tr></thead><tbody>{f.map(r=><tr key={r.join()}><td><span className="code-pill">{r[0]}</span></td><td><b>{r[1]}</b></td><td>{r[2]}</td><td>{r[3]}</td><td className="text-right money">{r[4]}</td><td className="text-right">{r[5]}</td><td><span className={`badge ${cls(r[6])}`}>{r[6]}</span></td></tr>)}</tbody></table></div></section></div>}
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  CalendarClock,
+  CheckCircle2,
+  Clock3,
+  RefreshCw,
+  Search,
+  UserRound,
+  WalletCards,
+  AlertTriangle,
+  LandPlot,
+} from "lucide-react";
+
+import "./Cuotas.css";
+
+import Toast from "../../components/ui/Toast";
+
+import {
+  obtenerCuotas,
+  obtenerResumenCuotas,
+} from "../../services/cuota.service";
+
+/* =========================================================
+   FORMATEAR DINERO
+========================================================= */
+
+const formatearDinero = (
+  valor = 0
+) => {
+  return new Intl.NumberFormat(
+    "es-CO",
+    {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
+    }
+  ).format(
+    Number(valor) || 0
+  );
+};
+
+/* =========================================================
+   FORMATEAR FECHA
+========================================================= */
+
+const formatearFecha = (
+  fecha
+) => {
+  if (!fecha) {
+    return "—";
+  }
+
+  const date =
+    new Date(fecha);
+
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "—";
+  }
+
+  return date.toLocaleDateString(
+    "es-CO",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    }
+  );
+};
+
+/* =========================================================
+   NOMBRE DEL CLIENTE
+========================================================= */
+
+const obtenerNombreCliente = (
+  cliente
+) => {
+  if (!cliente) {
+    return "Sin cliente";
+  }
+
+  const nombre = [
+    cliente.nombres,
+    cliente.apellidos,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  return (
+    nombre ||
+    cliente.nombre ||
+    cliente.razonSocial ||
+    "Cliente"
+  );
+};
+
+/* =========================================================
+   ESTADO VACÍO DEL RESUMEN
+========================================================= */
+
+const resumenInicial = {
+  totalCuotas: 0,
+  pendientes: 0,
+  parciales: 0,
+  pagadas: 0,
+  vencidas: 0,
+  anuladas: 0,
+
+  valorProgramado: 0,
+  valorPagado: 0,
+  saldoPendiente: 0,
+};
+
+/* =========================================================
+   COMPONENTE
+========================================================= */
+
+export default function Cuotas() {
+  /* =======================================================
+     DATOS
+  ======================================================= */
+
+  const [
+    cuotas,
+    setCuotas,
+  ] = useState([]);
+
+  const [
+    resumen,
+    setResumen,
+  ] = useState(
+    resumenInicial
+  );
+
+  /* =======================================================
+     CARGA
+  ======================================================= */
+
+  const [
+    cargando,
+    setCargando,
+  ] = useState(true);
+
+  /* =======================================================
+     FILTROS
+  ======================================================= */
+
+  const [
+    busqueda,
+    setBusqueda,
+  ] = useState("");
+
+  const [
+    filtroEstado,
+    setFiltroEstado,
+  ] = useState("");
+
+  const [
+    filtroCliente,
+    setFiltroCliente,
+  ] = useState("");
+
+  const [
+    fechaInicio,
+    setFechaInicio,
+  ] = useState("");
+
+  const [
+    fechaFinal,
+    setFechaFinal,
+  ] = useState("");
+
+  /* =======================================================
+     PAGINACIÓN
+  ======================================================= */
+
+  const [
+    paginaActual,
+    setPaginaActual,
+  ] = useState(1);
+
+  const CUOTAS_POR_PAGINA = 10;
+
+  /* =======================================================
+     TOAST
+  ======================================================= */
+
+  const [
+    notificacion,
+    setNotificacion,
+  ] = useState({
+    visible: false,
+    mensaje: "",
+    tipo: "success",
+  });
+
+  const mostrarNotificacion = (
+    mensaje,
+    tipo = "success"
+  ) => {
+    setNotificacion({
+      visible: true,
+      mensaje,
+      tipo,
+    });
+  };
+
+  const cerrarNotificacion =
+    () => {
+      setNotificacion(
+        (prev) => ({
+          ...prev,
+          visible: false,
+        })
+      );
+    };
+
+  /* =======================================================
+     CARGAR CUOTAS
+  ======================================================= */
+
+  const cargarCuotas =
+    async () => {
+      try {
+        const datos =
+          await obtenerCuotas();
+
+        setCuotas(
+          Array.isArray(datos)
+            ? datos
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Error cargando cuotas:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible cargar las cuotas.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
+     CARGAR RESUMEN
+  ======================================================= */
+
+  const cargarResumen =
+    async () => {
+      try {
+        const datos =
+          await obtenerResumenCuotas();
+
+        setResumen({
+          ...resumenInicial,
+          ...(datos || {}),
+        });
+      } catch (error) {
+        console.error(
+          "Error cargando resumen:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible cargar el resumen de cuotas.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
+     CARGAR TODO
+  ======================================================= */
+
+  const cargarTodo =
+    async () => {
+      try {
+        setCargando(true);
+
+        await Promise.all([
+          cargarCuotas(),
+          cargarResumen(),
+        ]);
+      } finally {
+        setCargando(false);
+      }
+    };
+
+  useEffect(() => {
+    cargarTodo();
+  }, []);
+
+  /* =======================================================
+     CLIENTES DISPONIBLES EN LAS CUOTAS
+  ======================================================= */
+
+  const clientes =
+    useMemo(() => {
+      const mapa =
+        new Map();
+
+      cuotas.forEach(
+        (cuota) => {
+          const cliente =
+            cuota.venta?.cliente;
+
+          if (
+            cliente?._id &&
+            !mapa.has(
+              cliente._id
+            )
+          ) {
+            mapa.set(
+              cliente._id,
+              cliente
+            );
+          }
+        }
+      );
+
+      return Array.from(
+        mapa.values()
+      ).sort(
+        (a, b) =>
+          obtenerNombreCliente(
+            a
+          ).localeCompare(
+            obtenerNombreCliente(
+              b
+            ),
+            "es"
+          )
+      );
+    }, [cuotas]);
+
+  /* =======================================================
+     FILTRAR CUOTAS
+  ======================================================= */
+
+  const cuotasFiltradas =
+    useMemo(() => {
+      const texto =
+        busqueda
+          .trim()
+          .toLowerCase();
+
+      return cuotas.filter(
+        (cuota) => {
+          const venta =
+            cuota.venta;
+
+          const cliente =
+            venta?.cliente;
+
+          const lote =
+            venta?.lote;
+
+          const manzana =
+            lote?.manzana;
+
+          /* =====================
+             ESTADO
+          ===================== */
+
+          if (
+            filtroEstado &&
+            cuota.estado !==
+              filtroEstado
+          ) {
+            return false;
+          }
+
+          /* =====================
+             CLIENTE
+          ===================== */
+
+          if (
+            filtroCliente &&
+            cliente?._id !==
+              filtroCliente
+          ) {
+            return false;
+          }
+
+          /* =====================
+             FECHA INICIAL
+          ===================== */
+
+          if (fechaInicio) {
+            const vencimiento =
+              new Date(
+                cuota.fechaVencimiento
+              );
+
+            const inicio =
+              new Date(
+                `${fechaInicio}T00:00:00Z`
+              );
+
+            if (
+              vencimiento <
+              inicio
+            ) {
+              return false;
+            }
+          }
+
+          /* =====================
+             FECHA FINAL
+          ===================== */
+
+          if (fechaFinal) {
+            const vencimiento =
+              new Date(
+                cuota.fechaVencimiento
+              );
+
+            const final =
+              new Date(
+                `${fechaFinal}T23:59:59Z`
+              );
+
+            if (
+              vencimiento >
+              final
+            ) {
+              return false;
+            }
+          }
+
+          /* =====================
+             BÚSQUEDA
+          ===================== */
+
+          if (!texto) {
+            return true;
+          }
+
+          const contenido = [
+            venta?.codigo,
+
+            obtenerNombreCliente(
+              cliente
+            ),
+
+            cliente?.documento,
+
+            lote?.codigo,
+
+            lote?.numeroLote,
+
+            manzana?.codigo,
+
+            manzana?.nombre,
+
+            `cuota ${cuota.numeroCuota}`,
+
+            cuota.numeroCuota,
+
+            cuota.estado,
+          ]
+            .filter(
+              (item) =>
+                item !==
+                  undefined &&
+                item !== null
+            )
+            .join(" ")
+            .toLowerCase();
+
+          return contenido.includes(
+            texto
+          );
+        }
+      );
+    }, [
+      cuotas,
+      busqueda,
+      filtroEstado,
+      filtroCliente,
+      fechaInicio,
+      fechaFinal,
+    ]);
+
+  /* =======================================================
+     PAGINACIÓN
+  ======================================================= */
+
+  const totalPaginas =
+    Math.max(
+      1,
+      Math.ceil(
+        cuotasFiltradas.length /
+          CUOTAS_POR_PAGINA
+      )
+    );
+
+  const indiceInicial =
+    (paginaActual - 1) *
+    CUOTAS_POR_PAGINA;
+
+  const cuotasPaginadas =
+    cuotasFiltradas.slice(
+      indiceInicial,
+      indiceInicial +
+        CUOTAS_POR_PAGINA
+    );
+
+  useEffect(() => {
+    setPaginaActual(1);
+  }, [
+    busqueda,
+    filtroEstado,
+    filtroCliente,
+    fechaInicio,
+    fechaFinal,
+  ]);
+
+  useEffect(() => {
+    if (
+      paginaActual >
+      totalPaginas
+    ) {
+      setPaginaActual(
+        totalPaginas
+      );
+    }
+  }, [
+    paginaActual,
+    totalPaginas,
+  ]);
+
+  /* =======================================================
+     LIMPIAR FILTROS
+  ======================================================= */
+
+  const limpiarFiltros =
+    () => {
+      setBusqueda("");
+      setFiltroEstado("");
+      setFiltroCliente("");
+      setFechaInicio("");
+      setFechaFinal("");
+      setPaginaActual(1);
+    };
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
+  return (
+    <section className="cuotas-page">
+
+      {/* =================================================
+          CABECERA
+      ================================================= */}
+
+      <div className="cuotas-header">
+        <div>
+          <span className="cuotas-kicker">
+            Cartera
+          </span>
+
+          <h1>
+            Control de cuotas
+          </h1>
+
+          <p>
+            Consulta las cuotas
+            generadas por las ventas
+            financiadas, sus
+            vencimientos, pagos y
+            saldos pendientes.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          className="cuotas-refresh-button"
+          onClick={
+            cargarTodo
+          }
+          disabled={cargando}
+        >
+          <RefreshCw
+            size={18}
+            className={
+              cargando
+                ? "cuotas-spin"
+                : ""
+            }
+          />
+
+          Actualizar
+        </button>
+      </div>
+
+      {/* =================================================
+          ESTADÍSTICAS
+      ================================================= */}
+
+      <div className="cuotas-stats">
+
+        {/* TOTAL */}
+
+        <article className="cuotas-stat">
+          <div className="cuotas-stat-icon">
+            <WalletCards
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Total cuotas
+            </span>
+
+            <strong>
+              {
+                resumen.totalCuotas
+              }
+            </strong>
+          </div>
+        </article>
+
+        {/* PENDIENTES */}
+
+        <article className="cuotas-stat pendiente">
+          <div className="cuotas-stat-icon">
+            <Clock3
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Pendientes
+            </span>
+
+            <strong>
+              {
+                resumen.pendientes
+              }
+            </strong>
+          </div>
+        </article>
+
+        {/* VENCIDAS */}
+
+        <article className="cuotas-stat vencida">
+          <div className="cuotas-stat-icon">
+            <AlertTriangle
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Vencidas
+            </span>
+
+            <strong>
+              {
+                resumen.vencidas
+              }
+            </strong>
+          </div>
+        </article>
+
+        {/* PAGADAS */}
+
+        <article className="cuotas-stat pagada">
+          <div className="cuotas-stat-icon">
+            <CheckCircle2
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Pagadas
+            </span>
+
+            <strong>
+              {
+                resumen.pagadas
+              }
+            </strong>
+          </div>
+        </article>
+
+        {/* SALDO */}
+
+        <article className="cuotas-stat saldo">
+          <div className="cuotas-stat-icon">
+            $
+          </div>
+
+          <div>
+            <span>
+              Saldo pendiente
+            </span>
+
+            <strong>
+              {formatearDinero(
+                resumen.saldoPendiente
+              )}
+            </strong>
+          </div>
+        </article>
+      </div>
+
+      {/* =================================================
+          RESUMEN ECONÓMICO
+      ================================================= */}
+
+      <div className="cuotas-financial-summary">
+        <div>
+          <span>
+            Valor programado
+          </span>
+
+          <strong>
+            {formatearDinero(
+              resumen.valorProgramado
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Total pagado
+          </span>
+
+          <strong>
+            {formatearDinero(
+              resumen.valorPagado
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Saldo por cobrar
+          </span>
+
+          <strong>
+            {formatearDinero(
+              resumen.saldoPendiente
+            )}
+          </strong>
+        </div>
+
+        <div>
+          <span>
+            Parciales
+          </span>
+
+          <strong>
+            {resumen.parciales}
+          </strong>
+        </div>
+
+        <div className="cuotas-summary-history">
+          <span>
+            Anuladas
+          </span>
+
+          <strong>
+            {resumen.anuladas}
+          </strong>
+
+          <small>
+            Solo historial
+          </small>
+        </div>
+      </div>
+
+      {/* =================================================
+          PANEL
+      ================================================= */}
+
+      <div className="cuotas-panel">
+
+        {/* =============================================
+            BÚSQUEDA
+        ============================================= */}
+
+        <div className="cuotas-toolbar">
+          <div className="cuotas-search">
+            <Search size={18} />
+
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) =>
+                setBusqueda(
+                  e.target.value
+                )
+              }
+              placeholder="Buscar cliente, venta, lote, manzana o cuota..."
+            />
+          </div>
+
+          <button
+            type="button"
+            className="cuotas-clear-button"
+            onClick={
+              limpiarFiltros
+            }
+          >
+            Limpiar filtros
+          </button>
+        </div>
+
+        {/* =============================================
+            FILTROS
+        ============================================= */}
+
+        <div className="cuotas-filters">
+
+          {/* CLIENTE */}
+
+          <div className="cuotas-filter-field">
+            <label>
+              Cliente
+            </label>
+
+            <select
+              value={
+                filtroCliente
+              }
+              onChange={(e) =>
+                setFiltroCliente(
+                  e.target.value
+                )
+              }
+            >
+              <option value="">
+                Todos los clientes
+              </option>
+
+              {clientes.map(
+                (cliente) => (
+                  <option
+                    key={
+                      cliente._id
+                    }
+                    value={
+                      cliente._id
+                    }
+                  >
+                    {obtenerNombreCliente(
+                      cliente
+                    )}
+
+                    {cliente.documento
+                      ? ` - ${cliente.documento}`
+                      : ""}
+                  </option>
+                )
+              )}
+            </select>
+          </div>
+
+          {/* ESTADO */}
+
+          <div className="cuotas-filter-field">
+            <label>
+              Estado
+            </label>
+
+            <select
+              value={
+                filtroEstado
+              }
+              onChange={(e) =>
+                setFiltroEstado(
+                  e.target.value
+                )
+              }
+            >
+              <option value="">
+                Todos
+              </option>
+
+              <option value="Pendiente">
+                Pendiente
+              </option>
+
+              <option value="Parcial">
+                Parcial
+              </option>
+
+              <option value="Pagada">
+                Pagada
+              </option>
+
+              <option value="Vencida">
+                Vencida
+              </option>
+
+              <option value="Anulada">
+                Anulada
+              </option>
+            </select>
+          </div>
+
+          {/* DESDE */}
+
+          <div className="cuotas-filter-field">
+            <label>
+              Vence desde
+            </label>
+
+            <input
+              type="date"
+              value={
+                fechaInicio
+              }
+              onChange={(e) =>
+                setFechaInicio(
+                  e.target.value
+                )
+              }
+            />
+          </div>
+
+          {/* HASTA */}
+
+          <div className="cuotas-filter-field">
+            <label>
+              Vence hasta
+            </label>
+
+            <input
+              type="date"
+              value={
+                fechaFinal
+              }
+              onChange={(e) =>
+                setFechaFinal(
+                  e.target.value
+                )
+              }
+            />
+          </div>
+        </div>
+
+        {/* =================================================
+            TABLA
+        ================================================= */}
+
+        <div className="cuotas-table-wrapper">
+          <table className="cuotas-table">
+
+            <thead>
+              <tr>
+                <th>Cliente</th>
+                <th>Venta</th>
+                <th>Lote</th>
+                <th>Cuota</th>
+                <th>Vencimiento</th>
+                <th>Valor cuota</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {cargando ? (
+                <tr>
+                  <td
+                    colSpan="9"
+                    className="cuotas-empty"
+                  >
+                    <RefreshCw
+                      size={27}
+                      className="cuotas-spin"
+                    />
+
+                    <strong>
+                      Cargando cuotas...
+                    </strong>
+                  </td>
+                </tr>
+              ) : cuotasPaginadas.length ===
+                0 ? (
+                <tr>
+                  <td
+                    colSpan="9"
+                    className="cuotas-empty"
+                  >
+                    <WalletCards
+                      size={38}
+                    />
+
+                    <strong>
+                      No hay cuotas
+                    </strong>
+
+                    <span>
+                      No existen cuotas
+                      para los filtros
+                      seleccionados.
+                    </span>
+                  </td>
+                </tr>
+              ) : (
+                cuotasPaginadas.map(
+                  (cuota) => {
+                    const venta =
+                      cuota.venta;
+
+                    const cliente =
+                      venta?.cliente;
+
+                    const lote =
+                      venta?.lote;
+
+                    const manzana =
+                      lote?.manzana;
+
+                    return (
+                      <tr
+                        key={
+                          cuota._id
+                        }
+                        className={
+                          cuota.estado ===
+                          "Anulada"
+                            ? "cuota-row-anulada"
+                            : ""
+                        }
+                      >
+
+                        {/* CLIENTE */}
+
+                        <td>
+                          <div className="cuota-client-cell">
+                            <UserRound
+                              size={16}
+                            />
+
+                            <div>
+                              <strong>
+                                {obtenerNombreCliente(
+                                  cliente
+                                )}
+                              </strong>
+
+                              <span>
+                                {cliente?.documento ||
+                                  "Sin documento"}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* VENTA */}
+
+                        <td>
+                          <strong className="cuota-venta-code">
+                            {venta?.codigo ||
+                              "—"}
+                          </strong>
+                        </td>
+
+                        {/* LOTE */}
+
+                        <td>
+                          <div className="cuota-lote-cell">
+                            <LandPlot
+                              size={15}
+                            />
+
+                            <div>
+                              <strong>
+                                {lote?.codigo ||
+                                  "—"}
+                              </strong>
+
+                              <span>
+                                {manzana?.nombre ||
+                                  "Sin manzana"}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* NÚMERO */}
+
+                        <td>
+                          <div className="cuota-number">
+                            <span>
+                              Cuota
+                            </span>
+
+                            <strong>
+                              {String(
+                                cuota.numeroCuota
+                              ).padStart(
+                                2,
+                                "0"
+                              )}
+
+                              {venta?.numeroCuotas
+                                ? ` / ${String(
+                                    venta.numeroCuotas
+                                  ).padStart(
+                                    2,
+                                    "0"
+                                  )}`
+                                : ""}
+                            </strong>
+                          </div>
+                        </td>
+
+                        {/* VENCIMIENTO */}
+
+                        <td>
+                          <div className="cuota-date">
+                            <CalendarClock
+                              size={15}
+                            />
+
+                            <span>
+                              {formatearFecha(
+                                cuota.fechaVencimiento
+                              )}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* VALOR */}
+
+                        <td>
+                          <strong className="cuota-money">
+                            {formatearDinero(
+                              cuota.valorCuota
+                            )}
+                          </strong>
+                        </td>
+
+                        {/* PAGADO */}
+
+                        <td>
+                          <span className="cuota-paid">
+                            {formatearDinero(
+                              cuota.valorPagado
+                            )}
+                          </span>
+                        </td>
+
+                        {/* SALDO */}
+
+                        <td>
+                          <strong
+                            className={`cuota-balance ${
+                              Number(
+                                cuota.saldoPendiente
+                              ) === 0
+                                ? "cuota-balance-zero"
+                                : ""
+                            }`}
+                          >
+                            {formatearDinero(
+                              cuota.saldoPendiente
+                            )}
+                          </strong>
+                        </td>
+
+                        {/* ESTADO */}
+
+                        <td>
+                          <span
+                            className={`cuota-status cuota-status-${String(
+                              cuota.estado
+                            ).toLowerCase()}`}
+                          >
+                            {
+                              cuota.estado
+                            }
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  }
+                )
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* =================================================
+            PIE
+        ================================================= */}
+
+        <div className="cuotas-table-footer">
+          <span>
+            Mostrando{" "}
+            <strong>
+              {
+                cuotasFiltradas.length
+              }
+            </strong>{" "}
+            de{" "}
+            <strong>
+              {cuotas.length}
+            </strong>{" "}
+            cuotas
+          </span>
+
+          <div className="cuotas-pagination">
+            <button
+              type="button"
+              disabled={
+                paginaActual === 1
+              }
+              onClick={() =>
+                setPaginaActual(
+                  (pagina) =>
+                    Math.max(
+                      1,
+                      pagina - 1
+                    )
+                )
+              }
+            >
+              Anterior
+            </button>
+
+            <span>
+              Página{" "}
+              <strong>
+                {paginaActual}
+              </strong>{" "}
+              de{" "}
+              <strong>
+                {totalPaginas}
+              </strong>
+            </span>
+
+            <button
+              type="button"
+              disabled={
+                paginaActual ===
+                totalPaginas
+              }
+              onClick={() =>
+                setPaginaActual(
+                  (pagina) =>
+                    Math.min(
+                      totalPaginas,
+                      pagina + 1
+                    )
+                )
+              }
+            >
+              Siguiente
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* =================================================
+          NOTIFICACIONES
+      ================================================= */}
+
+      <Toast
+        visible={
+          notificacion.visible
+        }
+        mensaje={
+          notificacion.mensaje
+        }
+        tipo={
+          notificacion.tipo
+        }
+        onClose={
+          cerrarNotificacion
+        }
+      />
+    </section>
+  );
+}

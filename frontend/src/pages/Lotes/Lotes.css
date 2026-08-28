@@ -2017,3 +2017,222 @@
   font-size: 12px;
   font-weight: 900;
 }
+/* =========================================================
+   ANULACIÓN DE VENTA DESDE LOTES
+========================================================= */
+
+.anulacion-lote-modal {
+  width: min(620px, 100%);
+}
+
+/* =========================================================
+   ICONO DE ALERTA
+========================================================= */
+
+.anulacion-lote-icon {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  border-radius: 12px;
+
+  background: #fff1e8;
+
+  color: #b96d2f;
+}
+
+/* =========================================================
+   ADVERTENCIA
+========================================================= */
+
+.anulacion-lote-warning {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 11px;
+
+  padding: 13px 14px;
+
+  border: 1px solid #efd3bd;
+  border-radius: 12px;
+
+  background: #fff7f0;
+
+  color: #a65d25;
+}
+
+.anulacion-lote-warning > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.anulacion-lote-warning strong {
+  color: #8d4f20;
+
+  font-size: 12px;
+}
+
+.anulacion-lote-warning span {
+  color: #7d695a;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   DATOS DE LA VENTA
+========================================================= */
+
+.anulacion-lote-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 9px;
+
+  margin-top: 14px;
+}
+
+.anulacion-lote-info > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  padding: 11px 12px;
+
+  border: 1px solid #e2dccf;
+  border-radius: 10px;
+
+  background: #faf8f2;
+}
+
+.anulacion-lote-info span {
+  color: #8b918d;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+.anulacion-lote-info strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   MOTIVO
+========================================================= */
+
+.anulacion-lote-motivo {
+  margin-top: 15px;
+}
+
+.anulacion-lote-motivo textarea {
+  min-height: 105px;
+}
+
+/* =========================================================
+   QUÉ OCURRIRÁ
+========================================================= */
+
+.anulacion-lote-after {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  margin-top: 13px;
+  padding: 11px 13px;
+
+  border: 1px solid #d4e0d8;
+  border-radius: 10px;
+
+  background: #f1f6f3;
+}
+
+.anulacion-lote-after strong {
+  color: #1f6848;
+
+  font-size: 11px;
+}
+
+.anulacion-lote-after span {
+  color: #68746c;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   BOTÓN ANULAR Y EDITAR
+========================================================= */
+
+.anulacion-lote-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 0 16px;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #b45d32;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.anulacion-lote-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  background: #994b25;
+}
+
+.anulacion-lote-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 650px) {
+  .anulacion-lote-info {
+    grid-template-columns: 1fr;
+  }
+
+  .anulacion-lote-button {
+    width: 100%;
+  }
+}

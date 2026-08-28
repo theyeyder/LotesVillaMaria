@@ -3,6 +3,202 @@ import mongoose from "mongoose";
 import Venta from "./venta.model.js";
 import Cliente from "../clientes/cliente.model.js";
 import Lote from "../lotes/lote.model.js";
+import Cuota from "../cuotas/cuota.model.js";
+
+/* =========================================================
+   FECHA UTC
+========================================================= */
+
+const normalizarFechaUTC = (fecha) => {
+  const date = new Date(fecha);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return new Date(
+    Date.UTC(
+      date.getUTCFullYear(),
+      date.getUTCMonth(),
+      date.getUTCDate()
+    )
+  );
+};
+
+/* =========================================================
+   ÚLTIMO DÍA DEL MES
+========================================================= */
+
+const ultimoDiaMes = (year, month) => {
+  return new Date(
+    Date.UTC(
+      year,
+      month + 1,
+      0
+    )
+  ).getUTCDate();
+};
+
+/* =========================================================
+   SUMAR MESES DE FORMA SEGURA
+
+   31 enero -> 28 febrero -> 31 marzo
+========================================================= */
+
+const agregarMesesSeguro = (fechaBase, meses) => {
+  const base = normalizarFechaUTC(fechaBase);
+
+  if (!base) {
+    return null;
+  }
+
+  const diaOriginal = base.getUTCDate();
+
+  const temporal = new Date(
+    Date.UTC(
+      base.getUTCFullYear(),
+      base.getUTCMonth() + meses,
+      1
+    )
+  );
+
+  const year = temporal.getUTCFullYear();
+  const month = temporal.getUTCMonth();
+
+  const dia = Math.min(
+    diaOriginal,
+    ultimoDiaMes(year, month)
+  );
+
+  return new Date(
+    Date.UTC(
+      year,
+      month,
+      dia
+    )
+  );
+};
+
+/* =========================================================
+   DISTRIBUIR SALDO EXACTAMENTE ENTRE LAS CUOTAS
+========================================================= */
+
+const distribuirValoresCuotas = (saldo, numeroCuotas) => {
+  const totalCentavos = Math.round(Number(saldo) * 100);
+
+  const cantidad = Number(numeroCuotas);
+
+  const valorBase = Math.floor(totalCentavos / cantidad);
+
+  const sobrante = totalCentavos - valorBase * cantidad;
+
+  const valores = [];
+
+  for (let i = 0; i < cantidad; i += 1) {
+    const centavos = valorBase + (i < sobrante ? 1 : 0);
+
+    valores.push(
+      Number(
+        (centavos / 100).toFixed(2)
+      )
+    );
+  }
+
+  return valores;
+};
+
+/* =========================================================
+   CREAR CUOTAS AUTOMÁTICAS DE UNA VENTA
+========================================================= */
+
+const crearCuotasAutomaticas = async (venta) => {
+  /*
+    Contado no genera cuotas.
+  */
+
+  if (venta.formaPago !== "Financiado") {
+    return [];
+  }
+
+  if (
+    Number(venta.numeroCuotas) <= 0 ||
+    Number(venta.saldoFinanciar) <= 0
+  ) {
+    return [];
+  }
+
+  /*
+    Evitamos duplicarlas.
+  */
+
+  const yaExisten = await Cuota.countDocuments({
+    venta: venta._id,
+  });
+
+  if (yaExisten > 0) {
+    return Cuota.find({
+      venta: venta._id,
+    }).sort({
+      numeroCuota: 1,
+    });
+  }
+
+  const valores = distribuirValoresCuotas(
+    venta.saldoFinanciar,
+    venta.numeroCuotas
+  );
+
+  const documentos = [];
+
+  for (
+    let i = 0;
+    i < Number(venta.numeroCuotas);
+    i += 1
+  ) {
+    /*
+      Primera cuota:
+      un mes después de la venta.
+
+      Segunda:
+      dos meses después.
+
+      etc.
+    */
+
+    const fechaVencimiento = agregarMesesSeguro(
+      venta.fechaVenta,
+      i + 1
+    );
+
+    const valorCuota = valores[i];
+
+    documentos.push({
+      venta: venta._id,
+
+      numeroCuota: i + 1,
+
+      fechaVencimiento,
+
+      valorCuota,
+
+      valorPagado: 0,
+
+      saldoPendiente: valorCuota,
+
+      estado: "Pendiente",
+
+      fechaPago: null,
+
+      fechaAnulacion: null,
+
+      motivoAnulacion: "",
+
+      observaciones: "",
+    });
+  }
+
+  return Cuota.insertMany(documentos);
+};
 
 /* =========================================================
    GENERAR CÓDIGO AUTOMÁTICO
@@ -458,6 +654,16 @@ export const crearVenta = async (req, res) => {
     });
 
     /* =====================================================
+       GENERAR CUOTAS AUTOMÁTICAMENTE
+    ===================================================== */
+
+    let cuotasGeneradas = [];
+
+    if (nuevaVenta.formaPago === "Financiado") {
+      cuotasGeneradas = await crearCuotasAutomaticas(nuevaVenta);
+    }
+
+    /* =====================================================
        MARCAR LOTE COMO VENDIDO
     ===================================================== */
 
@@ -482,9 +688,14 @@ export const crearVenta = async (req, res) => {
       });
 
     res.status(201).json({
-      message: "Venta registrada correctamente",
+      message:
+        nuevaVenta.formaPago === "Financiado"
+          ? `Venta registrada correctamente. Se generaron ${cuotasGeneradas.length} cuotas.`
+          : "Venta de contado registrada correctamente.",
 
       venta: ventaCompleta,
+
+      cuotasGeneradas: cuotasGeneradas.length,
     });
   } catch (error) {
     console.error("Error creando venta:", error);
@@ -706,6 +917,32 @@ export const anularVenta = async (req, res) => {
     venta.fechaAnulacion = new Date();
 
     await venta.save();
+
+    /* =====================================================
+       ANULAR TODAS LAS CUOTAS DE LA VENTA
+
+       Se conservan en MongoDB como historial,
+       pero dejan de contar como deuda.
+    ===================================================== */
+
+    await Cuota.updateMany(
+      {
+        venta: venta._id,
+
+        estado: {
+          $ne: "Anulada",
+        },
+      },
+      {
+        $set: {
+          estado: "Anulada",
+
+          fechaAnulacion: venta.fechaAnulacion,
+
+          motivoAnulacion: venta.motivoAnulacion,
+        },
+      }
+    );
 
     /* =========================
        LIBERAR LOTE

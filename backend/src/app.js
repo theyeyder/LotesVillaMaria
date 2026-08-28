@@ -8,6 +8,7 @@ import horasMaquinariaRouter from "./modules/horasMaquinaria/horaMaquinaria.rout
 import manzanasRouter from "./modules/manzanas/manzana.routes.js";
 import lotesRouter from "./modules/lotes/lote.routes.js";
 import ventasRouter from "./modules/ventas/venta.routes.js";
+import cuotasRouter from "./modules/cuotas/cuota.routes.js";
 
 const app = express();
 
@@ -69,8 +70,13 @@ app.use(
   ventasRouter
 );
 
+app.use(
+  "/api/cuotas",
+  cuotasRouter
+);
+
 /* =========================================================
-   404
+   RUTA NO ENCONTRADA
 ========================================================= */
 
 app.use(

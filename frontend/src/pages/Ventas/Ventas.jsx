@@ -466,12 +466,34 @@ export default function Ventas() {
 
   /* =======================================================
      ESTADÍSTICAS
+
+     IMPORTANTE:
+     Las ventas ANULADAS se conservan como historial,
+     pero NO cuentan en los totales comerciales.
   ======================================================= */
 
   const estadisticas =
     useMemo(() => {
       return ventas.reduce(
         (acc, venta) => {
+          /* =========================
+             ANULADAS
+             Solo historial
+          ========================= */
+
+          if (
+            venta.estado ===
+            "Anulada"
+          ) {
+            acc.anuladas += 1;
+
+            return acc;
+          }
+
+          /* =========================
+             VENTA VÁLIDA
+          ========================= */
+
           acc.total += 1;
 
           acc.valorVentas +=
@@ -489,6 +511,10 @@ export default function Ventas() {
               venta.saldoFinanciar
             ) || 0;
 
+          /* =========================
+             ESTADOS
+          ========================= */
+
           if (
             venta.estado ===
             "Activa"
@@ -503,13 +529,6 @@ export default function Ventas() {
             acc.pagadas += 1;
           }
 
-          if (
-            venta.estado ===
-            "Anulada"
-          ) {
-            acc.anuladas += 1;
-          }
-
           return acc;
         },
         {
@@ -517,6 +536,7 @@ export default function Ventas() {
           activas: 0,
           pagadas: 0,
           anuladas: 0,
+
           valorVentas: 0,
           iniciales: 0,
           saldo: 0,
