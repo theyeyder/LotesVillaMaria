@@ -1513,3 +1513,316 @@
     grid-column: auto;
   }
 }
+/* =========================================================
+   MODAL ANULAR VENTA
+========================================================= */
+
+.venta-anular-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  background: rgba(14, 32, 24, 0.58);
+  backdrop-filter: blur(4px);
+}
+
+.venta-anular-modal {
+  width: min(520px, 100%);
+
+  overflow: hidden;
+
+  border: 1px solid #ddd5c8;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+/* CABECERA */
+
+.venta-anular-header {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #eee5d8;
+}
+
+.venta-anular-icon {
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  border-radius: 12px;
+
+  background: #fdebea;
+
+  color: #be4747;
+
+  font-size: 20px;
+  font-weight: 900;
+}
+
+.venta-anular-header > div:nth-child(2) {
+  flex: 1;
+}
+
+.venta-anular-header span {
+  color: #b98532;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+}
+
+.venta-anular-header h3 {
+  margin: 2px 0 0;
+
+  color: #173f2e;
+
+  font-size: 16px;
+}
+
+.venta-anular-close {
+  border: 0;
+
+  background: transparent;
+
+  color: #7e8781;
+
+  font-size: 25px;
+
+  cursor: pointer;
+}
+
+/* ADVERTENCIA */
+
+.venta-anular-warning {
+  margin: 16px 20px 0;
+  padding: 11px 13px;
+
+  border: 1px solid #edd3cf;
+  border-radius: 10px;
+
+  background: #fff2f0;
+
+  color: #80504c;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* DATOS */
+
+.venta-anular-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin: 12px 20px 0;
+}
+
+.venta-anular-info > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+
+  padding: 10px;
+
+  border: 1px solid #e6ded2;
+  border-radius: 9px;
+
+  background: #faf8f1;
+}
+
+.venta-anular-info span {
+  color: #8a918c;
+
+  font-size: 7px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.venta-anular-info strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 10px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* MOTIVO */
+
+.venta-anular-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin: 16px 20px 0;
+}
+
+.venta-anular-field label {
+  color: #173f2e;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.venta-anular-field textarea {
+  width: 100%;
+  min-height: 100px;
+
+  padding: 11px 12px;
+
+  resize: vertical;
+
+  border: 1px solid #d8d2c6;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #273b31;
+
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.venta-anular-field textarea:focus {
+  border-color: #b98532;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 133, 50, 0.09);
+}
+
+.venta-anular-counter {
+  display: flex;
+  justify-content: space-between;
+
+  color: #929892;
+
+  font-size: 8px;
+}
+
+/* CONSECUENCIAS */
+
+.venta-anular-after {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  margin: 14px 20px 0;
+  padding: 10px 12px;
+
+  border-radius: 9px;
+
+  background: #f3f6f2;
+
+  color: #657169;
+
+  font-size: 9px;
+}
+
+.venta-anular-after strong {
+  margin-bottom: 2px;
+
+  color: #173f2e;
+}
+
+/* BOTONES */
+
+.venta-anular-actions {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 8px;
+
+  margin-top: 18px;
+  padding: 14px 20px;
+
+  border-top: 1px solid #eee5d8;
+}
+
+.venta-anular-cancel,
+.venta-anular-confirm {
+  min-height: 36px;
+
+  padding: 0 15px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.venta-anular-cancel {
+  border: 1px solid #d8d2c7;
+
+  background: #ffffff;
+
+  color: #526158;
+}
+
+.venta-anular-confirm {
+  border: 1px solid #be4747;
+
+  background: #be4747;
+
+  color: #ffffff;
+}
+
+.venta-anular-confirm:hover:not(:disabled) {
+  background: #a93b3b;
+}
+
+.venta-anular-confirm:disabled {
+  opacity: 0.45;
+
+  cursor: not-allowed;
+}
+
+@media (max-width: 560px) {
+  .venta-anular-info {
+    grid-template-columns: 1fr;
+  }
+
+  .venta-anular-actions {
+    flex-direction: column-reverse;
+  }
+
+  .venta-anular-cancel,
+  .venta-anular-confirm {
+    width: 100%;
+  }
+}

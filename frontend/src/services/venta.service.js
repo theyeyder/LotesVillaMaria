@@ -97,7 +97,6 @@ export const anularVenta = async (
 
   return response.data;
 };
-
 /* =========================================================
    ELIMINAR / ANULAR
 

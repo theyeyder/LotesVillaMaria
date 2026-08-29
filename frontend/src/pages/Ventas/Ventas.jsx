@@ -170,6 +170,14 @@ export default function Ventas() {
   ] = useState(null);
 
   /* =======================================================
+     ESTADOS DE ANULACIÓN
+  ======================================================= */
+
+  const [ventaParaAnular, setVentaParaAnular] = useState(null);
+  const [motivoAnulacion, setMotivoAnulacion] = useState("");
+  const [anulandoVenta, setAnulandoVenta] = useState(false);
+
+  /* =======================================================
      FILTROS
   ======================================================= */
 
@@ -738,70 +746,87 @@ export default function Ventas() {
     };
 
   /* =======================================================
-     ANULAR
+     ABRIR VENTANA DE ANULACIÓN
   ======================================================= */
 
-  const handleAnularVenta =
-    async (venta) => {
-      if (
-        venta.estado ===
-        "Anulada"
-      ) {
-        mostrarNotificacion(
-          "Esta venta ya se encuentra anulada.",
-          "info"
-        );
+  const handleAnularVenta = (venta) => {
+    if (venta.estado === "Anulada") {
+      mostrarNotificacion(
+        "Esta venta ya se encuentra anulada.",
+        "info"
+      );
 
-        return;
-      }
+      return;
+    }
 
-      const lote =
-        venta.lote?.codigo ||
-        "el lote";
+    setVentaParaAnular(venta);
+    setMotivoAnulacion("");
+  };
 
-      const confirmar =
-        window.confirm(
-          `¿Está seguro de anular la venta ${venta.codigo}?\n\n${lote} volverá a estar disponible.`
-        );
+  /* =======================================================
+     CERRAR VENTANA
+  ======================================================= */
 
-      if (!confirmar) {
-        return;
-      }
+  const cerrarAnulacionVenta = () => {
+    if (anulandoVenta) return;
 
-      try {
-        const respuesta =
-          await anularVenta(
-            venta._id
-          );
+    setVentaParaAnular(null);
+    setMotivoAnulacion("");
+  };
 
-        /*
-          Recargamos ambos porque
-          el lote vuelve a Disponible.
-        */
+  /* =======================================================
+     CONFIRMAR ANULACIÓN
+  ======================================================= */
 
-        await Promise.all([
-          cargarVentas(),
-          cargarLotes(),
-        ]);
+  const confirmarAnulacionVenta = async () => {
+    const motivo = motivoAnulacion.trim();
 
-        mostrarNotificacion(
-          respuesta?.message ||
-            "Venta anulada correctamente."
-        );
-      } catch (error) {
-        console.error(
-          "Error anulando venta:",
-          error
-        );
+    if (motivo.length < 5) {
+      mostrarNotificacion(
+        "Debe escribir un motivo de anulación de mínimo 5 caracteres.",
+        "error"
+      );
 
-        mostrarNotificacion(
-          error?.response?.data
-            ?.message ||
-            "No fue posible anular la venta.",
-          "error"
-        );
-      }
-    };
+      return;
+    }
+
+    if (!ventaParaAnular?._id) {
+      return;
+    }
+
+    try {
+      setAnulandoVenta(true);
+
+      const respuesta = await anularVenta(
+        ventaParaAnular._id,
+        motivo
+      );
+
+      mostrarNotificacion(
+        respuesta?.message ||
+          "Venta anulada correctamente.",
+        "success"
+      );
+
+      setVentaParaAnular(null);
+      setMotivoAnulacion("");
+
+      await cargarTodo();
+    } catch (error) {
+      console.error(
+        "Error anulando venta:",
+        error
+      );
+
+      mostrarNotificacion(
+        error?.response?.data?.message ||
+          "No fue posible anular la venta.",
+        "error"
+      );
+    } finally {
+      setAnulandoVenta(false);
+    }
+  };
 
   /* =======================================================
      RENDER
@@ -1477,6 +1502,172 @@ export default function Ventas() {
           lotes
         }
       />
+
+      {/* =====================================================
+          MODAL ANULAR VENTA
+      ===================================================== */}
+
+      {ventaParaAnular && (
+        <div
+          className="venta-anular-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget) {
+              cerrarAnulacionVenta();
+            }
+          }}
+        >
+          <div className="venta-anular-modal">
+
+            {/* CABECERA */}
+
+            <div className="venta-anular-header">
+              <div className="venta-anular-icon">
+                !
+              </div>
+
+              <div>
+                <span>ANULACIÓN DE VENTA</span>
+
+                <h3>
+                  ¿Desea anular esta venta?
+                </h3>
+              </div>
+
+              <button
+                type="button"
+                className="venta-anular-close"
+                onClick={cerrarAnulacionVenta}
+                disabled={anulandoVenta}
+              >
+                ×
+              </button>
+            </div>
+
+            {/* ADVERTENCIA */}
+
+            <div className="venta-anular-warning">
+              Esta acción dejará la venta como
+              <strong> Anulada</strong> y liberará el lote
+              asociado.
+            </div>
+
+            {/* INFORMACIÓN DE LA VENTA */}
+
+            <div className="venta-anular-info">
+
+              <div>
+                <span>Venta</span>
+
+                <strong>
+                  {ventaParaAnular.codigo || "—"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Cliente</span>
+
+                <strong>
+                  {[
+                    ventaParaAnular.cliente?.nombres,
+                    ventaParaAnular.cliente?.apellidos,
+                  ]
+                    .filter(Boolean)
+                    .join(" ") || "—"}
+                </strong>
+              </div>
+
+              <div>
+                <span>Lote</span>
+
+                <strong>
+                  {ventaParaAnular.lote?.codigo || "—"}
+                </strong>
+              </div>
+
+            </div>
+
+            {/* MOTIVO */}
+
+            <div className="venta-anular-field">
+              <label>
+                Motivo de la anulación *
+              </label>
+
+              <textarea
+                value={motivoAnulacion}
+                onChange={(e) =>
+                  setMotivoAnulacion(
+                    e.target.value
+                  )
+                }
+                placeholder="Escriba por qué se está anulando esta venta..."
+                maxLength={300}
+                disabled={anulandoVenta}
+                autoFocus
+              />
+
+              <div className="venta-anular-counter">
+                <span>
+                  Mínimo 5 caracteres
+                </span>
+
+                <span>
+                  {motivoAnulacion.length}/300
+                </span>
+              </div>
+            </div>
+
+            {/* QUÉ PASARÁ */}
+
+            <div className="venta-anular-after">
+              <strong>
+                Al confirmar:
+              </strong>
+
+              <span>
+                • La venta quedará anulada.
+              </span>
+
+              <span>
+                • Las cuotas quedarán anuladas.
+              </span>
+
+              <span>
+                • El lote volverá a estar disponible.
+              </span>
+            </div>
+
+            {/* BOTONES */}
+
+            <div className="venta-anular-actions">
+
+              <button
+                type="button"
+                className="venta-anular-cancel"
+                onClick={cerrarAnulacionVenta}
+                disabled={anulandoVenta}
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="venta-anular-confirm"
+                onClick={confirmarAnulacionVenta}
+                disabled={
+                  anulandoVenta ||
+                  motivoAnulacion.trim().length < 5
+                }
+              >
+                {anulandoVenta
+                  ? "Anulando..."
+                  : "Confirmar anulación"}
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* =================================================
           TOAST
