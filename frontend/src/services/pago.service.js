@@ -91,6 +91,45 @@ export const anularPago =
   };
 
 /* =========================================================
+   REVERTIR PAGO
+
+   PATCH /api/pagos/:id/revertir
+
+   Solo se permite cuando el pago anulado es el ÚNICO
+   registro de pago para esa venta.
+========================================================= */
+
+export const revertirPago =
+  async (id) => {
+    const response =
+      await api.patch(
+        `/pagos/${id}/revertir`
+      );
+
+    return response.data;
+  };
+
+/* =========================================================
+   ELIMINAR PAGO ANULADO
+
+   DELETE /api/pagos/:id
+
+   Solo se permite si:
+   - está Anulado
+   - ya existe OTRO pago Aplicado para esa misma venta
+========================================================= */
+
+export const eliminarPago =
+  async (id) => {
+    const response =
+      await api.delete(
+        `/pagos/${id}`
+      );
+
+    return response.data;
+  };
+
+/* =========================================================
    EXPORTACIÓN GENERAL
 ========================================================= */
 
@@ -100,6 +139,8 @@ const pagoService = {
   obtenerPagoPorId,
   crearPago,
   anularPago,
+  revertirPago,
+  eliminarPago,
 };
 
 export default pagoService;

@@ -14,7 +14,9 @@ import {
   Plus,
   ReceiptText,
   RefreshCw,
+  RotateCcw,
   Search,
+  Trash2,
   UserRound,
   WalletCards,
   X,
@@ -30,6 +32,8 @@ import {
   obtenerPagos,
   obtenerResumenPagos,
   anularPago,
+  revertirPago,
+  eliminarPago,
 } from "../../services/pago.service";
 
 /* =========================================================
@@ -726,6 +730,123 @@ export default function Pagos() {
     };
 
   /* =======================================================
+     ID DE VENTA
+  ======================================================= */
+
+  const obtenerVentaId = (pago) => {
+    return (
+      pago?.venta?._id ||
+      pago?.venta ||
+      ""
+    );
+  };
+
+  /* =======================================================
+     PUEDE REVERTIR
+
+     Únicamente cuando ese anulado es el único
+     registro existente de esa venta.
+  ======================================================= */
+
+  const puedeRevertirPago = (pago) => {
+    if (pago.estado !== "Anulado") {
+      return false;
+    }
+
+    const ventaId = obtenerVentaId(pago);
+
+    const pagosVenta = pagos.filter(
+      (item) => obtenerVentaId(item) === ventaId
+    );
+
+    return pagosVenta.length === 1;
+  };
+
+  /* =======================================================
+     PUEDE ELIMINAR
+
+     Pago anulado + ya existe otro pago aplicado
+     para esa misma venta.
+  ======================================================= */
+
+  const puedeEliminarPago = (pago) => {
+    if (pago.estado !== "Anulado") {
+      return false;
+    }
+
+    const ventaId = obtenerVentaId(pago);
+
+    return pagos.some(
+      (item) =>
+        item._id !== pago._id &&
+        obtenerVentaId(item) === ventaId &&
+        item.estado === "Aplicado"
+    );
+  };
+
+  /* =======================================================
+     REVERTIR
+  ======================================================= */
+
+  const handleRevertirPago = async (pago) => {
+    const confirmar = window.confirm(
+      `¿Desea revertir la anulación de ${pago.codigo}? El pago volverá a aplicarse a la cartera actual.`
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      const respuesta = await revertirPago(pago._id);
+
+      await cargarTodo();
+
+      mostrarNotificacion(
+        respuesta?.message || "Pago revertido correctamente."
+      );
+    } catch (error) {
+      console.error("Error revirtiendo pago:", error);
+
+      mostrarNotificacion(
+        error?.response?.data?.message || "No fue posible revertir el pago.",
+        "error"
+      );
+    }
+  };
+
+  /* =======================================================
+     ELIMINAR ANULADO
+  ======================================================= */
+
+  const handleEliminarPago = async (pago) => {
+    const confirmar = window.confirm(
+      `¿Eliminar definitivamente ${pago.codigo}? Este registro anulado desaparecerá del historial.`
+    );
+
+    if (!confirmar) {
+      return;
+    }
+
+    try {
+      const respuesta = await eliminarPago(pago._id);
+
+      await cargarTodo();
+
+      mostrarNotificacion(
+        respuesta?.message || "Pago eliminado correctamente."
+      );
+    } catch (error) {
+      console.error("Error eliminando pago:", error);
+
+      mostrarNotificacion(
+        error?.response?.data?.message || "No fue posible eliminar el pago.",
+        "error"
+      );
+    }
+  };
+
+  /* =======================================================
      RENDER
   ======================================================= */
 
@@ -1318,40 +1439,64 @@ export default function Pagos() {
 
                         <td>
                           <div className="pagos-actions">
+
+                            {/* VER */}
+
                             <button
                               type="button"
                               className="view"
                               title="Ver detalle"
                               onClick={() =>
-                                abrirDetalle(
-                                  pago
-                                )
+                                abrirDetalle(pago)
                               }
                             >
-                              <Eye
-                                size={16}
-                              />
+                              <Eye size={16} />
                             </button>
 
-                            <button
-                              type="button"
-                              className="cancel"
-                              title={
-                                pago.estado ===
-                                "Anulado"
-                                  ? "Pago ya anulado"
-                                  : "Anular pago"
-                              }
-                              onClick={() =>
-                                abrirAnulacion(
-                                  pago
-                                )
-                              }
-                            >
-                              <Ban
-                                size={16}
-                              />
-                            </button>
+                            {/* ANULAR */}
+
+                            {pago.estado === "Aplicado" && (
+                              <button
+                                type="button"
+                                className="cancel"
+                                title="Anular pago"
+                                onClick={() =>
+                                  abrirAnulacion(pago)
+                                }
+                              >
+                                <Ban size={16} />
+                              </button>
+                            )}
+
+                            {/* REVERTIR */}
+
+                            {puedeRevertirPago(pago) && (
+                              <button
+                                type="button"
+                                className="revert"
+                                title="Revertir anulación"
+                                onClick={() =>
+                                  handleRevertirPago(pago)
+                                }
+                              >
+                                <RotateCcw size={16} />
+                              </button>
+                            )}
+
+                            {/* ELIMINAR */}
+
+                            {puedeEliminarPago(pago) && (
+                              <button
+                                type="button"
+                                className="delete"
+                                title="Eliminar pago anulado"
+                                onClick={() =>
+                                  handleEliminarPago(pago)
+                                }
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            )}
                           </div>
                         </td>
                       </tr>

@@ -172,6 +172,11 @@ export default function PagoModal({
     setBusquedaCliente,
   ] = useState("");
 
+  const [
+    clienteSeleccionadoId,
+    setClienteSeleccionadoId,
+  ] = useState("");
+
   /* =======================================================
      FORMULARIO
   ======================================================= */
@@ -328,11 +333,9 @@ export default function PagoModal({
     });
 
     setBusquedaCliente("");
-
+    setClienteSeleccionadoId("");
     setCuotas([]);
-
     setError("");
-
     setTipoPago("cuota");
   }, [
     abierto,
@@ -450,18 +453,53 @@ export default function PagoModal({
   ]);
 
   /* =======================================================
-     FILTRAR VENTAS POR CLIENTE
-
-     Permite buscar por:
-     - nombres
-     - apellidos
-     - nombre completo
-     - documento
-     - código de venta
-     - código del lote
+     CLIENTES CON VENTAS FINANCIADAS
   ======================================================= */
 
-  const ventasFiltradas =
+  const clientesDisponibles =
+    useMemo(() => {
+      const mapa = new Map();
+
+      ventas.forEach(
+        (venta) => {
+          const cliente =
+            venta.cliente;
+
+          if (
+            !cliente?._id
+          ) {
+            return;
+          }
+
+          if (
+            !mapa.has(
+              cliente._id
+            )
+          ) {
+            mapa.set(
+              cliente._id,
+              cliente
+            );
+          }
+        }
+      );
+
+      return Array.from(
+        mapa.values()
+      );
+    }, [ventas]);
+
+  /* =======================================================
+     BUSCAR CLIENTE
+
+     Permite:
+     - nombre
+     - apellido
+     - nombre completo
+     - documento
+  ======================================================= */
+
+  const clientesFiltrados =
     useMemo(() => {
       const texto =
         busquedaCliente
@@ -469,26 +507,21 @@ export default function PagoModal({
           .toLowerCase();
 
       if (!texto) {
-        return ventas;
+        return [];
       }
 
-      return ventas.filter(
-        (venta) => {
-          const cliente =
-            venta.cliente;
-
-          const nombre =
+      return clientesDisponibles.filter(
+        (cliente) => {
+          const nombreCompleto =
             obtenerNombreCliente(
               cliente
             );
 
           const contenido = [
-            nombre,
-            cliente?.nombres,
-            cliente?.apellidos,
-            cliente?.documento,
-            venta?.codigo,
-            venta?.lote?.codigo,
+            nombreCompleto,
+            cliente.nombres,
+            cliente.apellidos,
+            cliente.documento,
           ]
             .filter(Boolean)
             .join(" ")
@@ -500,9 +533,163 @@ export default function PagoModal({
         }
       );
     }, [
-      ventas,
+      clientesDisponibles,
       busquedaCliente,
     ]);
+
+  /* =======================================================
+     CLIENTE SELECCIONADO
+  ======================================================= */
+
+  const clienteSeleccionado =
+    useMemo(() => {
+      return clientesDisponibles.find(
+        (cliente) =>
+          cliente._id ===
+          clienteSeleccionadoId
+      ) || null;
+    }, [
+      clientesDisponibles,
+      clienteSeleccionadoId,
+    ]);
+
+  /* =======================================================
+     VENTAS DEL CLIENTE SELECCIONADO
+  ======================================================= */
+
+  const ventasClienteSeleccionado =
+    useMemo(() => {
+      if (
+        !clienteSeleccionadoId
+      ) {
+        return [];
+      }
+
+      return ventas.filter(
+        (venta) =>
+          venta.cliente?._id ===
+          clienteSeleccionadoId
+      );
+    }, [
+      ventas,
+      clienteSeleccionadoId,
+    ]);
+
+  /* =======================================================
+     SELECCIONAR CLIENTE
+  ======================================================= */
+
+  const seleccionarCliente =
+    (cliente) => {
+      setClienteSeleccionadoId(
+        cliente._id
+      );
+
+      setBusquedaCliente(
+        obtenerNombreCliente(
+          cliente
+        )
+      );
+
+      setCuotas([]);
+
+      setError("");
+
+      const ventasCliente =
+        ventas.filter(
+          (venta) =>
+            venta.cliente?._id ===
+            cliente._id
+        );
+
+      /*
+        Si únicamente tiene una venta financiada,
+        la seleccionamos automáticamente.
+      */
+
+      if (
+        ventasCliente.length === 1
+      ) {
+        setFormulario(
+          (prev) => ({
+            ...prev,
+
+            venta:
+              ventasCliente[0]._id,
+
+            valorPago: "",
+          })
+        );
+
+        return;
+      }
+
+      /*
+        Si tiene varias ventas,
+        esperamos que seleccione una tarjeta.
+      */
+
+      setFormulario(
+        (prev) => ({
+          ...prev,
+
+          venta: "",
+
+          valorPago: "",
+        })
+      );
+    };
+
+  /* =======================================================
+     CAMBIAR CLIENTE
+  ======================================================= */
+
+  const limpiarCliente =
+    () => {
+      setBusquedaCliente("");
+
+      setClienteSeleccionadoId("");
+
+      setFormulario(
+        (prev) => ({
+          ...prev,
+
+          venta: "",
+
+          valorPago: "",
+        })
+      );
+
+      setCuotas([]);
+
+      setTipoPago("cuota");
+
+      setError("");
+    };
+
+  /* =======================================================
+     SELECCIONAR VENTA DEL CLIENTE
+  ======================================================= */
+
+  const seleccionarVentaCliente =
+    (venta) => {
+      setFormulario(
+        (prev) => ({
+          ...prev,
+
+          venta:
+            venta._id,
+
+          valorPago: "",
+        })
+      );
+
+      setTipoPago(
+        "cuota"
+      );
+
+      setError("");
+    };
 
   /* =======================================================
      VENTA SELECCIONADA
@@ -1071,12 +1258,12 @@ export default function PagoModal({
             )}
 
             {/* =============================================
-                BUSCAR CLIENTE
+                BUSCAR Y SELECCIONAR CLIENTE
             ============================================= */}
 
             <div className="pagos-field pago-field-full">
               <label>
-                Buscar cliente
+                Buscar cliente *
               </label>
 
               <div className="pago-client-search">
@@ -1089,12 +1276,37 @@ export default function PagoModal({
                   value={
                     busquedaCliente
                   }
-                  onChange={(e) =>
+                  onChange={(e) => {
                     setBusquedaCliente(
                       e.target.value
-                    )
-                  }
-                  placeholder="Escriba nombre, apellido o número de documento..."
+                    );
+
+                    /*
+                      Si empieza a escribir nuevamente,
+                      quitamos la selección anterior.
+                    */
+
+                    if (
+                      clienteSeleccionadoId
+                    ) {
+                      setClienteSeleccionadoId(
+                        ""
+                      );
+
+                      setFormulario(
+                        (prev) => ({
+                          ...prev,
+
+                          venta: "",
+
+                          valorPago: "",
+                        })
+                      );
+
+                      setCuotas([]);
+                    }
+                  }}
+                  placeholder="Escriba nombre, apellido o documento..."
                   disabled={
                     guardando ||
                     cargandoVentas ||
@@ -1108,100 +1320,210 @@ export default function PagoModal({
                   <button
                     type="button"
                     className="pago-client-search-clear"
-                    onClick={() =>
-                      setBusquedaCliente(
-                        ""
-                      )
+                    onClick={
+                      limpiarCliente
                     }
                     disabled={
                       guardando
                     }
-                    title="Limpiar búsqueda"
+                    title="Limpiar"
                   >
                     <X size={15} />
                   </button>
                 )}
               </div>
 
-              {busquedaCliente && (
-                <small className="pago-client-search-results">
-                  {ventasFiltradas.length ===
-                  1
-                    ? "1 venta financiada encontrada"
-                    : `${ventasFiltradas.length} ventas financiadas encontradas`}
-                </small>
+              {/* =========================================
+                  RESULTADOS DE BÚSQUEDA
+              ========================================= */}
+
+              {busquedaCliente.trim() &&
+                !clienteSeleccionadoId && (
+                  <div className="pago-client-results">
+
+                    {clientesFiltrados.length ===
+                    0 ? (
+                      <div className="pago-client-no-results">
+                        No se encontró ningún cliente
+                        con ventas financiadas.
+                      </div>
+                    ) : (
+                      clientesFiltrados.map(
+                        (cliente) => (
+                          <button
+                            type="button"
+                            key={
+                              cliente._id
+                            }
+                            className="pago-client-result"
+                            onClick={() =>
+                              seleccionarCliente(
+                                cliente
+                              )
+                            }
+                          >
+                            <div className="pago-client-result-icon">
+                              <UserRound
+                                size={17}
+                              />
+                            </div>
+
+                            <div className="pago-client-result-info">
+                              <strong>
+                                {obtenerNombreCliente(
+                                  cliente
+                                )}
+                              </strong>
+
+                              <span>
+                                Documento:{" "}
+                                {cliente.documento ||
+                                  "Sin documento"}
+                              </span>
+                            </div>
+
+                            <small>
+                              Seleccionar
+                            </small>
+                          </button>
+                        )
+                      )
+                    )}
+                  </div>
+                )}
+
+              {/* =========================================
+                  CLIENTE YA SELECCIONADO
+              ========================================= */}
+
+              {clienteSeleccionado && (
+                <div className="pago-selected-client">
+                  <div className="pago-selected-client-icon">
+                    <CheckCircle2
+                      size={18}
+                    />
+                  </div>
+
+                  <div>
+                    <span>
+                      Cliente seleccionado
+                    </span>
+
+                    <strong>
+                      {obtenerNombreCliente(
+                        clienteSeleccionado
+                      )}
+                    </strong>
+
+                    <small>
+                      Documento:{" "}
+                      {clienteSeleccionado.documento ||
+                        "Sin documento"}
+                    </small>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={
+                      limpiarCliente
+                    }
+                    disabled={
+                      guardando
+                    }
+                  >
+                    Cambiar
+                  </button>
+                </div>
               )}
             </div>
 
             {/* =============================================
-                VENTA
+                VENTAS DEL CLIENTE
+
+                Si tiene una sola se selecciona automáticamente.
+                Si tiene varias, debe escoger cuál va a pagar.
             ============================================= */}
 
-            <div className="pagos-field pago-field-full">
-              <label>
-                Venta financiada *
-              </label>
+            {clienteSeleccionado &&
+              ventasClienteSeleccionado.length >
+                1 && (
+                <div className="pagos-field pago-field-full">
+                  <label>
+                    Seleccione la venta que va a pagar *
+                  </label>
 
-              <select
-                name="venta"
-                value={
-                  formulario.venta
-                }
-                onChange={
-                  handleChange
-                }
-                disabled={
-                  guardando ||
-                  cargandoVentas ||
-                  Boolean(
-                    ventaInicial
-                  )
-                }
-              >
-                <option value="">
-                  {cargandoVentas
-                    ? "Cargando ventas..."
-                    : ventasFiltradas.length ===
-                        0
-                      ? "No se encontraron ventas"
-                      : "Seleccione una venta"}
-                </option>
+                  <div className="pago-client-sales">
+                    {ventasClienteSeleccionado.map(
+                      (venta) => {
+                        const seleccionada =
+                          formulario.venta ===
+                          venta._id;
 
-                {ventasFiltradas.map(
-                  (venta) => {
-                    const cliente =
-                      venta.cliente;
+                        return (
+                          <button
+                            type="button"
+                            key={
+                              venta._id
+                            }
+                            className={`pago-client-sale ${
+                              seleccionada
+                                ? "active"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              seleccionarVentaCliente(
+                                venta
+                              )
+                            }
+                            disabled={
+                              guardando
+                            }
+                          >
+                            <div>
+                              <span>
+                                Venta
+                              </span>
 
-                    const nombre =
-                      obtenerNombreCliente(
-                        cliente
-                      );
+                              <strong>
+                                {venta.codigo}
+                              </strong>
+                            </div>
 
-                    const documento =
-                      cliente?.documento
-                        ? `CC ${cliente.documento}`
-                        : "Sin documento";
+                            <div>
+                              <span>
+                                Lote
+                              </span>
 
-                    return (
-                      <option
-                        key={
-                          venta._id
-                        }
-                        value={
-                          venta._id
-                        }
-                      >
-                        {nombre} -{" "}
-                        {documento} -{" "}
-                        {venta.codigo} -{" "}
-                        {venta.lote?.codigo ||
-                          "Sin lote"}
-                      </option>
-                    );
-                  }
-                )}
-              </select>
-            </div>
+                              <strong>
+                                {venta.lote?.codigo ||
+                                  "—"}
+                              </strong>
+                            </div>
+
+                            <div>
+                              <span>
+                                Valor financiado
+                              </span>
+
+                              <strong>
+                                {formatearDinero(
+                                  venta.saldoFinanciar
+                                )}
+                              </strong>
+                            </div>
+
+                            {seleccionada && (
+                              <CheckCircle2
+                                size={18}
+                              />
+                            )}
+                          </button>
+                        );
+                      }
+                    )}
+                  </div>
+                </div>
+              )}
 
             {/* =============================================
                 INFORMACIÓN DE LA VENTA

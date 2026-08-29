@@ -5,6 +5,8 @@ import {
   obtenerPagoPorId,
   crearPago,
   anularPago,
+  revertirPago,
+  eliminarPagoAnulado,
   obtenerResumenPagos,
 } from "./pago.controller.js";
 
@@ -70,6 +72,35 @@ router.post(
 router.patch(
   "/:id/anular",
   anularPago
+);
+
+/* =========================================================
+   REVERTIR PAGO ANULADO
+
+   PATCH /api/pagos/:id/revertir
+
+   Solo se permite cuando el pago anulado es el ÚNICO
+   registro de pago para esa venta.
+========================================================= */
+
+router.patch(
+  "/:id/revertir",
+  revertirPago
+);
+
+/* =========================================================
+   ELIMINAR PAGO ANULADO
+
+   DELETE /api/pagos/:id
+
+   Solo se permite si:
+   - está Anulado
+   - ya existe OTRO pago Aplicado para esa misma venta
+========================================================= */
+
+router.delete(
+  "/:id",
+  eliminarPagoAnulado
 );
 
 /* =========================================================

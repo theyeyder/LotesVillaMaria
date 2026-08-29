@@ -1298,6 +1298,382 @@ export const anularPago =
   };
 
 /* =========================================================
+   REVERTIR ANULACIÓN DE PAGO
+
+   Solo se permite cuando ese pago es el ÚNICO registro
+   existente para esa venta.
+
+   PATCH /api/pagos/:id/revertir
+========================================================= */
+
+export const revertirPago =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          req.params.id
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "El identificador del pago no es válido",
+        });
+      }
+
+      const pago =
+        await Pago.findById(
+          req.params.id
+        );
+
+      if (!pago) {
+        return res.status(404).json({
+          message:
+            "El pago no fue encontrado",
+        });
+      }
+
+      if (
+        pago.estado !==
+        "Anulado"
+      ) {
+        return res.status(409).json({
+          message:
+            "Solamente se puede revertir un pago anulado",
+        });
+      }
+
+      /* =====================================================
+         DEBE SER EL ÚNICO PAGO DE ESA VENTA
+      ===================================================== */
+
+      const totalPagosVenta =
+        await Pago.countDocuments({
+          venta:
+            pago.venta,
+        });
+
+      if (
+        totalPagosVenta !== 1
+      ) {
+        return res.status(409).json({
+          message:
+            "Este pago no puede revertirse porque la venta ya tiene otros registros de pago.",
+        });
+      }
+
+      /* =====================================================
+         VENTA
+      ===================================================== */
+
+      const venta =
+        await Venta.findById(
+          pago.venta
+        );
+
+      if (!venta) {
+        return res.status(404).json({
+          message:
+            "La venta asociada no fue encontrada",
+        });
+      }
+
+      if (
+        venta.estado ===
+        "Anulada"
+      ) {
+        return res.status(409).json({
+          message:
+            "No se puede revertir el pago porque la venta está anulada.",
+        });
+      }
+
+      /* =====================================================
+         CUOTAS ACTUALES
+
+         IMPORTANTE:
+         No usamos necesariamente las aplicaciones antiguas,
+         porque la financiación pudo haber sido modificada.
+
+         Volvemos a distribuir el dinero sobre las cuotas
+         ACTUALES.
+      ===================================================== */
+
+      const cuotasPendientes =
+        await Cuota.find({
+          venta:
+            venta._id,
+
+          estado: {
+            $ne:
+              "Anulada",
+          },
+
+          saldoPendiente: {
+            $gt: 0,
+          },
+        }).sort({
+          fechaVencimiento: 1,
+          numeroCuota: 1,
+        });
+
+      if (
+        cuotasPendientes.length ===
+        0
+      ) {
+        return res.status(409).json({
+          message:
+            "La venta ya no tiene cuotas pendientes donde aplicar este pago.",
+        });
+      }
+
+      const saldoActual =
+        Number(
+          cuotasPendientes
+            .reduce(
+              (
+                total,
+                cuota
+              ) =>
+                total +
+                Number(
+                  cuota.saldoPendiente
+                ),
+              0
+            )
+            .toFixed(2)
+        );
+
+      if (
+        Number(
+          pago.valorPago
+        ) >
+        saldoActual
+      ) {
+        return res.status(409).json({
+          message:
+            "El valor del pago anulado supera el saldo actual de la venta y no puede revertirse.",
+        });
+      }
+
+      /* =====================================================
+         DISTRIBUIR NUEVAMENTE
+      ===================================================== */
+
+      let disponible =
+        Number(
+          Number(
+            pago.valorPago
+          ).toFixed(2)
+        );
+
+      const aplicaciones =
+        [];
+
+      for (
+        const cuota
+        of cuotasPendientes
+      ) {
+        if (
+          disponible <= 0
+        ) {
+          break;
+        }
+
+        const saldoCuota =
+          Number(
+            cuota.saldoPendiente
+          ) || 0;
+
+        if (
+          saldoCuota <= 0
+        ) {
+          continue;
+        }
+
+        const valorAplicado =
+          Number(
+            Math.min(
+              disponible,
+              saldoCuota
+            ).toFixed(2)
+          );
+
+        aplicaciones.push({
+          cuota:
+            cuota._id,
+
+          numeroCuota:
+            cuota.numeroCuota,
+
+          valorAplicado,
+        });
+
+        disponible =
+          Number(
+            (
+              disponible -
+              valorAplicado
+            ).toFixed(2)
+          );
+      }
+
+      /* =====================================================
+         REACTIVAR PAGO
+      ===================================================== */
+
+      pago.estado =
+        "Aplicado";
+
+      pago.aplicaciones =
+        aplicaciones;
+
+      await pago.save();
+
+      /* =====================================================
+         RECALCULAR CUOTAS
+      ===================================================== */
+
+      for (
+        const aplicacion
+        of aplicaciones
+      ) {
+        await recalcularCuotaDesdePagos(
+          aplicacion.cuota
+        );
+      }
+
+      await actualizarEstadoVenta(
+        venta._id
+      );
+
+      const pagoCompleto =
+        await obtenerPagoCompleto(
+          pago._id
+        );
+
+      res.status(200).json({
+        message:
+          "La anulación fue revertida y el pago volvió a aplicarse correctamente.",
+
+        pago:
+          pagoCompleto,
+      });
+    } catch (error) {
+      console.error(
+        "Error revirtiendo pago:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Error al revertir el pago",
+      });
+    }
+  };
+
+/* =========================================================
+   ELIMINAR DEFINITIVAMENTE PAGO ANULADO
+
+   Solo se permite si:
+   - está Anulado
+   - ya existe OTRO pago Aplicado para esa misma venta
+
+   DELETE /api/pagos/:id
+========================================================= */
+
+export const eliminarPagoAnulado =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          req.params.id
+        )
+      ) {
+        return res.status(400).json({
+          message:
+            "El identificador del pago no es válido",
+        });
+      }
+
+      const pago =
+        await Pago.findById(
+          req.params.id
+        );
+
+      if (!pago) {
+        return res.status(404).json({
+          message:
+            "El pago no fue encontrado",
+        });
+      }
+
+      if (
+        pago.estado !==
+        "Anulado"
+      ) {
+        return res.status(409).json({
+          message:
+            "Solamente se pueden eliminar pagos anulados.",
+        });
+      }
+
+      /* =====================================================
+         DEBE EXISTIR UN NUEVO PAGO APLICADO
+         PARA LA MISMA VENTA
+      ===================================================== */
+
+      const nuevoPagoAplicado =
+        await Pago.findOne({
+          _id: {
+            $ne:
+              pago._id,
+          },
+
+          venta:
+            pago.venta,
+
+          estado:
+            "Aplicado",
+        });
+
+      if (
+        !nuevoPagoAplicado
+      ) {
+        return res.status(409).json({
+          message:
+            "Este pago anulado todavía no puede eliminarse. Puede revertirlo mientras sea el único registro de la venta.",
+        });
+      }
+
+      await Pago.deleteOne({
+        _id:
+          pago._id,
+      });
+
+      res.status(200).json({
+        message:
+          "El pago anulado fue eliminado definitivamente.",
+      });
+    } catch (error) {
+      console.error(
+        "Error eliminando pago:",
+        error
+      );
+
+      res.status(500).json({
+        message:
+          "Error al eliminar el pago anulado",
+      });
+    }
+  };
+
+/* =========================================================
    RESUMEN GENERAL DE PAGOS
 
    GET /api/pagos/resumen
