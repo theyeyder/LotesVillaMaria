@@ -4,6 +4,7 @@ import Venta from "./venta.model.js";
 import Cliente from "../clientes/cliente.model.js";
 import Lote from "../lotes/lote.model.js";
 import Cuota from "../cuotas/cuota.model.js";
+import Pago from "../pagos/pago.model.js";
 
 /* =========================================================
    FECHA UTC
@@ -199,6 +200,144 @@ const crearCuotasAutomaticas = async (venta) => {
 
   return Cuota.insertMany(documentos);
 };
+
+/* =========================================================
+   SINCRONIZAR CUOTAS DESPUÉS DE EDITAR UNA VENTA
+
+   Si cambia:
+   - valor de venta
+   - cuota inicial
+   - saldo financiado
+   - número de cuotas
+   - forma de pago
+   - fecha de venta
+
+   reconstruimos las cuotas.
+
+   IMPORTANTE:
+   Solo puede hacerse si todavía NO existen pagos
+   registrados para esa venta.
+========================================================= */
+
+const sincronizarCuotasVenta =
+  async (
+    venta,
+    estructuraAnterior
+  ) => {
+    const cambioFinanciacion =
+      Number(
+        estructuraAnterior.valorVenta
+      ) !==
+        Number(
+          venta.valorVenta
+        ) ||
+      Number(
+        estructuraAnterior.cuotaInicial
+      ) !==
+        Number(
+          venta.cuotaInicial
+        ) ||
+      Number(
+        estructuraAnterior.saldoFinanciar
+      ) !==
+        Number(
+          venta.saldoFinanciar
+        ) ||
+      Number(
+        estructuraAnterior.numeroCuotas
+      ) !==
+        Number(
+          venta.numeroCuotas
+        ) ||
+      estructuraAnterior.formaPago !==
+        venta.formaPago ||
+      new Date(
+        estructuraAnterior.fechaVenta
+      ).getTime() !==
+        new Date(
+          venta.fechaVenta
+        ).getTime();
+
+    /*
+      Si no cambió nada relacionado con
+      la financiación, no tocamos las cuotas.
+    */
+
+    if (!cambioFinanciacion) {
+      return {
+        actualizadas: false,
+        cantidad: null,
+      };
+    }
+
+    /* =====================================================
+       VERIFICAR HISTORIAL DE PAGOS
+
+       Incluso un pago anulado conserva referencias
+       a las cuotas antiguas, por eso no debemos
+       eliminarlas si existe historial.
+    ===================================================== */
+
+    const pagosRegistrados =
+      await Pago.countDocuments({
+        venta:
+          venta._id,
+      });
+
+    if (
+      pagosRegistrados > 0
+    ) {
+      const error =
+        new Error(
+          "No se puede modificar la estructura de financiación porque esta venta ya tiene pagos registrados."
+        );
+
+      error.statusCode =
+        409;
+
+      throw error;
+    }
+
+    /* =====================================================
+       ELIMINAR PROGRAMACIÓN ANTERIOR
+    ===================================================== */
+
+    await Cuota.deleteMany({
+      venta:
+        venta._id,
+    });
+
+    /* =====================================================
+       SI AHORA ES DE CONTADO
+
+       No debe tener cuotas.
+    ===================================================== */
+
+    if (
+      venta.formaPago !==
+      "Financiado"
+    ) {
+      return {
+        actualizadas: true,
+        cantidad: 0,
+      };
+    }
+
+    /* =====================================================
+       GENERAR NUEVA PROGRAMACIÓN
+    ===================================================== */
+
+    const nuevasCuotas =
+      await crearCuotasAutomaticas(
+        venta
+      );
+
+    return {
+      actualizadas: true,
+      cantidad:
+        nuevasCuotas.length,
+    };
+  };
 
 /* =========================================================
    GENERAR CÓDIGO AUTOMÁTICO
@@ -735,6 +874,33 @@ export const actualizarVenta = async (req, res) => {
       });
     }
 
+    /* =====================================================
+       GUARDAR ESTRUCTURA ANTERIOR
+
+       La necesitamos para saber si realmente
+       cambiaron las condiciones de financiación.
+    ===================================================== */
+
+    const estructuraAnterior = {
+      valorVenta:
+        venta.valorVenta,
+
+      cuotaInicial:
+        venta.cuotaInicial,
+
+      saldoFinanciar:
+        venta.saldoFinanciar,
+
+      numeroCuotas:
+        venta.numeroCuotas,
+
+      formaPago:
+        venta.formaPago,
+
+      fechaVenta:
+        venta.fechaVenta,
+    };
+
     const {
       cliente,
       fechaVenta,
@@ -819,6 +985,16 @@ export const actualizarVenta = async (req, res) => {
 
     await venta.save();
 
+    /* =====================================================
+       SINCRONIZAR CUOTAS
+    ===================================================== */
+
+    const resultadoCuotas =
+      await sincronizarCuotasVenta(
+        venta,
+        estructuraAnterior
+      );
+
     const ventaCompleta = await Venta.findById(venta._id)
       .populate("cliente")
       .populate({
@@ -832,12 +1008,31 @@ export const actualizarVenta = async (req, res) => {
       });
 
     res.status(200).json({
-      message: "Venta actualizada correctamente",
+      message:
+        resultadoCuotas.actualizadas
+          ? `Venta actualizada correctamente. Se actualizaron ${resultadoCuotas.cantidad} cuotas.`
+          : "Venta actualizada correctamente.",
 
       venta: ventaCompleta,
+
+      cuotasActualizadas:
+        resultadoCuotas.actualizadas,
+
+      numeroCuotasGeneradas:
+        resultadoCuotas.cantidad,
     });
   } catch (error) {
     console.error("Error actualizando venta:", error);
+
+    if (
+      error.statusCode ===
+      409
+    ) {
+      return res.status(409).json({
+        message:
+          error.message,
+      });
+    }
 
     res.status(500).json({
       message: "Error al actualizar la venta",

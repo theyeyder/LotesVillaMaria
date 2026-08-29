@@ -2548,3 +2548,66 @@ input[readonly] {
     border-bottom: none !important;
   }
 }
+/* =========================================================
+   VALOR EN VIVO DEL PAGO
+========================================================= */
+
+.pago-live-value {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-top: 6px;
+  padding: 9px 11px;
+
+  border: 1px solid #d7e2da;
+  border-radius: 10px;
+
+  background: #f2f7f4;
+}
+
+/* =========================================================
+   TEXTO
+========================================================= */
+
+.pago-live-value span {
+  color: #748078;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   VALOR
+========================================================= */
+
+.pago-live-value strong {
+  color: #1f6848;
+
+  font-size: 15px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 480px) {
+  .pago-live-value {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 3px;
+  }
+
+  .pago-live-value strong {
+    font-size: 14px;
+  }
+}

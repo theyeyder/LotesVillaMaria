@@ -1564,6 +1564,25 @@ export default function PagoModal({
                 />
               </div>
 
+              {/* =============================================
+                  VALOR ESCRITO EN FORMATO PESOS
+              ============================================= */}
+
+              {formulario.valorPago !== "" &&
+                valorPago > 0 && (
+                  <div className="pago-live-value">
+                    <span>
+                      Valor que va a registrar
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        valorPago
+                      )}
+                    </strong>
+                  </div>
+                )}
+
               {tipoPago ===
                 "cuota" &&
                 cuotaActual && (
