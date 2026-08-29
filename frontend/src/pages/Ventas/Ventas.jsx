@@ -178,6 +178,13 @@ export default function Ventas() {
   const [anulandoVenta, setAnulandoVenta] = useState(false);
 
   /* =======================================================
+     ESTADOS DE BÚSQUEDA DE CLIENTE
+  ======================================================= */
+
+  const [busquedaClienteVenta, setBusquedaClienteVenta] = useState("");
+  const [mostrarResultadosClientes, setMostrarResultadosClientes] = useState(false);
+
+  /* =======================================================
      FILTROS
   ======================================================= */
 
@@ -242,6 +249,21 @@ export default function Ventas() {
     };
 
   /* =======================================================
+     FORMULARIO
+  ======================================================= */
+
+  const [formulario, setFormulario] = useState({
+    cliente: "",
+    lote: "",
+    fechaVenta: "",
+    valorVenta: "",
+    cuotaInicial: "",
+    formaPago: "Financiado",
+    numeroCuotas: "",
+    observaciones: "",
+  });
+
+  /* =======================================================
      CARGAR VENTAS
   ======================================================= */
 
@@ -280,13 +302,6 @@ export default function Ventas() {
       try {
         const datos =
           await obtenerClientes();
-
-        /*
-          Por si el servicio devuelve:
-          [...]
-          o:
-          { clientes: [...] }
-        */
 
         if (
           Array.isArray(datos)
@@ -473,6 +488,74 @@ export default function Ventas() {
     ]);
 
   /* =======================================================
+     BUSCAR CLIENTE PARA NUEVA / EDITAR VENTA
+  ======================================================= */
+
+  const clientesFiltradosVenta = useMemo(() => {
+    const texto = busquedaClienteVenta
+      .trim()
+      .toLowerCase();
+
+    if (!texto) {
+      return [];
+    }
+
+    return clientes.filter((cliente) => {
+      const nombreCompleto = [
+        cliente.nombres,
+        cliente.apellidos,
+      ]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+
+      const documento = String(
+        cliente.documento || ""
+      ).toLowerCase();
+
+      return (
+        nombreCompleto.includes(texto) ||
+        documento.includes(texto)
+      );
+    });
+  }, [clientes, busquedaClienteVenta]);
+
+  /* =======================================================
+     SELECCIONAR CLIENTE EN LA VENTA
+  ======================================================= */
+
+  const seleccionarClienteVenta = (cliente) => {
+    setFormulario((prev) => ({
+      ...prev,
+      cliente: cliente._id,
+    }));
+
+    setBusquedaClienteVenta(
+      [
+        cliente.nombres,
+        cliente.apellidos,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    );
+
+    setMostrarResultadosClientes(false);
+  };
+
+  /* =======================================================
+     LIMPIAR CLIENTE
+  ======================================================= */
+
+  const limpiarClienteVenta = () => {
+    setBusquedaClienteVenta("");
+    setMostrarResultadosClientes(false);
+    setFormulario((prev) => ({
+      ...prev,
+      cliente: "",
+    }));
+  };
+
+  /* =======================================================
      ESTADÍSTICAS
 
      IMPORTANTE:
@@ -634,7 +717,18 @@ export default function Ventas() {
       }
 
       setVentaEditar(null);
-
+      setFormulario({
+        cliente: "",
+        lote: "",
+        fechaVenta: "",
+        valorVenta: "",
+        cuotaInicial: "",
+        formaPago: "Financiado",
+        numeroCuotas: "",
+        observaciones: "",
+      });
+      setBusquedaClienteVenta("");
+      setMostrarResultadosClientes(false);
       setModalAbierto(true);
     };
 
@@ -658,7 +752,29 @@ export default function Ventas() {
     }
 
     setVentaEditar(venta);
+    setFormulario({
+      cliente: venta.cliente?._id || venta.cliente || "",
+      lote: venta.lote?._id || venta.lote || "",
+      fechaVenta: venta.fechaVenta ? venta.fechaVenta.split("T")[0] : "",
+      valorVenta: venta.valorVenta || "",
+      cuotaInicial: venta.cuotaInicial || "",
+      formaPago: venta.formaPago || "Financiado",
+      numeroCuotas: venta.numeroCuotas || "",
+      observaciones: venta.observaciones || "",
+    });
 
+    const clienteActual = venta.cliente;
+
+    setBusquedaClienteVenta(
+      [
+        clienteActual?.nombres,
+        clienteActual?.apellidos,
+      ]
+        .filter(Boolean)
+        .join(" ")
+    );
+
+    setMostrarResultadosClientes(false);
     setModalAbierto(true);
   };
 
@@ -673,8 +789,9 @@ export default function Ventas() {
       }
 
       setModalAbierto(false);
-
       setVentaEditar(null);
+      setBusquedaClienteVenta("");
+      setMostrarResultadosClientes(false);
     };
 
   /* =======================================================
@@ -702,12 +819,6 @@ export default function Ventas() {
               datos
             );
         }
-
-        /*
-          Volvemos a consultar ventas
-          y lotes porque el lote puede
-          haber cambiado a Vendido.
-        */
 
         await Promise.all([
           cargarVentas(),
@@ -1501,6 +1612,15 @@ export default function Ventas() {
         lotes={
           lotes
         }
+        formulario={formulario}
+        setFormulario={setFormulario}
+        busquedaClienteVenta={busquedaClienteVenta}
+        setBusquedaClienteVenta={setBusquedaClienteVenta}
+        mostrarResultadosClientes={mostrarResultadosClientes}
+        setMostrarResultadosClientes={setMostrarResultadosClientes}
+        clientesFiltradosVenta={clientesFiltradosVenta}
+        seleccionarClienteVenta={seleccionarClienteVenta}
+        limpiarClienteVenta={limpiarClienteVenta}
       />
 
       {/* =====================================================
