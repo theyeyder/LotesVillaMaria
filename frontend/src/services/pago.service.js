@@ -8,11 +8,12 @@ import api from "./api";
    {
      venta,
      cliente,
-     estado,
      metodoPago,
      fechaInicio,
      fechaFinal
    }
+
+   Ya NO existe filtro por estado.
 ========================================================= */
 
 export const obtenerPagos = async (
@@ -69,54 +70,15 @@ export const crearPago =
   };
 
 /* =========================================================
-   ANULAR PAGO
-
-   motivoAnulacion es obligatorio.
-========================================================= */
-
-export const anularPago =
-  async (
-    id,
-    motivoAnulacion
-  ) => {
-    const response =
-      await api.patch(
-        `/pagos/${id}/anular`,
-        {
-          motivoAnulacion,
-        }
-      );
-
-    return response.data;
-  };
-
-/* =========================================================
-   REVERTIR PAGO
-
-   PATCH /api/pagos/:id/revertir
-
-   Solo se permite cuando el pago anulado es el ÚNICO
-   registro de pago para esa venta.
-========================================================= */
-
-export const revertirPago =
-  async (id) => {
-    const response =
-      await api.patch(
-        `/pagos/${id}/revertir`
-      );
-
-    return response.data;
-  };
-
-/* =========================================================
-   ELIMINAR PAGO ANULADO
+   ELIMINAR PAGO DEFINITIVAMENTE
 
    DELETE /api/pagos/:id
 
-   Solo se permite si:
-   - está Anulado
-   - ya existe OTRO pago Aplicado para esa misma venta
+   Al eliminar:
+   - el pago desaparece
+   - se recalculan las cuotas afectadas
+   - el valor vuelve al saldo pendiente
+   - se recalcula el estado de la venta
 ========================================================= */
 
 export const eliminarPago =
@@ -138,8 +100,6 @@ const pagoService = {
   obtenerResumenPagos,
   obtenerPagoPorId,
   crearPago,
-  anularPago,
-  revertirPago,
   eliminarPago,
 };
 

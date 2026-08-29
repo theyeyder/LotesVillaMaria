@@ -20,25 +20,21 @@ const inicioHoyUTC = () => {
 };
 
 /* =========================================================
-   CONVERTIR FECHA A UTC SIN PROBLEMAS DE ZONA HORARIA
+   CONVERTIR FECHA A UTC
 ========================================================= */
 
-const convertirFechaUTC = (fecha) => {
+const convertirFechaUTC = (
+  fecha
+) => {
   if (!fecha) {
     return null;
   }
 
-  /*
-    Si llega:
-    2026-09-28
-
-    guardamos exactamente:
-    2026-09-28T00:00:00.000Z
-  */
-
   if (
     typeof fecha === "string" &&
-    /^\d{4}-\d{2}-\d{2}$/.test(fecha)
+    /^\d{4}-\d{2}-\d{2}$/.test(
+      fecha
+    )
   ) {
     const [
       year,
@@ -78,7 +74,7 @@ const convertirFechaUTC = (fecha) => {
 };
 
 /* =========================================================
-   ÚLTIMO DÍA DE UN MES
+   ÚLTIMO DÍA DEL MES
 ========================================================= */
 
 const obtenerUltimoDiaMes = (
@@ -95,17 +91,7 @@ const obtenerUltimoDiaMes = (
 };
 
 /* =========================================================
-   AGREGAR MESES SIN DAÑAR FECHAS
-
-   Ejemplo:
-   31 enero
-      ↓
-   28 febrero
-      ↓
-   31 marzo
-
-   Evitamos el problema normal de JavaScript
-   al sumar meses sobre días 29, 30 o 31.
+   AGREGAR MESES DE FORMA SEGURA
 ========================================================= */
 
 const agregarMeses = (
@@ -117,7 +103,9 @@ const agregarMeses = (
       fechaBase
     );
 
-  if (!fecha) {
+  if (
+    !fecha
+  ) {
     return null;
   }
 
@@ -165,10 +153,12 @@ const agregarMeses = (
    ACTUALIZAR CUOTAS VENCIDAS
 
    Una cuota queda Vencida cuando:
-   - no está pagada
-   - no está anulada
-   - todavía tiene saldo
-   - su fecha de vencimiento ya pasó
+   - tiene saldo pendiente
+   - la fecha de vencimiento ya pasó
+   - estaba Pendiente o Parcial
+
+   Si una cuota Vencida cambia a una fecha futura,
+   vuelve a Pendiente o Parcial según lo pagado.
 ========================================================= */
 
 const actualizarCuotasVencidas =
@@ -176,19 +166,20 @@ const actualizarCuotasVencidas =
     const hoy =
       inicioHoyUTC();
 
-    /*
-      Pendientes o parciales cuya fecha
-      ya pasó.
-    */
+    /* =========================
+       MARCAR COMO VENCIDAS
+    ========================= */
 
     await Cuota.updateMany(
       {
         fechaVencimiento: {
-          $lt: hoy,
+          $lt:
+            hoy,
         },
 
         saldoPendiente: {
-          $gt: 0,
+          $gt:
+            0,
         },
 
         estado: {
@@ -200,30 +191,30 @@ const actualizarCuotasVencidas =
       },
       {
         $set: {
-          estado: "Vencida",
+          estado:
+            "Vencida",
         },
       }
     );
 
-    /*
-      Si una cuota estaba marcada como
-      vencida pero su fecha todavía no ha
-      llegado, corregimos su estado.
-
-      Esto puede ocurrir si posteriormente
-      se corrige una fecha.
-    */
+    /* =========================
+       CORREGIR VENCIDAS
+       CUYA FECHA YA NO VENCIÓ
+    ========================= */
 
     const cuotasVencidas =
       await Cuota.find({
-        estado: "Vencida",
+        estado:
+          "Vencida",
 
         fechaVencimiento: {
-          $gte: hoy,
+          $gte:
+            hoy,
         },
 
         saldoPendiente: {
-          $gt: 0,
+          $gt:
+            0,
         },
       });
 
@@ -232,7 +223,9 @@ const actualizarCuotasVencidas =
       of cuotasVencidas
     ) {
       cuota.estado =
-        cuota.valorPagado > 0
+        Number(
+          cuota.valorPagado
+        ) > 0
           ? "Parcial"
           : "Pendiente";
 
@@ -243,19 +236,15 @@ const actualizarCuotasVencidas =
 /* =========================================================
    DISTRIBUIR SALDO ENTRE CUOTAS
 
-   Trabajamos internamente en centavos para evitar
-   diferencias por decimales.
+   Se trabaja en centavos para evitar diferencias
+   por decimales.
 
    Ejemplo:
 
-   Saldo: $10.000.000
-   3 cuotas
+   $10.000.000 / 3
 
-   No dejamos:
-   3.333.333,33 x 3 = diferencia
-
-   El total de las cuotas siempre será exactamente
-   igual al saldo financiado.
+   La suma final de las cuotas siempre coincide
+   exactamente con el saldo financiado.
 ========================================================= */
 
 const distribuirCuotas = (
@@ -264,11 +253,14 @@ const distribuirCuotas = (
 ) => {
   const saldoCentavos =
     Math.round(
-      Number(saldo) * 100
+      Number(saldo) *
+        100
     );
 
   const cantidad =
-    Number(numeroCuotas);
+    Number(
+      numeroCuotas
+    );
 
   const valorBase =
     Math.floor(
@@ -281,30 +273,31 @@ const distribuirCuotas = (
     valorBase *
       cantidad;
 
-  const valores = [];
+  const valores =
+    [];
 
   for (
     let i = 0;
     i < cantidad;
     i += 1
   ) {
-    /*
-      Repartimos los centavos sobrantes
-      entre las primeras cuotas.
-    */
-
     const valorCentavos =
       valorBase +
-      (i < sobrante
-        ? 1
-        : 0);
+      (
+        i <
+        sobrante
+          ? 1
+          : 0
+      );
 
     valores.push(
       Number(
         (
           valorCentavos /
           100
-        ).toFixed(2)
+        ).toFixed(
+          2
+        )
       )
     );
   }
@@ -314,262 +307,18 @@ const distribuirCuotas = (
 
 /* =========================================================
    LISTAR TODAS LAS CUOTAS
+
+   GET /api/cuotas
+
+   Filtros:
+   - venta
+   - cliente
+   - estado
+   - fechaInicio
+   - fechaFinal
 ========================================================= */
 
-export const obtenerCuotas = async (
-  req,
-  res
-) => {
-  try {
-    await actualizarCuotasVencidas();
-
-    const {
-      venta = "",
-      estado = "",
-      cliente = "",
-      fechaInicio = "",
-      fechaFinal = "",
-    } = req.query;
-
-    const filtro = {};
-
-    /* =========================
-       VENTA
-    ========================= */
-
-    if (venta) {
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          venta
-        )
-      ) {
-        return res.status(400).json({
-          message:
-            "La venta seleccionada no es válida",
-        });
-      }
-
-      filtro.venta =
-        venta;
-    }
-
-    /* =========================
-       ESTADO
-    ========================= */
-
-    if (estado) {
-      filtro.estado =
-        estado;
-    }
-
-    /* =========================
-       FECHAS
-    ========================= */
-
-    if (
-      fechaInicio ||
-      fechaFinal
-    ) {
-      filtro.fechaVencimiento = {};
-
-      if (fechaInicio) {
-        const inicio =
-          convertirFechaUTC(
-            fechaInicio
-          );
-
-        if (!inicio) {
-          return res.status(400).json({
-            message:
-              "La fecha inicial no es válida",
-          });
-        }
-
-        filtro.fechaVencimiento.$gte =
-          inicio;
-      }
-
-      if (fechaFinal) {
-        const final =
-          convertirFechaUTC(
-            fechaFinal
-          );
-
-        if (!final) {
-          return res.status(400).json({
-            message:
-              "La fecha final no es válida",
-          });
-        }
-
-        /*
-          Incluimos todo el día final.
-        */
-
-        final.setUTCHours(
-          23,
-          59,
-          59,
-          999
-        );
-
-        filtro.fechaVencimiento.$lte =
-          final;
-      }
-    }
-
-    /*
-      Si se filtra por cliente debemos
-      encontrar primero sus ventas.
-    */
-
-    if (cliente) {
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          cliente
-        )
-      ) {
-        return res.status(400).json({
-          message:
-            "El cliente seleccionado no es válido",
-        });
-      }
-
-      const ventasCliente =
-        await Venta.find({
-          cliente,
-        }).select("_id");
-
-      filtro.venta = {
-        $in:
-          ventasCliente.map(
-            (item) =>
-              item._id
-          ),
-      };
-    }
-
-    const cuotas =
-      await Cuota.find(
-        filtro
-      )
-        .populate({
-          path: "venta",
-
-          populate: [
-            {
-              path: "cliente",
-            },
-            {
-              path: "lote",
-
-              populate: {
-                path:
-                  "manzana",
-
-                select:
-                  "codigo nombre",
-              },
-            },
-          ],
-        })
-        .sort({
-          fechaVencimiento: 1,
-          numeroCuota: 1,
-        });
-
-    res.status(200).json(
-      cuotas
-    );
-  } catch (error) {
-    console.error(
-      "Error obteniendo cuotas:",
-      error
-    );
-
-    res.status(500).json({
-      message:
-        "Error al obtener las cuotas",
-    });
-  }
-};
-
-/* =========================================================
-   OBTENER CUOTA POR ID
-========================================================= */
-
-export const obtenerCuotaPorId =
-  async (
-    req,
-    res
-  ) => {
-    try {
-      await actualizarCuotasVencidas();
-
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          req.params.id
-        )
-      ) {
-        return res.status(400).json({
-          message:
-            "El identificador de la cuota no es válido",
-        });
-      }
-
-      const cuota =
-        await Cuota.findById(
-          req.params.id
-        ).populate({
-          path: "venta",
-
-          populate: [
-            {
-              path: "cliente",
-            },
-
-            {
-              path: "lote",
-
-              populate: {
-                path:
-                  "manzana",
-
-                select:
-                  "codigo nombre",
-              },
-            },
-          ],
-        });
-
-      if (!cuota) {
-        return res.status(404).json({
-          message:
-            "La cuota no fue encontrada",
-        });
-      }
-
-      res.status(200).json(
-        cuota
-      );
-    } catch (error) {
-      console.error(
-        "Error obteniendo cuota:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Error al obtener la cuota",
-      });
-    }
-  };
-
-/* =========================================================
-   OBTENER CUOTAS DE UNA VENTA
-========================================================= */
-
-export const obtenerCuotasPorVenta =
+export const obtenerCuotas =
   async (
     req,
     res
@@ -578,39 +327,216 @@ export const obtenerCuotasPorVenta =
       await actualizarCuotasVencidas();
 
       const {
-        ventaId,
-      } = req.params;
+        venta = "",
+        estado = "",
+        cliente = "",
+        fechaInicio = "",
+        fechaFinal = "",
+      } = req.query;
+
+      const filtro = {};
+
+      /* =========================
+         VENTA
+      ========================= */
 
       if (
-        !mongoose.Types.ObjectId.isValid(
-          ventaId
-        )
+        venta
       ) {
-        return res.status(400).json({
-          message:
-            "El identificador de la venta no es válido",
-        });
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            venta
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "La venta seleccionada no es válida",
+          });
+        }
+
+        filtro.venta =
+          venta;
       }
 
-      const venta =
-        await Venta.findById(
-          ventaId
-        );
+      /* =========================
+         ESTADO
+      ========================= */
 
-      if (!venta) {
-        return res.status(404).json({
-          message:
-            "La venta no fue encontrada",
-        });
+      if (
+        estado
+      ) {
+        const estadosValidos = [
+          "Pendiente",
+          "Parcial",
+          "Pagada",
+          "Vencida",
+        ];
+
+        if (
+          !estadosValidos.includes(
+            estado
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "El estado de la cuota no es válido",
+          });
+        }
+
+        filtro.estado =
+          estado;
       }
+
+      /* =========================
+         FECHAS
+      ========================= */
+
+      if (
+        fechaInicio ||
+        fechaFinal
+      ) {
+        filtro.fechaVencimiento =
+          {};
+
+        if (
+          fechaInicio
+        ) {
+          const inicio =
+            convertirFechaUTC(
+              fechaInicio
+            );
+
+          if (
+            !inicio
+          ) {
+            return res.status(
+              400
+            ).json({
+              message:
+                "La fecha inicial no es válida",
+            });
+          }
+
+          filtro.fechaVencimiento.$gte =
+            inicio;
+        }
+
+        if (
+          fechaFinal
+        ) {
+          const final =
+            convertirFechaUTC(
+              fechaFinal
+            );
+
+          if (
+            !final
+          ) {
+            return res.status(
+              400
+            ).json({
+              message:
+                "La fecha final no es válida",
+            });
+          }
+
+          final.setUTCHours(
+            23,
+            59,
+            59,
+            999
+          );
+
+          filtro.fechaVencimiento.$lte =
+            final;
+        }
+      }
+
+      /* =========================
+         CLIENTE
+      ========================= */
+
+      if (
+        cliente
+      ) {
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            cliente
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "El cliente seleccionado no es válido",
+          });
+        }
+
+        const ventasCliente =
+          await Venta.find({
+            cliente,
+          })
+            .select(
+              "_id"
+            )
+            .lean();
+
+        const idsVentasCliente =
+          ventasCliente.map(
+            (item) =>
+              String(
+                item._id
+              )
+          );
+
+        /*
+          Si además viene filtro por venta,
+          deben cumplirse ambos filtros.
+        */
+
+        if (
+          venta
+        ) {
+          if (
+            !idsVentasCliente.includes(
+              String(
+                venta
+              )
+            )
+          ) {
+            return res.status(
+              200
+            ).json([]);
+          }
+
+          filtro.venta =
+            venta;
+        } else {
+          filtro.venta = {
+            $in:
+              ventasCliente.map(
+                (item) =>
+                  item._id
+              ),
+          };
+        }
+      }
+
+      /* =========================
+         CONSULTAR
+      ========================= */
 
       const cuotas =
-        await Cuota.find({
-          venta:
-            ventaId,
-        })
+        await Cuota.find(
+          filtro
+        )
           .populate({
-            path: "venta",
+            path:
+              "venta",
 
             populate: [
               {
@@ -633,10 +559,222 @@ export const obtenerCuotasPorVenta =
             ],
           })
           .sort({
-            numeroCuota: 1,
+            fechaVencimiento:
+              1,
+
+            numeroCuota:
+              1,
           });
 
-      res.status(200).json(
+      /*
+        Defensa ante posibles documentos huérfanos:
+        si una cuota no tiene venta asociada,
+        no se envía al frontend.
+      */
+
+      const cuotasValidas =
+        cuotas.filter(
+          (cuota) =>
+            Boolean(
+              cuota.venta
+            )
+        );
+
+      res.status(
+        200
+      ).json(
+        cuotasValidas
+      );
+    } catch (error) {
+      console.error(
+        "Error obteniendo cuotas:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          "Error al obtener las cuotas",
+      });
+    }
+  };
+
+/* =========================================================
+   OBTENER CUOTA POR ID
+
+   GET /api/cuotas/:id
+========================================================= */
+
+export const obtenerCuotaPorId =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      await actualizarCuotasVencidas();
+
+      const {
+        id,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          id
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El identificador de la cuota no es válido",
+        });
+      }
+
+      const cuota =
+        await Cuota.findById(
+          id
+        ).populate({
+          path:
+            "venta",
+
+          populate: [
+            {
+              path:
+                "cliente",
+            },
+
+            {
+              path:
+                "lote",
+
+              populate: {
+                path:
+                  "manzana",
+
+                select:
+                  "codigo nombre",
+              },
+            },
+          ],
+        });
+
+      if (
+        !cuota ||
+        !cuota.venta
+      ) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "La cuota no fue encontrada",
+        });
+      }
+
+      res.status(
+        200
+      ).json(
+        cuota
+      );
+    } catch (error) {
+      console.error(
+        "Error obteniendo cuota:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          "Error al obtener la cuota",
+      });
+    }
+  };
+
+/* =========================================================
+   OBTENER CUOTAS DE UNA VENTA
+
+   GET /api/cuotas/venta/:ventaId
+========================================================= */
+
+export const obtenerCuotasPorVenta =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      await actualizarCuotasVencidas();
+
+      const {
+        ventaId,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          ventaId
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El identificador de la venta no es válido",
+        });
+      }
+
+      const venta =
+        await Venta.findById(
+          ventaId
+        );
+
+      if (
+        !venta
+      ) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "La venta no fue encontrada",
+        });
+      }
+
+      const cuotas =
+        await Cuota.find({
+          venta:
+            ventaId,
+        })
+          .populate({
+            path:
+              "venta",
+
+            populate: [
+              {
+                path:
+                  "cliente",
+              },
+
+              {
+                path:
+                  "lote",
+
+                populate: {
+                  path:
+                    "manzana",
+
+                  select:
+                    "codigo nombre",
+                },
+              },
+            ],
+          })
+          .sort({
+            numeroCuota:
+              1,
+          });
+
+      res.status(
+        200
+      ).json(
         cuotas
       );
     } catch (error) {
@@ -645,7 +783,9 @@ export const obtenerCuotasPorVenta =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener las cuotas de la venta",
       });
@@ -657,13 +797,8 @@ export const obtenerCuotasPorVenta =
 
    POST /api/cuotas/generar/:ventaId
 
-   Body opcional:
-   {
-     "fechaPrimeraCuota": "2026-09-28"
-   }
-
-   Si no se envía fecha, la primera cuota vencerá
-   un mes después de la fecha de venta.
+   Se usa principalmente para una venta financiada
+   que todavía no tenga cuotas generadas.
 ========================================================= */
 
 export const generarCuotasVenta =
@@ -689,14 +824,16 @@ export const generarCuotasVenta =
           ventaId
         )
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "El identificador de la venta no es válido",
         });
       }
 
       /* =========================
-         BUSCAR VENTA
+         VENTA
       ========================= */
 
       const venta =
@@ -707,7 +844,8 @@ export const generarCuotasVenta =
             "cliente"
           )
           .populate({
-            path: "lote",
+            path:
+              "lote",
 
             populate: {
               path:
@@ -718,24 +856,14 @@ export const generarCuotasVenta =
             },
           });
 
-      if (!venta) {
-        return res.status(404).json({
+      if (
+        !venta
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "La venta no fue encontrada",
-        });
-      }
-
-      /* =========================
-         VENTA ANULADA
-      ========================= */
-
-      if (
-        venta.estado ===
-        "Anulada"
-      ) {
-        return res.status(409).json({
-          message:
-            "No se pueden generar cuotas para una venta anulada",
         });
       }
 
@@ -747,7 +875,9 @@ export const generarCuotasVenta =
         venta.formaPago !==
         "Financiado"
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             "Las ventas de contado no generan cuotas",
         });
@@ -757,32 +887,43 @@ export const generarCuotasVenta =
          NÚMERO DE CUOTAS
       ========================= */
 
-      if (
-        !Number.isInteger(
-          Number(
-            venta.numeroCuotas
-          )
-        ) ||
+      const cantidadCuotas =
         Number(
           venta.numeroCuotas
-        ) <= 0
+        );
+
+      if (
+        !Number.isInteger(
+          cantidadCuotas
+        ) ||
+        cantidadCuotas <= 0
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "La venta no tiene un número válido de cuotas",
         });
       }
 
       /* =========================
-         SALDO
+         SALDO FINANCIADO
       ========================= */
 
-      if (
+      const saldoFinanciar =
         Number(
           venta.saldoFinanciar
-        ) <= 0
+        );
+
+      if (
+        !Number.isFinite(
+          saldoFinanciar
+        ) ||
+        saldoFinanciar <= 0
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "La venta no tiene saldo para financiar",
         });
@@ -801,7 +942,9 @@ export const generarCuotasVenta =
       if (
         cuotasExistentes > 0
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             `La venta ${venta.codigo} ya tiene cuotas generadas`,
         });
@@ -821,18 +964,17 @@ export const generarCuotasVenta =
             fechaPrimeraCuota
           );
 
-        if (!primeraFecha) {
-          return res.status(400).json({
+        if (
+          !primeraFecha
+        ) {
+          return res.status(
+            400
+          ).json({
             message:
               "La fecha de la primera cuota no es válida",
           });
         }
       } else {
-        /*
-          Por defecto:
-          un mes después de la venta.
-        */
-
         primeraFecha =
           agregarMeses(
             venta.fechaVenta,
@@ -840,35 +982,37 @@ export const generarCuotasVenta =
           );
       }
 
-      if (!primeraFecha) {
-        return res.status(400).json({
+      if (
+        !primeraFecha
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "No fue posible calcular la fecha de la primera cuota",
         });
       }
 
       /* =========================
-         DISTRIBUIR VALORES
+         DISTRIBUIR SALDO
       ========================= */
 
       const valoresCuotas =
         distribuirCuotas(
-          venta.saldoFinanciar,
-          venta.numeroCuotas
+          saldoFinanciar,
+          cantidadCuotas
         );
 
       /* =========================
-         CONSTRUIR CUOTAS
+         CREAR DOCUMENTOS
       ========================= */
 
-      const documentos = [];
+      const documentos =
+        [];
 
       for (
         let i = 0;
-        i <
-        Number(
-          venta.numeroCuotas
-        );
+        i < cantidadCuotas;
         i += 1
       ) {
         const valor =
@@ -905,12 +1049,6 @@ export const generarCuotasVenta =
           fechaPago:
             null,
 
-          fechaAnulacion:
-            null,
-
-          motivoAnulacion:
-            "",
-
           observaciones:
             "",
         });
@@ -925,7 +1063,9 @@ export const generarCuotasVenta =
           documentos
         );
 
-      res.status(201).json({
+      res.status(
+        201
+      ).json({
         message:
           `${cuotas.length} cuotas generadas correctamente para la venta ${venta.codigo}`,
 
@@ -961,13 +1101,17 @@ export const generarCuotasVenta =
         error.code ===
         11000
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             "Las cuotas de esta venta ya fueron generadas",
         });
       }
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al generar las cuotas",
       });
@@ -977,7 +1121,7 @@ export const generarCuotasVenta =
 /* =========================================================
    RESUMEN GENERAL DE CUOTAS
 
-   Las cuotas anuladas NO cuentan.
+   GET /api/cuotas/resumen
 ========================================================= */
 
 export const obtenerResumenCuotas =
@@ -989,11 +1133,11 @@ export const obtenerResumenCuotas =
       await actualizarCuotasVencidas();
 
       const cuotas =
-        await Cuota.find({
-          estado: {
-            $ne: "Anulada",
-          },
-        });
+        await Cuota.find({})
+          .select(
+            "valorCuota valorPagado saldoPendiente estado"
+          )
+          .lean();
 
       const resumen =
         cuotas.reduce(
@@ -1019,70 +1163,90 @@ export const obtenerResumenCuotas =
                 cuota.saldoPendiente
               ) || 0;
 
-            if (
-              cuota.estado ===
-              "Pendiente"
+            switch (
+              cuota.estado
             ) {
-              acc.pendientes +=
-                1;
-            }
+              case "Pendiente":
+                acc.pendientes +=
+                  1;
+                break;
 
-            if (
-              cuota.estado ===
-              "Parcial"
-            ) {
-              acc.parciales +=
-                1;
-            }
+              case "Parcial":
+                acc.parciales +=
+                  1;
+                break;
 
-            if (
-              cuota.estado ===
-              "Pagada"
-            ) {
-              acc.pagadas +=
-                1;
-            }
+              case "Pagada":
+                acc.pagadas +=
+                  1;
+                break;
 
-            if (
-              cuota.estado ===
-              "Vencida"
-            ) {
-              acc.vencidas +=
-                1;
+              case "Vencida":
+                acc.vencidas +=
+                  1;
+                break;
+
+              default:
+                break;
             }
 
             return acc;
           },
           {
-            totalCuotas: 0,
+            totalCuotas:
+              0,
 
-            pendientes: 0,
+            pendientes:
+              0,
 
-            parciales: 0,
+            parciales:
+              0,
 
-            pagadas: 0,
+            pagadas:
+              0,
 
-            vencidas: 0,
+            vencidas:
+              0,
 
-            valorProgramado: 0,
+            valorProgramado:
+              0,
 
-            valorPagado: 0,
+            valorPagado:
+              0,
 
-            saldoPendiente: 0,
+            saldoPendiente:
+              0,
           }
         );
 
-      /*
-        Las anuladas las contamos solamente
-        para información histórica.
-      */
+      /* =========================
+         REDONDEAR DINERO
+      ========================= */
 
-      resumen.anuladas =
-        await Cuota.countDocuments({
-          estado: "Anulada",
-        });
+      resumen.valorProgramado =
+        Number(
+          resumen.valorProgramado.toFixed(
+            2
+          )
+        );
 
-      res.status(200).json(
+      resumen.valorPagado =
+        Number(
+          resumen.valorPagado.toFixed(
+            2
+          )
+        );
+
+      resumen.saldoPendiente =
+        Number(
+          resumen.saldoPendiente.toFixed(
+            2
+          )
+        );
+
+      res.status(
+        200
+      ).json(
         resumen
       );
     } catch (error) {
@@ -1091,7 +1255,9 @@ export const obtenerResumenCuotas =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener el resumen de cuotas",
       });

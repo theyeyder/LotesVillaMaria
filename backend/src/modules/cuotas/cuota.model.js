@@ -71,7 +71,8 @@ const cuotaSchema = new mongoose.Schema(
     /* =====================================================
        VALOR PAGADO
 
-       El módulo PAGOS irá aumentando este campo.
+       El módulo PAGOS irá aumentando o recalculando
+       este campo según los pagos que existan.
     ===================================================== */
 
     valorPagado: {
@@ -89,12 +90,17 @@ const cuotaSchema = new mongoose.Schema(
        SALDO PENDIENTE
 
        Inicialmente será igual al valor de la cuota.
+
+       Si se elimina un pago, este saldo se recalcula.
     ===================================================== */
 
     saldoPendiente: {
       type: Number,
 
-      required: true,
+      required: [
+        true,
+        "El saldo pendiente es obligatorio",
+      ],
 
       min: [
         0,
@@ -104,6 +110,20 @@ const cuotaSchema = new mongoose.Schema(
 
     /* =====================================================
        ESTADO DE LA CUOTA
+
+       Pendiente:
+       todavía no tiene pagos.
+
+       Parcial:
+       tiene un abono pero todavía queda saldo.
+
+       Pagada:
+       saldo pendiente = 0.
+
+       Vencida:
+       venció y todavía tiene saldo.
+
+       YA NO EXISTE "Anulada".
     ===================================================== */
 
     estado: {
@@ -114,7 +134,6 @@ const cuotaSchema = new mongoose.Schema(
         "Parcial",
         "Pagada",
         "Vencida",
-        "Anulada",
       ],
 
       default: "Pendiente",
@@ -122,39 +141,15 @@ const cuotaSchema = new mongoose.Schema(
 
     /* =====================================================
        FECHA EN QUE QUEDÓ TOTALMENTE PAGADA
+
+       Si posteriormente se elimina un pago y vuelve
+       a existir saldo, este campo vuelve a null.
     ===================================================== */
 
     fechaPago: {
       type: Date,
 
       default: null,
-    },
-
-    /* =====================================================
-       FECHA DE ANULACIÓN
-
-       Se utilizará si la venta asociada
-       llega a ser anulada.
-    ===================================================== */
-
-    fechaAnulacion: {
-      type: Date,
-
-      default: null,
-    },
-
-    /* =====================================================
-       MOTIVO DE ANULACIÓN
-
-       Conservamos también el motivo de la venta.
-    ===================================================== */
-
-    motivoAnulacion: {
-      type: String,
-
-      trim: true,
-
-      default: "",
     },
 
     /* =====================================================

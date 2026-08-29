@@ -120,6 +120,17 @@ const ventaSchema = new mongoose.Schema(
 
     /* =====================================================
        ESTADO
+
+       Ya NO existe "Anulada".
+
+       Si una venta se elimina, el registro se borra
+       definitivamente de la colección.
+
+       Activa:
+       Todavía tiene saldo pendiente.
+
+       Pagada:
+       Ya se pagó completamente.
     ===================================================== */
 
     estado: {
@@ -128,32 +139,9 @@ const ventaSchema = new mongoose.Schema(
       enum: [
         "Activa",
         "Pagada",
-        "Anulada",
       ],
 
       default: "Activa",
-    },
-
-    /* =====================================================
-       MOTIVO DE ANULACIÓN
-
-       Se llena solamente cuando la venta
-       pasa al estado "Anulada".
-    ===================================================== */
-
-    motivoAnulacion: {
-      type: String,
-      trim: true,
-      default: "",
-    },
-
-    /* =====================================================
-       FECHA DE ANULACIÓN
-    ===================================================== */
-
-    fechaAnulacion: {
-      type: Date,
-      default: null,
     },
 
     /* =====================================================
@@ -188,6 +176,10 @@ ventaSchema.index({
 ventaSchema.index({
   estado: 1,
 });
+
+/* =========================================================
+   MODELO
+========================================================= */
 
 const Venta = mongoose.model(
   "Venta",

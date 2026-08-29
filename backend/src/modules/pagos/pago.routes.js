@@ -4,9 +4,7 @@ import {
   obtenerPagos,
   obtenerPagoPorId,
   crearPago,
-  anularPago,
-  revertirPago,
-  eliminarPagoAnulado,
+  eliminarPago,
   obtenerResumenPagos,
 } from "./pago.controller.js";
 
@@ -35,10 +33,11 @@ router.get(
 
    ?venta=ID
    ?cliente=ID
-   ?estado=Aplicado
    ?metodoPago=Efectivo
    ?fechaInicio=2026-08-01
    ?fechaFinal=2026-08-31
+
+   Ya NO existe filtro por estado.
 ========================================================= */
 
 router.get(
@@ -58,49 +57,20 @@ router.post(
 );
 
 /* =========================================================
-   ANULAR PAGO
-
-   PATCH /api/pagos/:id/anular
-
-   Body:
-
-   {
-     "motivoAnulacion": "Pago registrado por error"
-   }
-========================================================= */
-
-router.patch(
-  "/:id/anular",
-  anularPago
-);
-
-/* =========================================================
-   REVERTIR PAGO ANULADO
-
-   PATCH /api/pagos/:id/revertir
-
-   Solo se permite cuando el pago anulado es el ÚNICO
-   registro de pago para esa venta.
-========================================================= */
-
-router.patch(
-  "/:id/revertir",
-  revertirPago
-);
-
-/* =========================================================
-   ELIMINAR PAGO ANULADO
+   ELIMINAR PAGO DEFINITIVAMENTE
 
    DELETE /api/pagos/:id
 
-   Solo se permite si:
-   - está Anulado
-   - ya existe OTRO pago Aplicado para esa misma venta
+   Al eliminar:
+   - el pago desaparece
+   - se recalculan las cuotas afectadas
+   - el dinero vuelve al saldo pendiente
+   - se recalcula el estado de la venta
 ========================================================= */
 
 router.delete(
   "/:id",
-  eliminarPagoAnulado
+  eliminarPago
 );
 
 /* =========================================================
@@ -108,7 +78,7 @@ router.delete(
 
    GET /api/pagos/:id
 
-   Esta ruta debe quedar después de "/resumen".
+   Debe permanecer después de "/resumen".
 ========================================================= */
 
 router.get(

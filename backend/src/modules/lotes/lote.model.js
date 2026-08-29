@@ -37,15 +37,38 @@ const loteSchema = new mongoose.Schema(
     },
 
     /* =====================================================
+       TIPO DE LOTE
+
+       Regular:
+       - el área se obtiene con frente × fondo
+
+       Irregular:
+       - el área se registra directamente
+       - frente y fondo son solamente referencia
+    ===================================================== */
+
+    tipoLote: {
+      type: String,
+      enum: [
+        "Regular",
+        "Irregular",
+      ],
+      default: "Regular",
+      required: true,
+    },
+
+    /* =====================================================
        MEDIDA DEL FRENTE
+
+       REGULAR:
+       Debe existir una medida mayor que cero.
+
+       IRREGULAR:
+       Puede quedar en cero o utilizarse como referencia.
     ===================================================== */
 
     frenteMetros: {
       type: Number,
-      required: [
-        true,
-        "Los metros del frente son obligatorios",
-      ],
       min: [
         0,
         "Los metros del frente no pueden ser negativos",
@@ -57,25 +80,27 @@ const loteSchema = new mongoose.Schema(
       type: Number,
       min: [
         0,
-        "Los centímetros no pueden ser negativos",
+        "Los centímetros del frente no pueden ser negativos",
       ],
       max: [
         99,
-        "Los centímetros deben estar entre 0 y 99",
+        "Los centímetros del frente deben estar entre 0 y 99",
       ],
       default: 0,
     },
 
     /* =====================================================
        MEDIDA DEL FONDO
+
+       REGULAR:
+       Debe existir una medida mayor que cero.
+
+       IRREGULAR:
+       Puede quedar en cero o utilizarse como referencia.
     ===================================================== */
 
     fondoMetros: {
       type: Number,
-      required: [
-        true,
-        "Los metros del fondo son obligatorios",
-      ],
       min: [
         0,
         "Los metros del fondo no pueden ser negativos",
@@ -87,24 +112,35 @@ const loteSchema = new mongoose.Schema(
       type: Number,
       min: [
         0,
-        "Los centímetros no pueden ser negativos",
+        "Los centímetros del fondo no pueden ser negativos",
       ],
       max: [
         99,
-        "Los centímetros deben estar entre 0 y 99",
+        "Los centímetros del fondo deben estar entre 0 y 99",
       ],
       default: 0,
     },
 
     /* =====================================================
-       ÁREA CALCULADA
+       ÁREA OFICIAL DEL LOTE
+
+       REGULAR:
+       será calculada por el backend usando frente × fondo.
+
+       IRREGULAR:
+       será el área total escrita directamente por el usuario.
     ===================================================== */
 
     areaM2: {
       type: Number,
-      required: true,
-      min: 0,
-      default: 0,
+      required: [
+        true,
+        "El área del lote es obligatoria",
+      ],
+      min: [
+        0.01,
+        "El área del lote debe ser mayor que cero",
+      ],
     },
 
     /* =====================================================
@@ -118,8 +154,8 @@ const loteSchema = new mongoose.Schema(
         "El valor del lote es obligatorio",
       ],
       min: [
-        0,
-        "El valor del lote no puede ser negativo",
+        0.01,
+        "El valor del lote debe ser mayor que cero",
       ],
     },
 
@@ -154,13 +190,102 @@ const loteSchema = new mongoose.Schema(
 );
 
 /* =========================================================
+   VALIDAR MEDIDAS SEGÚN EL TIPO DE LOTE
+========================================================= */
+
+loteSchema.pre(
+  "validate",
+  function (next) {
+    const frenteTotal =
+      Number(
+        this.frenteMetros || 0
+      ) +
+      Number(
+        this.frenteCentimetros || 0
+      ) /
+        100;
+
+    const fondoTotal =
+      Number(
+        this.fondoMetros || 0
+      ) +
+      Number(
+        this.fondoCentimetros || 0
+      ) /
+        100;
+
+    /* =====================================================
+       LOTE REGULAR
+
+       Frente y fondo deben ser mayores que cero.
+    ===================================================== */
+
+    if (
+      this.tipoLote ===
+      "Regular"
+    ) {
+      if (
+        frenteTotal <= 0
+      ) {
+        this.invalidate(
+          "frenteMetros",
+          "El lote regular debe tener una medida de frente mayor que cero"
+        );
+      }
+
+      if (
+        fondoTotal <= 0
+      ) {
+        this.invalidate(
+          "fondoMetros",
+          "El lote regular debe tener una medida de fondo mayor que cero"
+        );
+      }
+    }
+
+    /* =====================================================
+       LOTE IRREGULAR
+
+       No exigimos frente ni fondo.
+
+       El área total sí debe existir porque esa es
+       la medida oficial con la que se venderá.
+    ===================================================== */
+
+    if (
+      this.tipoLote ===
+      "Irregular"
+    ) {
+      const area =
+        Number(
+          this.areaM2
+        );
+
+      if (
+        !Number.isFinite(
+          area
+        ) ||
+        area <= 0
+      ) {
+        this.invalidate(
+          "areaM2",
+          "El lote irregular debe tener un área total mayor que cero"
+        );
+      }
+    }
+
+    next();
+  }
+);
+
+/* =========================================================
    NO PERMITIR REPETIR EL MISMO NÚMERO DE LOTE
    DENTRO DE UNA MISMA MANZANA
 
-   MANZANA A - LOTE 01   ✅
-   MANZANA A - LOTE 01   ❌
+   MANZANA A - LOTE 01   
+   MANZANA A - LOTE 01   
 
-   MANZANA B - LOTE 01   ✅
+   MANZANA B - LOTE 01   
 ========================================================= */
 
 loteSchema.index(
@@ -181,6 +306,15 @@ loteSchema.index({
   manzana: 1,
   estado: 1,
 });
+
+loteSchema.index({
+  tipoLote: 1,
+  estado: 1,
+});
+
+/* =========================================================
+   MODELO
+========================================================= */
 
 const Lote = mongoose.model(
   "Lote",

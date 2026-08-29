@@ -391,12 +391,6 @@
   background: #fbf9f4;
 }
 
-.venta-row-anulada {
-  opacity: 0.64;
-
-  background: #faf7f3;
-}
-
 /* =========================================================
    CELDA CÓDIGO
 ========================================================= */
@@ -625,12 +619,6 @@
   color: #325f46;
 }
 
-.venta-status-anulada {
-  background: #f2e9e9;
-
-  color: #a65555;
-}
-
 /* =========================================================
    ACCIONES
 ========================================================= */
@@ -660,7 +648,8 @@
 
   transition:
     transform 0.16s ease,
-    background 0.16s ease;
+    background 0.16s ease,
+    border-color 0.16s ease;
 }
 
 .ventas-actions button.edit {
@@ -671,12 +660,20 @@
   color: #1f6848;
 }
 
-.ventas-actions button.anular {
-  border: 1px solid #eed1d1;
+.ventas-actions button.delete {
+  border: 1px solid #eccaca;
 
-  background: #fff1f1;
+  background: #fff0ef;
 
   color: #b84444;
+}
+
+.ventas-actions button.delete:hover:not(:disabled) {
+  border-color: #dfaaaa;
+
+  background: #fbe3e1;
+
+  color: #a73535;
 }
 
 .ventas-actions button:hover:not(:disabled) {
@@ -1513,11 +1510,12 @@
     grid-column: auto;
   }
 }
+
 /* =========================================================
-   MODAL ANULAR VENTA
+   MODAL ELIMINAR VENTA
 ========================================================= */
 
-.venta-anular-overlay {
+.venta-eliminar-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -1529,10 +1527,11 @@
   padding: 20px;
 
   background: rgba(14, 32, 24, 0.58);
+
   backdrop-filter: blur(4px);
 }
 
-.venta-anular-modal {
+.venta-eliminar-modal {
   width: min(520px, 100%);
 
   overflow: hidden;
@@ -1543,12 +1542,37 @@
   background: #fffdf7;
 
   box-shadow:
-    0 24px 70px rgba(0, 0, 0, 0.24);
+    0 24px 70px
+    rgba(0, 0, 0, 0.24);
+
+  animation:
+    ventaEliminarEntrada
+    0.18s ease;
 }
 
-/* CABECERA */
+@keyframes ventaEliminarEntrada {
+  from {
+    opacity: 0;
 
-.venta-anular-header {
+    transform:
+      translateY(10px)
+      scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.venta-eliminar-header {
   display: flex;
   align-items: center;
 
@@ -1559,7 +1583,7 @@
   border-bottom: 1px solid #eee5d8;
 }
 
-.venta-anular-icon {
+.venta-eliminar-icon {
   display: grid;
   place-items: center;
 
@@ -1573,24 +1597,25 @@
   background: #fdebea;
 
   color: #be4747;
-
-  font-size: 20px;
-  font-weight: 900;
 }
 
-.venta-anular-header > div:nth-child(2) {
+.venta-eliminar-header > div:nth-child(2) {
   flex: 1;
+
+  min-width: 0;
 }
 
-.venta-anular-header span {
+.venta-eliminar-header span {
   color: #b98532;
 
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.08em;
+
+  text-transform: uppercase;
 }
 
-.venta-anular-header h3 {
+.venta-eliminar-header h3 {
   margin: 2px 0 0;
 
   color: #173f2e;
@@ -1598,8 +1623,19 @@
   font-size: 16px;
 }
 
-.venta-anular-close {
+.venta-eliminar-close {
+  display: grid;
+  place-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  flex: 0 0 32px;
+
+  padding: 0;
+
   border: 0;
+  border-radius: 8px;
 
   background: transparent;
 
@@ -1610,9 +1646,17 @@
   cursor: pointer;
 }
 
-/* ADVERTENCIA */
+.venta-eliminar-close:hover:not(:disabled) {
+  background: #f1eee8;
 
-.venta-anular-warning {
+  color: #be4747;
+}
+
+/* =========================================================
+   ADVERTENCIA
+========================================================= */
+
+.venta-eliminar-warning {
   margin: 16px 20px 0;
   padding: 11px 13px;
 
@@ -1627,9 +1671,11 @@
   line-height: 1.5;
 }
 
-/* DATOS */
+/* =========================================================
+   DATOS DE LA VENTA
+========================================================= */
 
-.venta-anular-info {
+.venta-eliminar-info {
   display: grid;
 
   grid-template-columns:
@@ -1640,7 +1686,7 @@
   margin: 12px 20px 0;
 }
 
-.venta-anular-info > div {
+.venta-eliminar-info > div {
   display: flex;
   flex-direction: column;
 
@@ -1656,7 +1702,7 @@
   background: #faf8f1;
 }
 
-.venta-anular-info span {
+.venta-eliminar-info span {
   color: #8a918c;
 
   font-size: 7px;
@@ -1665,7 +1711,7 @@
   text-transform: uppercase;
 }
 
-.venta-anular-info strong {
+.venta-eliminar-info strong {
   overflow: hidden;
 
   color: #173f2e;
@@ -1676,91 +1722,41 @@
   white-space: nowrap;
 }
 
-/* MOTIVO */
+/* =========================================================
+   CONSECUENCIAS
+========================================================= */
 
-.venta-anular-field {
+.venta-eliminar-after {
   display: flex;
   flex-direction: column;
 
-  gap: 6px;
-
-  margin: 16px 20px 0;
-}
-
-.venta-anular-field label {
-  color: #173f2e;
-
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.venta-anular-field textarea {
-  width: 100%;
-  min-height: 100px;
-
-  padding: 11px 12px;
-
-  resize: vertical;
-
-  border: 1px solid #d8d2c6;
-  border-radius: 10px;
-
-  outline: none;
-
-  background: #ffffff;
-
-  color: #273b31;
-
-  font-family: inherit;
-  font-size: 11px;
-}
-
-.venta-anular-field textarea:focus {
-  border-color: #b98532;
-
-  box-shadow:
-    0 0 0 3px
-    rgba(185, 133, 50, 0.09);
-}
-
-.venta-anular-counter {
-  display: flex;
-  justify-content: space-between;
-
-  color: #929892;
-
-  font-size: 8px;
-}
-
-/* CONSECUENCIAS */
-
-.venta-anular-after {
-  display: flex;
-  flex-direction: column;
-
-  gap: 3px;
+  gap: 4px;
 
   margin: 14px 20px 0;
-  padding: 10px 12px;
+  padding: 11px 12px;
 
-  border-radius: 9px;
+  border: 1px solid #e5dfd4;
+  border-radius: 10px;
 
-  background: #f3f6f2;
+  background: #f4f3ee;
 
   color: #657169;
 
   font-size: 9px;
+  line-height: 1.45;
 }
 
-.venta-anular-after strong {
-  margin-bottom: 2px;
+.venta-eliminar-after strong {
+  margin-bottom: 3px;
 
   color: #173f2e;
 }
 
-/* BOTONES */
+/* =========================================================
+   BOTONES
+========================================================= */
 
-.venta-anular-actions {
+.venta-eliminar-actions {
   display: flex;
   justify-content: flex-end;
 
@@ -1772,8 +1768,8 @@
   border-top: 1px solid #eee5d8;
 }
 
-.venta-anular-cancel,
-.venta-anular-confirm {
+.venta-eliminar-cancel,
+.venta-eliminar-confirm {
   min-height: 36px;
 
   padding: 0 15px;
@@ -1786,7 +1782,7 @@
   cursor: pointer;
 }
 
-.venta-anular-cancel {
+.venta-eliminar-cancel {
   border: 1px solid #d8d2c7;
 
   background: #ffffff;
@@ -1794,7 +1790,11 @@
   color: #526158;
 }
 
-.venta-anular-confirm {
+.venta-eliminar-cancel:hover:not(:disabled) {
+  background: #f3f1eb;
+}
+
+.venta-eliminar-confirm {
   border: 1px solid #be4747;
 
   background: #be4747;
@@ -1802,30 +1802,54 @@
   color: #ffffff;
 }
 
-.venta-anular-confirm:hover:not(:disabled) {
+.venta-eliminar-confirm:hover:not(:disabled) {
+  border-color: #a93b3b;
+
   background: #a93b3b;
 }
 
-.venta-anular-confirm:disabled {
+.venta-eliminar-close:disabled,
+.venta-eliminar-cancel:disabled,
+.venta-eliminar-confirm:disabled {
   opacity: 0.45;
 
   cursor: not-allowed;
 }
 
+/* =========================================================
+   RESPONSIVE ELIMINAR
+========================================================= */
+
 @media (max-width: 560px) {
-  .venta-anular-info {
-    grid-template-columns: 1fr;
+  .venta-eliminar-overlay {
+    align-items: flex-end;
+
+    padding: 0;
   }
 
-  .venta-anular-actions {
-    flex-direction: column-reverse;
+  .venta-eliminar-modal {
+    width: 100%;
+
+    border-radius:
+      18px 18px 0 0;
   }
 
-  .venta-anular-cancel,
-  .venta-anular-confirm {
+  .venta-eliminar-info {
+    grid-template-columns:
+      1fr;
+  }
+
+  .venta-eliminar-actions {
+    flex-direction:
+      column-reverse;
+  }
+
+  .venta-eliminar-cancel,
+  .venta-eliminar-confirm {
     width: 100%;
   }
 }
+
 /* =========================================================
    BUSCADOR DE CLIENTE - NUEVA VENTA
 ========================================================= */

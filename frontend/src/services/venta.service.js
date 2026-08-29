@@ -32,10 +32,12 @@ export const obtenerVentaPorId = async (
 };
 
 /* =========================================================
-   OBTENER VENTA ACTIVA POR LOTE
+   OBTENER VENTA POR LOTE
 
-   Usado desde el módulo LOTES cuando
-   se intenta editar un lote vendido.
+   Conservamos este nombre porque el módulo LOTES
+   ya lo utiliza actualmente.
+
+   Si la venta fue eliminada, ya no existirá.
 ========================================================= */
 
 export const obtenerVentaActivaPorLote =
@@ -79,42 +81,29 @@ export const actualizarVenta = async (
 };
 
 /* =========================================================
-   ANULAR VENTA
+   ELIMINAR VENTA DEFINITIVAMENTE
 
-   Ahora el motivo es obligatorio.
-========================================================= */
+   DELETE /api/ventas/:id
 
-export const anularVenta = async (
-  id,
-  motivoAnulacion
-) => {
-  const response = await api.patch(
-    `/ventas/${id}/anular`,
-    {
-      motivoAnulacion,
-    }
-  );
+   Ya NO:
+   - solicita motivo
+   - cambia estado a Anulada
+   - conserva la venta
 
-  return response.data;
-};
-/* =========================================================
-   ELIMINAR / ANULAR
+   Ahora:
+   - elimina las cuotas
+   - elimina la venta
+   - libera el lote
 
-   En realidad no se borra de MongoDB.
-   Se conserva como venta anulada.
+   El backend bloqueará la eliminación si la venta
+   todavía tiene pagos registrados.
 ========================================================= */
 
 export const eliminarVenta = async (
-  id,
-  motivoAnulacion
+  id
 ) => {
   const response = await api.delete(
-    `/ventas/${id}`,
-    {
-      data: {
-        motivoAnulacion,
-      },
-    }
+    `/ventas/${id}`
   );
 
   return response.data;
@@ -130,7 +119,6 @@ const ventaService = {
   obtenerVentaActivaPorLote,
   crearVenta,
   actualizarVenta,
-  anularVenta,
   eliminarVenta,
 };
 

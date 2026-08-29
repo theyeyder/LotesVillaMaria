@@ -147,7 +147,7 @@
   display: grid;
 
   grid-template-columns:
-    repeat(5, minmax(0, 1fr));
+    repeat(4, minmax(0, 1fr));
 
   gap: 12px;
 
@@ -221,12 +221,6 @@
   white-space: nowrap;
 }
 
-.pagos-stat small {
-  color: #999e9a;
-
-  font-size: 8px;
-}
-
 .pagos-stat.recibido {
   border-bottom: 3px solid #1f6848;
 }
@@ -237,16 +231,6 @@
 
 .pagos-stat.transferencia {
   border-bottom: 3px solid #58839c;
-}
-
-.pagos-stat.anulados {
-  border-bottom: 3px solid #b5544e;
-}
-
-.pagos-stat.anulados .pagos-stat-icon {
-  background: #f9e9e7;
-
-  color: #aa4e46;
 }
 
 /* =========================================================
@@ -403,7 +387,7 @@
   display: grid;
 
   grid-template-columns:
-    repeat(4, minmax(0, 1fr));
+    repeat(3, minmax(0, 1fr));
 
   gap: 12px;
 
@@ -469,7 +453,7 @@
 
 .pagos-table {
   width: 100%;
-  min-width: 1320px;
+  min-width: 1180px;
 
   border-collapse: collapse;
 }
@@ -512,16 +496,6 @@
 
 .pagos-table tbody tr:hover {
   background: #fbf9f4;
-}
-
-/* =========================================================
-   PAGO ANULADO
-========================================================= */
-
-.pago-row-anulado {
-  opacity: 0.58;
-
-  background: #faf7f4;
 }
 
 /* =========================================================
@@ -648,37 +622,6 @@
 }
 
 /* =========================================================
-   ESTADOS
-========================================================= */
-
-.pago-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  min-height: 27px;
-
-  padding: 0 10px;
-
-  border-radius: 999px;
-
-  font-size: 9px;
-  font-weight: 900;
-}
-
-.pago-status-aplicado {
-  background: #e7f4eb;
-
-  color: #287047;
-}
-
-.pago-status-anulado {
-  background: #f1e9e7;
-
-  color: #a54e47;
-}
-
-/* =========================================================
    ACCIONES
 ========================================================= */
 
@@ -707,7 +650,7 @@
     border-color 0.16s ease;
 }
 
-.pagos-actions button:hover {
+.pagos-actions button:hover:not(:disabled) {
   transform: translateY(-1px);
 }
 
@@ -719,20 +662,24 @@
   color: #1f6848;
 }
 
-.pagos-actions .view:hover {
+.pagos-actions .view:hover:not(:disabled) {
   background: #e2efe7;
 }
 
-.pagos-actions .cancel {
-  border-color: #edd2cf;
+.pagos-actions .delete {
+  border-color: #eccac7;
 
   background: #fff0ee;
 
-  color: #b24e48;
+  color: #b54842;
 }
 
-.pagos-actions .cancel:hover {
-  background: #fbe3e0;
+.pagos-actions .delete:hover:not(:disabled) {
+  border-color: #dda8a4;
+
+  background: #f9dedb;
+
+  color: #a13a35;
 }
 
 /* =========================================================
@@ -1654,55 +1601,19 @@
   line-height: 1.5;
 }
 
-.pago-detail-cancelled {
-  display: flex;
-  align-items: flex-start;
-
-  gap: 10px;
-
-  margin-top: 15px;
-  padding: 12px 13px;
-
-  border: 1px solid #efceca;
-  border-radius: 11px;
-
-  background: #fff0ee;
-
-  color: #a34e47;
-}
-
-.pago-detail-cancelled > div {
-  display: flex;
-  flex-direction: column;
-
-  gap: 3px;
-}
-
-.pago-detail-cancelled strong {
-  font-size: 11px;
-}
-
-.pago-detail-cancelled span {
-  color: #7d5e5a;
-
-  font-size: 10px;
-}
-
-.pago-detail-cancelled small {
-  color: #a68b87;
-
-  font-size: 8px;
-}
-
 /* =========================================================
-   MODAL ANULACIÓN
+   MODAL ELIMINAR PAGO
 ========================================================= */
 
-.pago-cancel-modal {
+.pago-delete-modal {
   width: min(590px, 100%);
 }
 
-.pago-cancel-icon {
+/* =========================================================
+   ICONO
+========================================================= */
+
+.pago-delete-icon {
   display: grid;
   place-items: center;
 
@@ -1718,7 +1629,11 @@
   color: #b5524c;
 }
 
-.pago-cancel-warning {
+/* =========================================================
+   ADVERTENCIA
+========================================================= */
+
+.pago-delete-warning {
   display: flex;
   align-items: flex-start;
 
@@ -1734,27 +1649,37 @@
   color: #ae514a;
 }
 
-.pago-cancel-warning > div {
+.pago-delete-warning > svg {
+  flex: 0 0 auto;
+
+  margin-top: 1px;
+}
+
+.pago-delete-warning > div {
   display: flex;
   flex-direction: column;
 
-  gap: 3px;
+  gap: 4px;
 }
 
-.pago-cancel-warning strong {
+.pago-delete-warning strong {
   color: #944740;
 
   font-size: 11px;
 }
 
-.pago-cancel-warning span {
+.pago-delete-warning span {
   color: #795f5b;
 
   font-size: 9px;
   line-height: 1.45;
 }
 
-.pago-cancel-info {
+/* =========================================================
+   INFORMACIÓN DEL PAGO
+========================================================= */
+
+.pago-delete-info {
   display: grid;
 
   grid-template-columns:
@@ -1765,7 +1690,7 @@
   margin-top: 13px;
 }
 
-.pago-cancel-info > div {
+.pago-delete-info > div {
   display: flex;
   flex-direction: column;
 
@@ -1781,7 +1706,7 @@
   background: #faf8f2;
 }
 
-.pago-cancel-info span {
+.pago-delete-info span {
   color: #8a918c;
 
   font-size: 8px;
@@ -1790,7 +1715,7 @@
   text-transform: uppercase;
 }
 
-.pago-cancel-info strong {
+.pago-delete-info strong {
   overflow: hidden;
 
   color: #173f2e;
@@ -1801,14 +1726,34 @@
   white-space: nowrap;
 }
 
-.pago-cancel-reason {
+/* =========================================================
+   CONSECUENCIAS
+========================================================= */
+
+.pago-delete-after {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
   margin-top: 14px;
+  padding: 11px 12px;
+
+  border: 1px solid #e4ded2;
+  border-radius: 10px;
+
+  background: #f5f3ee;
+
+  color: #68736c;
+
+  font-size: 9px;
+  line-height: 1.45;
 }
 
-.pago-cancel-reason small {
-  color: #8b928d;
+.pago-delete-after strong {
+  margin-bottom: 2px;
 
-  font-size: 8px;
+  color: #173f2e;
 }
 
 /* =========================================================
@@ -1935,7 +1880,7 @@
   .pagos-filters,
   .pago-sale-info,
   .pago-detail-summary,
-  .pago-cancel-info {
+  .pago-delete-info {
     grid-template-columns: 1fr;
   }
 
@@ -1976,7 +1921,7 @@
   .pagos-clear-button {
     width: 100%;
   }
-}   
+}
 
 /* =========================================================
    BUSCADOR DE CLIENTE - NUEVO PAGO
@@ -2134,6 +2079,7 @@
     font-size: 11px;
   }
 }
+
 /* =========================================================
    TIPO DE PAGO
    - PAGAR CUOTA
@@ -2548,6 +2494,7 @@ input[readonly] {
     border-bottom: none !important;
   }
 }
+
 /* =========================================================
    VALOR EN VIVO DEL PAGO
 ========================================================= */
@@ -2611,6 +2558,7 @@ input[readonly] {
     font-size: 14px;
   }
 }
+
 /* =========================================================
    RESULTADOS DEL BUSCADOR DE CLIENTES
    NUEVO PAGO
@@ -3077,35 +3025,4 @@ input[readonly] {
     top: 9px;
     right: 9px;
   }
-}
-/* =========================================================
-   REVERTIR PAGO
-========================================================= */
-
-.pagos-actions .revert {
-  border-color: #d8c79e;
-
-  background: #fff7e8;
-
-  color: #9a7026;
-}
-
-.pagos-actions .revert:hover {
-  background: #f9edcf;
-}
-
-/* =========================================================
-   ELIMINAR PAGO ANULADO
-========================================================= */
-
-.pagos-actions .delete {
-  border-color: #eccac7;
-
-  background: #fff0ee;
-
-  color: #b54842;
-}
-
-.pagos-actions .delete:hover {
-  background: #f9dedb;
 }

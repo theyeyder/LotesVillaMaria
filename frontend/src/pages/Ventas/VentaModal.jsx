@@ -9,7 +9,9 @@ import {
   Calculator,
   DollarSign,
   LandPlot,
+  Ruler,
   Save,
+  Shapes,
   ShoppingCart,
   UserRound,
   X,
@@ -20,18 +22,27 @@ import {
 ========================================================= */
 
 const obtenerFechaActual = () => {
-  const fecha = new Date();
+  const fecha =
+    new Date();
 
   const year =
     fecha.getFullYear();
 
-  const month = String(
-    fecha.getMonth() + 1
-  ).padStart(2, "0");
+  const month =
+    String(
+      fecha.getMonth() + 1
+    ).padStart(
+      2,
+      "0"
+    );
 
-  const day = String(
-    fecha.getDate()
-  ).padStart(2, "0");
+  const day =
+    String(
+      fecha.getDate()
+    ).padStart(
+      2,
+      "0"
+    );
 
   return `${year}-${month}-${day}`;
 };
@@ -72,12 +83,55 @@ const formatearDinero = (
   return new Intl.NumberFormat(
     "es-CO",
     {
-      style: "currency",
-      currency: "COP",
-      maximumFractionDigits: 0,
+      style:
+        "currency",
+
+      currency:
+        "COP",
+
+      maximumFractionDigits:
+        0,
     }
   ).format(
-    Number(valor) || 0
+    Number(
+      valor
+    ) || 0
+  );
+};
+
+/* =========================================================
+   ÁREA / MEDIDAS
+========================================================= */
+
+const formatearMedida = (
+  valor = 0
+) => {
+  return Number(
+    valor || 0
+  ).toLocaleString(
+    "es-CO",
+    {
+      minimumFractionDigits:
+        2,
+
+      maximumFractionDigits:
+        2,
+    }
+  );
+};
+
+const convertirAMetros = (
+  metros = 0,
+  centimetros = 0
+) => {
+  return (
+    Number(
+      metros || 0
+    ) +
+    Number(
+      centimetros || 0
+    ) /
+      100
   );
 };
 
@@ -88,7 +142,9 @@ const formatearDinero = (
 const obtenerNombreCliente = (
   cliente
 ) => {
-  if (!cliente) {
+  if (
+    !cliente
+  ) {
     return "";
   }
 
@@ -96,8 +152,12 @@ const obtenerNombreCliente = (
     cliente.nombres,
     cliente.apellidos,
   ]
-    .filter(Boolean)
-    .join(" ")
+    .filter(
+      Boolean
+    )
+    .join(
+      " "
+    )
     .trim();
 
   return (
@@ -106,6 +166,56 @@ const obtenerNombreCliente = (
     cliente.razonSocial ||
     "Cliente"
   );
+};
+
+/* =========================================================
+   DETECTAR TIPO DEL LOTE
+
+   Para lotes anteriores que todavía no tengan tipoLote:
+
+   Si tiene frente y fondo:
+   Regular
+
+   Si no:
+   Irregular
+========================================================= */
+
+const obtenerTipoLote = (
+  lote
+) => {
+  if (
+    !lote
+  ) {
+    return "Regular";
+  }
+
+  if (
+    lote.tipoLote ===
+      "Regular" ||
+    lote.tipoLote ===
+      "Irregular"
+  ) {
+    return lote.tipoLote;
+  }
+
+  const frente =
+    convertirAMetros(
+      lote.frenteMetros,
+      lote.frenteCentimetros
+    );
+
+  const fondo =
+    convertirAMetros(
+      lote.fondoMetros,
+      lote.fondoCentimetros
+    );
+
+  return (
+    frente > 0 &&
+    fondo > 0
+  )
+    ? "Regular"
+    : "Irregular";
 };
 
 /* =========================================================
@@ -134,12 +244,24 @@ export default function VentaModal({
     crearEstadoInicial()
   );
 
+  const [
+    busquedaCliente,
+    setBusquedaCliente,
+  ] = useState("");
+
+  const [
+    mostrarResultadosClientes,
+    setMostrarResultadosClientes,
+  ] = useState(false);
+
   /* =======================================================
      CARGAR DATOS AL ABRIR
   ======================================================= */
 
   useEffect(() => {
-    if (!abierto) {
+    if (
+      !abierto
+    ) {
       return;
     }
 
@@ -147,9 +269,33 @@ export default function VentaModal({
        EDITAR
     ========================= */
 
-    if (ventaEditar) {
+    if (
+      ventaEditar
+    ) {
       const loteVenta =
         ventaEditar.lote;
+
+      const clienteVenta =
+        typeof ventaEditar.cliente ===
+        "object"
+          ? ventaEditar.cliente
+          : clientes.find(
+              (cliente) =>
+                cliente._id ===
+                ventaEditar.cliente
+            );
+
+      setBusquedaCliente(
+        clienteVenta
+          ? obtenerNombreCliente(
+              clienteVenta
+            )
+          : ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
 
       setForm({
         cliente:
@@ -175,7 +321,10 @@ export default function VentaModal({
                 ventaEditar.fechaVenta
               )
                 .toISOString()
-                .slice(0, 10)
+                .slice(
+                  0,
+                  10
+                )
             : obtenerFechaActual(),
 
         valorVenta:
@@ -206,12 +355,16 @@ export default function VentaModal({
        NUEVA VENTA
     ========================= */
 
+    setBusquedaCliente("");
+    setMostrarResultadosClientes(false);
+
     setForm(
       crearEstadoInicial()
     );
   }, [
     abierto,
     ventaEditar,
+    clientes,
   ]);
 
   /* =======================================================
@@ -221,18 +374,22 @@ export default function VentaModal({
   const lotesDisponibles =
     useMemo(() => {
       return lotes.filter(
-        (lote) => {
+        (
+          lote
+        ) => {
           /*
-            En edición dejamos visible
-            el lote que ya pertenece
-            a la venta.
+            En edición conservamos visible
+            el lote de la venta.
           */
 
           if (
             ventaEditar &&
             lote._id ===
-              (ventaEditar.lote?._id ||
-                ventaEditar.lote)
+              (
+                ventaEditar.lote
+                  ?._id ||
+                ventaEditar.lote
+              )
           ) {
             return true;
           }
@@ -254,12 +411,16 @@ export default function VentaModal({
 
   const lotesDeManzana =
     useMemo(() => {
-      if (!form.manzana) {
+      if (
+        !form.manzana
+      ) {
         return [];
       }
 
       return lotesDisponibles.filter(
-        (lote) => {
+        (
+          lote
+        ) => {
           const manzanaId =
             lote.manzana?._id ||
             lote.manzana;
@@ -277,22 +438,101 @@ export default function VentaModal({
 
   /* =======================================================
      LOTE SELECCIONADO
+
+     En edición usamos también el lote poblado de la venta
+     como respaldo.
   ======================================================= */
 
   const loteSeleccionado =
     useMemo(() => {
-      return lotes.find(
-        (lote) =>
-          lote._id ===
-          form.lote
-      );
+      const encontrado =
+        lotes.find(
+          (
+            lote
+          ) =>
+            lote._id ===
+            form.lote
+        );
+
+      if (
+        encontrado
+      ) {
+        return encontrado;
+      }
+
+      if (
+        ventaEditar?.lote &&
+        typeof ventaEditar.lote ===
+          "object"
+      ) {
+        return ventaEditar.lote;
+      }
+
+      return null;
     }, [
       lotes,
       form.lote,
+      ventaEditar,
     ]);
 
   /* =======================================================
-     CÁLCULOS
+     INFORMACIÓN FÍSICA DEL LOTE
+  ======================================================= */
+
+  const tipoLote =
+    useMemo(() => {
+      return obtenerTipoLote(
+        loteSeleccionado
+      );
+    }, [
+      loteSeleccionado,
+    ]);
+
+  const esLoteIrregular =
+    tipoLote ===
+    "Irregular";
+
+  const frenteLote =
+    useMemo(() => {
+      if (
+        !loteSeleccionado
+      ) {
+        return 0;
+      }
+
+      return convertirAMetros(
+        loteSeleccionado.frenteMetros,
+        loteSeleccionado.frenteCentimetros
+      );
+    }, [
+      loteSeleccionado,
+    ]);
+
+  const fondoLote =
+    useMemo(() => {
+      if (
+        !loteSeleccionado
+      ) {
+        return 0;
+      }
+
+      return convertirAMetros(
+        loteSeleccionado.fondoMetros,
+        loteSeleccionado.fondoCentimetros
+      );
+    }, [
+      loteSeleccionado,
+    ]);
+
+  const areaLote =
+    Number(
+      loteSeleccionado
+        ?.areaM2 ||
+      0
+    );
+
+  /* =======================================================
+     CÁLCULOS ECONÓMICOS
   ======================================================= */
 
   const valorVenta =
@@ -326,310 +566,650 @@ export default function VentaModal({
   const valorCuota =
     form.formaPago ===
       "Financiado" &&
-    cantidadCuotas > 0
+    cantidadCuotas >
+      0
       ? saldoFinanciar /
         cantidadCuotas
       : 0;
 
   /* =======================================================
+     BUSCADOR DE CLIENTES
+  ======================================================= */
+
+  const clienteSeleccionado =
+    useMemo(() => {
+      if (
+        !form.cliente
+      ) {
+        return null;
+      }
+
+      const encontrado =
+        clientes.find(
+          (cliente) =>
+            cliente._id ===
+            form.cliente
+        );
+
+      if (
+        encontrado
+      ) {
+        return encontrado;
+      }
+
+      if (
+        ventaEditar?.cliente &&
+        typeof ventaEditar.cliente ===
+          "object" &&
+        ventaEditar.cliente._id ===
+          form.cliente
+      ) {
+        return ventaEditar.cliente;
+      }
+
+      return null;
+    }, [
+      clientes,
+      form.cliente,
+      ventaEditar,
+    ]);
+
+  const clientesFiltrados =
+    useMemo(() => {
+      const texto =
+        busquedaCliente
+          .trim()
+          .toLowerCase();
+
+      /*
+        No mostramos los 100 clientes
+        cuando el campo está vacío.
+      */
+
+      if (
+        !texto
+      ) {
+        return [];
+      }
+
+      return clientes
+        .filter(
+          (cliente) => {
+            const nombreCompleto =
+              obtenerNombreCliente(
+                cliente
+              ).toLowerCase();
+
+            const documento =
+              String(
+                cliente.documento ||
+                ""
+              ).toLowerCase();
+
+            const telefono =
+              String(
+                cliente.telefono ||
+                ""
+              ).toLowerCase();
+
+            const correo =
+              String(
+                cliente.correo ||
+                ""
+              ).toLowerCase();
+
+            return (
+              nombreCompleto.includes(
+                texto
+              ) ||
+              documento.includes(
+                texto
+              ) ||
+              telefono.includes(
+                texto
+              ) ||
+              correo.includes(
+                texto
+              )
+            );
+          }
+        )
+        /*
+          Aunque existan cientos de coincidencias,
+          mostramos máximo 10.
+        */
+        .slice(
+          0,
+          10
+        );
+    }, [
+      clientes,
+      busquedaCliente,
+    ]);
+
+  /* =======================================================
+     ESCRIBIR EN BUSCADOR
+  ======================================================= */
+
+  const handleBuscarCliente =
+    (
+      e
+    ) => {
+      const value =
+        e.target.value;
+
+      setBusquedaCliente(
+        value
+      );
+
+      setMostrarResultadosClientes(
+        true
+      );
+
+      /*
+        Si empieza una nueva búsqueda,
+        quitamos el cliente anterior.
+      */
+
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          cliente:
+            "",
+        })
+      );
+    };
+
+  /* =======================================================
+     SELECCIONAR CLIENTE
+  ======================================================= */
+
+  const seleccionarCliente =
+    (
+      cliente
+    ) => {
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          cliente:
+            cliente._id,
+        })
+      );
+
+      setBusquedaCliente(
+        obtenerNombreCliente(
+          cliente
+        )
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+    };
+
+  /* =======================================================
+     CAMBIAR / LIMPIAR CLIENTE
+  ======================================================= */
+
+  const limpiarCliente =
+    () => {
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          cliente:
+            "",
+        })
+      );
+
+      setBusquedaCliente(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+    };
+
+  /* =======================================================
      CAMBIOS
   ======================================================= */
 
-  const handleChange = (
-    e
-  ) => {
-    const {
-      name,
-      value,
-    } = e.target;
+  const handleChange =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      setForm(
+        (
+          prev
+        ) => ({
+          ...prev,
+
+          [name]:
+            value,
+        })
+      );
+    };
 
   /* =======================================================
      SELECCIONAR MANZANA
   ======================================================= */
 
-  const handleManzanaChange = (
-    e
-  ) => {
-    const value =
-      e.target.value;
+  const handleManzanaChange =
+    (
+      e
+    ) => {
+      const value =
+        e.target.value;
 
-    setForm((prev) => ({
-      ...prev,
+      setForm(
+        (
+          prev
+        ) => ({
+          ...prev,
 
-      manzana:
-        value,
+          manzana:
+            value,
 
-      lote: "",
+          lote:
+            "",
 
-      valorVenta: "",
-    }));
-  };
+          valorVenta:
+            "",
+        })
+      );
+    };
 
   /* =======================================================
      SELECCIONAR LOTE
 
-     Al escoger un lote tomamos
-     automáticamente su valor general.
+     El lote conserva:
+     - tipo
+     - medidas
+     - área oficial
+     - valor registrado
   ======================================================= */
 
-  const handleLoteChange = (
-    e
-  ) => {
-    const loteId =
-      e.target.value;
+  const handleLoteChange =
+    (
+      e
+    ) => {
+      const loteId =
+        e.target.value;
 
-    const lote =
-      lotes.find(
-        (item) =>
-          item._id === loteId
+      const lote =
+        lotes.find(
+          (
+            item
+          ) =>
+            item._id ===
+            loteId
+        );
+
+      setForm(
+        (
+          prev
+        ) => ({
+          ...prev,
+
+          lote:
+            loteId,
+
+          valorVenta:
+            lote?.valorLote !=
+            null
+              ? String(
+                  lote.valorLote
+                )
+              : "",
+
+          /*
+            Si estaba en contado,
+            mantenemos la inicial sincronizada.
+          */
+
+          cuotaInicial:
+            prev.formaPago ===
+            "Contado" &&
+            lote?.valorLote !=
+              null
+              ? String(
+                  lote.valorLote
+                )
+              : prev.cuotaInicial,
+        })
       );
-
-    setForm((prev) => ({
-      ...prev,
-
-      lote:
-        loteId,
-
-      valorVenta:
-        lote?.valorLote != null
-          ? String(
-              lote.valorLote
-            )
-          : "",
-    }));
-  };
+    };
 
   /* =======================================================
      CAMPOS DE DINERO
   ======================================================= */
 
-  const handleDineroChange = (
-    e
-  ) => {
-    const {
-      name,
-      value,
-    } = e.target;
+  const handleDineroChange =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-    const limpio =
-      value.replace(
-        /\D/g,
-        ""
+      const limpio =
+        value.replace(
+          /\D/g,
+          ""
+        );
+
+      setForm(
+        (
+          prev
+        ) => {
+          const nuevoForm = {
+            ...prev,
+
+            [name]:
+              limpio,
+          };
+
+          /*
+            Si cambia el valor mientras es Contado,
+            la cuota inicial debe seguir siendo igual
+            al valor total.
+          */
+
+          if (
+            name ===
+              "valorVenta" &&
+            prev.formaPago ===
+              "Contado"
+          ) {
+            nuevoForm.cuotaInicial =
+              limpio;
+          }
+
+          return nuevoForm;
+        }
       );
-
-    setForm((prev) => ({
-      ...prev,
-
-      [name]:
-        limpio,
-    }));
-  };
+    };
 
   /* =======================================================
      NÚMERO DE CUOTAS
   ======================================================= */
 
-  const handleCuotasChange = (
-    e
-  ) => {
-    const limpio =
-      e.target.value.replace(
-        /\D/g,
-        ""
+  const handleCuotasChange =
+    (
+      e
+    ) => {
+      const limpio =
+        e.target.value.replace(
+          /\D/g,
+          ""
+        );
+
+      setForm(
+        (
+          prev
+        ) => ({
+          ...prev,
+
+          numeroCuotas:
+            limpio,
+        })
       );
-
-    setForm((prev) => ({
-      ...prev,
-
-      numeroCuotas:
-        limpio,
-    }));
-  };
+    };
 
   /* =======================================================
      FORMA DE PAGO
   ======================================================= */
 
-  const handleFormaPago = (
-    e
-  ) => {
-    const value =
-      e.target.value;
+  const handleFormaPago =
+    (
+      e
+    ) => {
+      const value =
+        e.target.value;
 
-    setForm((prev) => ({
-      ...prev,
+      setForm(
+        (
+          prev
+        ) => ({
+          ...prev,
 
-      formaPago:
-        value,
+          formaPago:
+            value,
 
-      cuotaInicial:
-        value === "Contado"
-          ? prev.valorVenta
-          : "",
+          cuotaInicial:
+            value ===
+            "Contado"
+              ? prev.valorVenta
+              : "",
 
-      numeroCuotas:
-        value === "Contado"
-          ? ""
-          : prev.numeroCuotas,
-    }));
-  };
+          numeroCuotas:
+            value ===
+            "Contado"
+              ? ""
+              : prev.numeroCuotas,
+        })
+      );
+    };
 
   /* =======================================================
      VALIDAR
   ======================================================= */
 
-  const validar = () => {
-    if (!form.cliente) {
-      alert(
-        "Debe seleccionar un cliente"
-      );
-
-      return false;
-    }
-
-    if (!form.lote) {
-      alert(
-        "Debe seleccionar un lote"
-      );
-
-      return false;
-    }
-
-    if (!form.fechaVenta) {
-      alert(
-        "La fecha de venta es obligatoria"
-      );
-
-      return false;
-    }
-
-    if (
-      valorVenta <= 0
-    ) {
-      alert(
-        "El valor de la venta debe ser mayor que cero"
-      );
-
-      return false;
-    }
-
-    if (
-      form.formaPago ===
-      "Financiado"
-    ) {
+  const validar =
+    () => {
       if (
-        cuotaInicial < 0
+        !form.cliente
       ) {
         alert(
-          "La cuota inicial no puede ser negativa"
+          "Debe seleccionar un cliente"
         );
 
         return false;
       }
 
       if (
-        cuotaInicial >=
-        valorVenta
+        !form.lote
       ) {
         alert(
-          "En una venta financiada la cuota inicial debe ser menor que el valor de la venta"
+          "Debe seleccionar un lote"
         );
 
         return false;
       }
 
       if (
-        cantidadCuotas <= 0
+        !form.fechaVenta
       ) {
         alert(
-          "Debe indicar el número de cuotas"
+          "La fecha de venta es obligatoria"
         );
 
         return false;
       }
-    }
 
-    return true;
-  };
+      /*
+        Verificación adicional del área oficial.
+      */
+
+      if (
+        !loteSeleccionado ||
+        !Number.isFinite(
+          areaLote
+        ) ||
+        areaLote <= 0
+      ) {
+        alert(
+          "El lote seleccionado no tiene un área válida"
+        );
+
+        return false;
+      }
+
+      /*
+        Si es Regular debe conservar
+        frente y fondo válidos.
+      */
+
+      if (
+        !esLoteIrregular &&
+        (
+          frenteLote <= 0 ||
+          fondoLote <= 0
+        )
+      ) {
+        alert(
+          "El lote regular seleccionado no tiene medidas válidas de frente y fondo"
+        );
+
+        return false;
+      }
+
+      if (
+        valorVenta <= 0
+      ) {
+        alert(
+          "El valor de la venta debe ser mayor que cero"
+        );
+
+        return false;
+      }
+
+      if (
+        form.formaPago ===
+        "Financiado"
+      ) {
+        if (
+          cuotaInicial < 0
+        ) {
+          alert(
+            "La cuota inicial no puede ser negativa"
+          );
+
+          return false;
+        }
+
+        if (
+          cuotaInicial >=
+          valorVenta
+        ) {
+          alert(
+            "En una venta financiada la cuota inicial debe ser menor que el valor de la venta"
+          );
+
+          return false;
+        }
+
+        if (
+          cantidadCuotas <= 0
+        ) {
+          alert(
+            "Debe indicar el número de cuotas"
+          );
+
+          return false;
+        }
+      }
+
+      return true;
+    };
 
   /* =======================================================
      GUARDAR
   ======================================================= */
 
-  const handleSubmit = async (
-    e
-  ) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (
+      e
+    ) => {
+      e.preventDefault();
 
-    if (!validar()) {
-      return;
-    }
+      if (
+        !validar()
+      ) {
+        return;
+      }
 
-    const datos = {
-      cliente:
-        form.cliente,
+      const datos = {
+        cliente:
+          form.cliente,
 
-      fechaVenta:
-        form.fechaVenta,
+        fechaVenta:
+          form.fechaVenta,
 
-      valorVenta:
         valorVenta,
 
-      cuotaInicial:
-        form.formaPago ===
-        "Contado"
-          ? valorVenta
-          : cuotaInicial,
+        cuotaInicial:
+          form.formaPago ===
+          "Contado"
+            ? valorVenta
+            : cuotaInicial,
 
-      formaPago:
-        form.formaPago,
+        formaPago:
+          form.formaPago,
 
-      numeroCuotas:
-        form.formaPago ===
-        "Contado"
-          ? 0
-          : cantidadCuotas,
+        numeroCuotas:
+          form.formaPago ===
+          "Contado"
+            ? 0
+            : cantidadCuotas,
 
-      observaciones:
-        form.observaciones.trim(),
+        observaciones:
+          form.observaciones.trim(),
+      };
+
+      /*
+        Para crear enviamos lote.
+
+        El backend obtiene del lote:
+        - tipoLote
+        - área
+        - frente
+        - fondo
+
+        No necesitamos duplicarlos dentro
+        del documento Venta.
+      */
+
+      if (
+        !ventaEditar
+      ) {
+        datos.lote =
+          form.lote;
+      }
+
+      await onGuardar(
+        datos
+      );
     };
 
-    /*
-      Para crear sí enviamos lote.
-
-      En edición el backend conserva
-      el lote original.
-    */
-
-    if (!ventaEditar) {
-      datos.lote =
-        form.lote;
-    }
-
-    await onGuardar(
-      datos
-    );
-  };
-
-  if (!abierto) {
+  if (
+    !abierto
+  ) {
     return null;
   }
 
   return (
     <div className="ventas-modal-overlay">
+
       <div className="ventas-modal">
+
         {/* =========================================
             CABECERA
         ========================================= */}
 
         <div className="ventas-modal-header">
+
           <div className="ventas-modal-title">
+
             <div className="ventas-modal-icon">
               <ShoppingCart
                 size={21}
@@ -649,16 +1229,24 @@ export default function VentaModal({
                   : "Registrar venta"}
               </h2>
             </div>
+
           </div>
 
           <button
             type="button"
             className="ventas-modal-close"
-            onClick={onCerrar}
-            disabled={guardando}
+            onClick={
+              onCerrar
+            }
+            disabled={
+              guardando
+            }
           >
-            <X size={20} />
+            <X
+              size={20}
+            />
           </button>
+
         </div>
 
         <form
@@ -666,6 +1254,7 @@ export default function VentaModal({
             handleSubmit
           }
         >
+
           <div className="ventas-modal-body">
 
             {/* =====================================
@@ -674,6 +1263,7 @@ export default function VentaModal({
 
             {ventaEditar?.codigo && (
               <div className="venta-code-box">
+
                 <span>
                   Venta
                 </span>
@@ -685,9 +1275,9 @@ export default function VentaModal({
                 </strong>
 
                 <small>
-                  Código generado
-                  automáticamente.
+                  Código generado automáticamente.
                 </small>
+
               </div>
             )}
 
@@ -696,7 +1286,9 @@ export default function VentaModal({
             ===================================== */}
 
             <div className="ventas-section">
+
               <div className="ventas-section-title">
+
                 <UserRound
                   size={18}
                 />
@@ -710,48 +1302,189 @@ export default function VentaModal({
                     Cliente
                   </h3>
                 </div>
+
               </div>
 
               <div className="ventas-field">
+
                 <label>
-                  Seleccionar cliente *
+                  Buscar cliente *
                 </label>
 
-                <select
-                  name="cliente"
-                  value={
-                    form.cliente
-                  }
-                  onChange={
-                    handleChange
-                  }
-                >
-                  <option value="">
-                    Seleccione un cliente
-                  </option>
+                {/* =================================
+                    CLIENTE YA SELECCIONADO
+                ================================= */}
 
-                  {clientes.map(
-                    (cliente) => (
-                      <option
-                        key={
-                          cliente._id
-                        }
-                        value={
-                          cliente._id
-                        }
-                      >
+                {clienteSeleccionado ? (
+                  <div className="venta-client-selected">
+
+                    <div>
+
+                      <span>
+                        Cliente seleccionado
+                      </span>
+
+                      <strong>
                         {obtenerNombreCliente(
-                          cliente
+                          clienteSeleccionado
                         )}
+                      </strong>
 
-                        {cliente.documento
-                          ? ` - ${cliente.documento}`
-                          : ""}
-                      </option>
-                    )
-                  )}
-                </select>
+                      {clienteSeleccionado.documento && (
+                        <small>
+                          Documento:{" "}
+                          {
+                            clienteSeleccionado.documento
+                          }
+                        </small>
+                      )}
+
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        limpiarCliente
+                      }
+                      disabled={
+                        guardando
+                      }
+                    >
+                      Cambiar
+                    </button>
+
+                  </div>
+                ) : (
+                  <>
+
+                    {/* ===============================
+                        BUSCADOR
+                    =============================== */}
+
+                    <div className="venta-client-search">
+
+                      <input
+                        type="text"
+                        value={
+                          busquedaCliente
+                        }
+                        onChange={
+                          handleBuscarCliente
+                        }
+                        onFocus={() =>
+                          setMostrarResultadosClientes(
+                            true
+                          )
+                        }
+                        placeholder="Buscar por nombre, apellido, documento o teléfono..."
+                        autoComplete="off"
+                      />
+
+                      {busquedaCliente && (
+                        <button
+                          type="button"
+                          className="venta-client-clear"
+                          onClick={
+                            limpiarCliente
+                          }
+                          aria-label="Limpiar búsqueda"
+                        >
+                          ×
+                        </button>
+                      )}
+
+                    </div>
+
+                    {/* ===============================
+                        RESULTADOS
+                    =============================== */}
+
+                    {mostrarResultadosClientes &&
+                      busquedaCliente.trim() && (
+                        <div className="venta-client-results">
+
+                          {clientesFiltrados.length >
+                          0 ? (
+                            clientesFiltrados.map(
+                              (
+                                cliente
+                              ) => (
+                                <button
+                                  key={
+                                    cliente._id
+                                  }
+                                  type="button"
+                                  className="venta-client-result"
+                                  onClick={() =>
+                                    seleccionarCliente(
+                                      cliente
+                                    )
+                                  }
+                                >
+
+                                  <div className="venta-client-avatar">
+
+                                    {obtenerNombreCliente(
+                                      cliente
+                                    )
+                                      .charAt(
+                                        0
+                                      )
+                                      .toUpperCase()}
+
+                                  </div>
+
+                                  <div className="venta-client-result-info">
+
+                                    <strong>
+                                      {obtenerNombreCliente(
+                                        cliente
+                                      )}
+                                    </strong>
+
+                                    <span>
+                                      {cliente.documento
+                                        ? `Documento: ${cliente.documento}`
+                                        : "Sin documento"}
+
+                                      {cliente.telefono
+                                        ? ` · Tel: ${cliente.telefono}`
+                                        : ""}
+                                    </span>
+
+                                  </div>
+
+                                  <span className="venta-client-select-text">
+                                    Seleccionar
+                                  </span>
+
+                                </button>
+                              )
+                            )
+                          ) : (
+                            <div className="venta-client-empty">
+
+                              No se encontraron clientes con
+                              esa búsqueda.
+
+                            </div>
+                          )}
+
+                        </div>
+                      )}
+
+                    {!busquedaCliente.trim() && (
+                      <small>
+                        Escriba al menos una parte del nombre,
+                        apellido, documento o teléfono.
+                      </small>
+                    )}
+
+                  </>
+                )}
+
               </div>
+
             </div>
 
             {/* =====================================
@@ -759,7 +1492,9 @@ export default function VentaModal({
             ===================================== */}
 
             <div className="ventas-section">
+
               <div className="ventas-section-title">
+
                 <LandPlot
                   size={18}
                 />
@@ -773,6 +1508,7 @@ export default function VentaModal({
                     Lote a vender
                   </h3>
                 </div>
+
               </div>
 
               <div className="ventas-form-grid">
@@ -780,6 +1516,7 @@ export default function VentaModal({
                 {/* MANZANA */}
 
                 <div className="ventas-field">
+
                   <label>
                     Manzana *
                   </label>
@@ -803,7 +1540,9 @@ export default function VentaModal({
                     </option>
 
                     {manzanas.map(
-                      (manzana) => (
+                      (
+                        manzana
+                      ) => (
                         <option
                           key={
                             manzana._id
@@ -822,12 +1561,15 @@ export default function VentaModal({
                         </option>
                       )
                     )}
+
                   </select>
+
                 </div>
 
                 {/* LOTE */}
 
                 <div className="ventas-field">
+
                   <label>
                     Lote disponible *
                   </label>
@@ -852,7 +1594,9 @@ export default function VentaModal({
                     </option>
 
                     {lotesDeManzana.map(
-                      (lote) => (
+                      (
+                        lote
+                      ) => (
                         <option
                           key={
                             lote._id
@@ -869,65 +1613,261 @@ export default function VentaModal({
                             lote.numeroLote
                           }{" "}
                           -{" "}
+                          {obtenerTipoLote(
+                            lote
+                          )}{" "}
+                          -{" "}
                           {formatearDinero(
                             lote.valorLote
                           )}
                         </option>
                       )
                     )}
+
                   </select>
+
                 </div>
+
               </div>
 
-              {/* INFO LOTE */}
+              {/* ===================================
+                  INFORMACIÓN DEL LOTE
+              =================================== */}
 
               {loteSeleccionado && (
-                <div className="venta-lote-preview">
-                  <div>
-                    <span>
-                      Código
-                    </span>
+                <div className="venta-lote-detail">
 
-                    <strong>
-                      {
-                        loteSeleccionado.codigo
-                      }
-                    </strong>
-                  </div>
+                  {/* ===============================
+                      TIPO / FORMA DE VENTA
+                  =============================== */}
 
-                  <div>
-                    <span>
-                      Área
-                    </span>
+                  <div
+                    className={`venta-lote-type ${
+                      esLoteIrregular
+                        ? "irregular"
+                        : "regular"
+                    }`}
+                  >
 
-                    <strong>
-                      {Number(
-                        loteSeleccionado.areaM2 ||
-                          0
-                      ).toLocaleString(
-                        "es-CO",
+                    <div className="venta-lote-type-icon">
+
+                      {esLoteIrregular
+                        ? (
+                          <Shapes
+                            size={21}
+                          />
+                        )
+                        : (
+                          <Ruler
+                            size={21}
+                          />
+                        )}
+
+                    </div>
+
+                    <div>
+
+                      <span>
                         {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
+                          tipoLote
                         }
-                      )}{" "}
-                      m²
-                    </strong>
+                      </span>
+
+                      <strong>
+                        {esLoteIrregular
+                          ? "Venta por área total"
+                          : "Venta por frente y fondo"}
+                      </strong>
+
+                      <small>
+                        {esLoteIrregular
+                          ? "La medida oficial de esta venta es el área total registrada del lote."
+                          : "La medida del lote está determinada por su frente y su fondo."}
+                      </small>
+
+                    </div>
+
                   </div>
 
-                  <div>
-                    <span>
-                      Valor registrado
-                    </span>
+                  {/* ===============================
+                      LOTE REGULAR
+                  =============================== */}
 
-                    <strong>
-                      {formatearDinero(
-                        loteSeleccionado.valorLote
+                  {!esLoteIrregular && (
+                    <div className="venta-lote-measures">
+
+                      <div>
+                        <span>
+                          Frente
+                        </span>
+
+                        <strong>
+                          {formatearMedida(
+                            frenteLote
+                          )}{" "}
+                          m
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Fondo
+                        </span>
+
+                        <strong>
+                          {formatearMedida(
+                            fondoLote
+                          )}{" "}
+                          m
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Área
+                        </span>
+
+                        <strong>
+                          {formatearMedida(
+                            areaLote
+                          )}{" "}
+                          m²
+                        </strong>
+                      </div>
+
+                    </div>
+                  )}
+
+                  {/* ===============================
+                      LOTE IRREGULAR
+                  =============================== */}
+
+                  {esLoteIrregular && (
+                    <>
+                      <div className="venta-lote-irregular-area">
+
+                        <div>
+                          <span>
+                            Área total a vender
+                          </span>
+
+                          <strong>
+                            {formatearMedida(
+                              areaLote
+                            )}{" "}
+                            m²
+                          </strong>
+
+                          <small>
+                            Esta es la medida oficial del lote.
+                          </small>
+                        </div>
+
+                      </div>
+
+                      {/* ===========================
+                          REFERENCIAS OPCIONALES
+                      =========================== */}
+
+                      {(
+                        frenteLote >
+                          0 ||
+                        fondoLote >
+                          0
+                      ) && (
+                        <div className="venta-lote-reference">
+
+                          <span className="venta-lote-reference-title">
+                            Medidas de referencia
+                          </span>
+
+                          <div>
+
+                            {frenteLote >
+                              0 && (
+                              <span>
+                                Frente{" "}
+                                <strong>
+                                  {formatearMedida(
+                                    frenteLote
+                                  )}{" "}
+                                  m
+                                </strong>
+                              </span>
+                            )}
+
+                            {fondoLote >
+                              0 && (
+                              <span>
+                                Fondo{" "}
+                                <strong>
+                                  {formatearMedida(
+                                    fondoLote
+                                  )}{" "}
+                                  m
+                                </strong>
+                              </span>
+                            )}
+
+                          </div>
+
+                          <small>
+                            Estas medidas son informativas y no determinan el área vendida.
+                          </small>
+
+                        </div>
                       )}
-                    </strong>
+
+                    </>
+                  )}
+
+                  {/* ===============================
+                      DATOS GENERALES
+                  =============================== */}
+
+                  <div className="venta-lote-preview">
+
+                    <div>
+                      <span>
+                        Código
+                      </span>
+
+                      <strong>
+                        {
+                          loteSeleccionado.codigo
+                        }
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Tipo
+                      </span>
+
+                      <strong>
+                        {
+                          tipoLote
+                        }
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Valor registrado
+                      </span>
+
+                      <strong>
+                        {formatearDinero(
+                          loteSeleccionado.valorLote
+                        )}
+                      </strong>
+                    </div>
+
                   </div>
+
                 </div>
               )}
+
             </div>
 
             {/* =====================================
@@ -935,7 +1875,9 @@ export default function VentaModal({
             ===================================== */}
 
             <div className="ventas-section">
+
               <div className="ventas-section-title">
+
                 <CalendarDays
                   size={18}
                 />
@@ -949,9 +1891,11 @@ export default function VentaModal({
                     Fecha de venta
                   </h3>
                 </div>
+
               </div>
 
               <div className="ventas-field">
+
                 <label>
                   Fecha *
                 </label>
@@ -966,7 +1910,9 @@ export default function VentaModal({
                     handleChange
                   }
                 />
+
               </div>
+
             </div>
 
             {/* =====================================
@@ -974,7 +1920,9 @@ export default function VentaModal({
             ===================================== */}
 
             <div className="ventas-section">
+
               <div className="ventas-section-title">
+
                 <DollarSign
                   size={18}
                 />
@@ -988,6 +1936,7 @@ export default function VentaModal({
                     Información económica
                   </h3>
                 </div>
+
               </div>
 
               <div className="ventas-form-grid">
@@ -995,11 +1944,13 @@ export default function VentaModal({
                 {/* VALOR */}
 
                 <div className="ventas-field">
+
                   <label>
                     Valor de venta *
                   </label>
 
                   <div className="venta-money-input">
+
                     <span>
                       $
                     </span>
@@ -1016,6 +1967,7 @@ export default function VentaModal({
                       }
                       placeholder="45000000"
                     />
+
                   </div>
 
                   <small>
@@ -1025,11 +1977,13 @@ export default function VentaModal({
                         )
                       : ""}
                   </small>
+
                 </div>
 
                 {/* FORMA DE PAGO */}
 
                 <div className="ventas-field">
+
                   <label>
                     Forma de pago *
                   </label>
@@ -1051,16 +2005,19 @@ export default function VentaModal({
                       Contado
                     </option>
                   </select>
+
                 </div>
 
                 {/* INICIAL */}
 
                 <div className="ventas-field">
+
                   <label>
                     Cuota inicial
                   </label>
 
                   <div className="venta-money-input">
+
                     <span>
                       $
                     </span>
@@ -1084,6 +2041,7 @@ export default function VentaModal({
                       }
                       placeholder="0"
                     />
+
                   </div>
 
                   <small>
@@ -1096,11 +2054,13 @@ export default function VentaModal({
                         )
                       : "Puede ser $0"}
                   </small>
+
                 </div>
 
                 {/* CUOTAS */}
 
                 <div className="ventas-field">
+
                   <label>
                     Número de cuotas
                   </label>
@@ -1121,16 +2081,21 @@ export default function VentaModal({
                       "Contado"
                     }
                   />
+
                 </div>
+
               </div>
+
             </div>
 
             {/* =====================================
-                CÁLCULO
+                RESUMEN FINANCIACIÓN
             ===================================== */}
 
             <div className="venta-calculo-box">
+
               <div className="venta-calculo-title">
+
                 <Calculator
                   size={19}
                 />
@@ -1138,9 +2103,11 @@ export default function VentaModal({
                 <strong>
                   Resumen de la venta
                 </strong>
+
               </div>
 
               <div className="venta-calculo-grid">
+
                 <div>
                   <span>
                     Valor venta
@@ -1191,6 +2158,7 @@ export default function VentaModal({
                 </div>
 
                 <div className="venta-calculo-cuota">
+
                   <span>
                     Valor aproximado por cuota
                   </span>
@@ -1200,8 +2168,11 @@ export default function VentaModal({
                       valorCuota
                     )}
                   </strong>
+
                 </div>
+
               </div>
+
             </div>
 
             {/* =====================================
@@ -1209,6 +2180,7 @@ export default function VentaModal({
             ===================================== */}
 
             <div className="ventas-field venta-observaciones">
+
               <label>
                 Observaciones
               </label>
@@ -1225,7 +2197,9 @@ export default function VentaModal({
                 maxLength={500}
                 placeholder="Información adicional de la venta..."
               />
+
             </div>
+
           </div>
 
           {/* =========================================
@@ -1233,11 +2207,16 @@ export default function VentaModal({
           ========================================= */}
 
           <div className="ventas-modal-footer">
+
             <button
               type="button"
               className="ventas-btn-secondary"
-              onClick={onCerrar}
-              disabled={guardando}
+              onClick={
+                onCerrar
+              }
+              disabled={
+                guardando
+              }
             >
               Cancelar
             </button>
@@ -1245,9 +2224,13 @@ export default function VentaModal({
             <button
               type="submit"
               className="ventas-btn-primary"
-              disabled={guardando}
+              disabled={
+                guardando
+              }
             >
-              <Save size={18} />
+              <Save
+                size={18}
+              />
 
               {guardando
                 ? "Guardando..."
@@ -1255,9 +2238,13 @@ export default function VentaModal({
                 ? "Actualizar venta"
                 : "Registrar venta"}
             </button>
+
           </div>
+
         </form>
+
       </div>
+
     </div>
   );
 }

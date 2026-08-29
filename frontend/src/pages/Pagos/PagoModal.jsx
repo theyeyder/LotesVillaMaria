@@ -53,31 +53,32 @@ const formatearDinero = (
    FECHA DE HOY
 ========================================================= */
 
-const obtenerFechaHoy = () => {
-  const hoy =
-    new Date();
+const obtenerFechaHoy =
+  () => {
+    const hoy =
+      new Date();
 
-  const year =
-    hoy.getFullYear();
+    const year =
+      hoy.getFullYear();
 
-  const month =
-    String(
-      hoy.getMonth() + 1
-    ).padStart(
-      2,
-      "0"
-    );
+    const month =
+      String(
+        hoy.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
 
-  const day =
-    String(
-      hoy.getDate()
-    ).padStart(
-      2,
-      "0"
-    );
+    const day =
+      String(
+        hoy.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
 
-  return `${year}-${month}-${day}`;
-};
+    return `${year}-${month}-${day}`;
+  };
 
 /* =========================================================
    FORMATEAR FECHA
@@ -199,14 +200,16 @@ export default function PagoModal({
      TIPO DE PAGO
 
      cuota = pagar cuota actual
-     todo  = cancelar todo el saldo
+     todo  = pagar todo el saldo
      otro  = ingresar otro valor
   ======================================================= */
 
   const [
     tipoPago,
     setTipoPago,
-  ] = useState("cuota");
+  ] = useState(
+    "cuota"
+  );
 
   /* =======================================================
      ESTADOS
@@ -234,10 +237,18 @@ export default function PagoModal({
 
   /* =======================================================
      CARGAR VENTAS
+
+     Solo mostramos ventas que:
+     - sean financiadas
+     - estén Activas
+
+     Una venta Pagada ya no debe recibir pagos.
   ======================================================= */
 
   useEffect(() => {
-    if (!abierto) {
+    if (
+      !abierto
+    ) {
       return;
     }
 
@@ -248,13 +259,17 @@ export default function PagoModal({
             true
           );
 
-          setError("");
+          setError(
+            ""
+          );
 
           const datos =
             await obtenerVentas();
 
           const lista =
-            Array.isArray(datos)
+            Array.isArray(
+              datos
+            )
               ? datos
               : Array.isArray(
                     datos?.ventas
@@ -262,32 +277,26 @@ export default function PagoModal({
                 ? datos.ventas
                 : [];
 
-          /*
-            Solo pueden recibir pagos:
-
-            - ventas financiadas
-            - no anuladas
-
-            Una venta Pagada podría aparecer si existe
-            inconsistencia, pero luego verificamos sus cuotas.
-          */
-
-          const financiadas =
+          const financiadasActivas =
             lista.filter(
               (venta) =>
                 venta.formaPago ===
                   "Financiado" &&
-                venta.estado !==
-                  "Anulada"
+                venta.estado ===
+                  "Activa"
             );
 
           setVentas(
-            financiadas
+            financiadasActivas
           );
         } catch (error) {
           console.error(
             "Error cargando ventas:",
             error
+          );
+
+          setVentas(
+            []
           );
 
           setError(
@@ -303,23 +312,34 @@ export default function PagoModal({
       };
 
     cargarVentas();
-  }, [abierto]);
+  }, [
+    abierto,
+  ]);
 
   /* =======================================================
      REINICIAR AL ABRIR
   ======================================================= */
 
   useEffect(() => {
-    if (!abierto) {
+    if (
+      !abierto
+    ) {
       return;
     }
 
+    const ventaId =
+      ventaInicial?._id ||
+      "";
+
+    const clienteInicial =
+      ventaInicial?.cliente;
+
     setFormulario({
       venta:
-        ventaInicial?._id ||
-        "",
+        ventaId,
 
-      valorPago: "",
+      valorPago:
+        "",
 
       fechaPago:
         obtenerFechaHoy(),
@@ -327,16 +347,60 @@ export default function PagoModal({
       metodoPago:
         "Efectivo",
 
-      referencia: "",
+      referencia:
+        "",
 
-      observaciones: "",
+      observaciones:
+        "",
     });
 
-    setBusquedaCliente("");
-    setClienteSeleccionadoId("");
-    setCuotas([]);
-    setError("");
-    setTipoPago("cuota");
+    /*
+      Si se abre el modal desde una venta específica,
+      dejamos también seleccionado su cliente.
+    */
+
+    if (
+      ventaInicial &&
+      clienteInicial
+    ) {
+      const clienteId =
+        clienteInicial?._id ||
+        clienteInicial ||
+        "";
+
+      setClienteSeleccionadoId(
+        clienteId
+      );
+
+      setBusquedaCliente(
+        typeof clienteInicial ===
+          "object"
+          ? obtenerNombreCliente(
+              clienteInicial
+            )
+          : ""
+      );
+    } else {
+      setClienteSeleccionadoId(
+        ""
+      );
+
+      setBusquedaCliente(
+        ""
+      );
+    }
+
+    setCuotas(
+      []
+    );
+
+    setError(
+      ""
+    );
+
+    setTipoPago(
+      "cuota"
+    );
   }, [
     abierto,
     ventaInicial,
@@ -351,7 +415,9 @@ export default function PagoModal({
       !abierto ||
       !formulario.venta
     ) {
-      setCuotas([]);
+      setCuotas(
+        []
+      );
 
       return;
     }
@@ -363,7 +429,9 @@ export default function PagoModal({
             true
           );
 
-          setError("");
+          setError(
+            ""
+          );
 
           const datos =
             await obtenerCuotasPorVenta(
@@ -371,27 +439,30 @@ export default function PagoModal({
             );
 
           const lista =
-            Array.isArray(datos)
+            Array.isArray(
+              datos
+            )
               ? datos
               : [];
 
           /*
-            Solamente cuotas que todavía representen
-            una deuda real.
+            Solo necesitamos cuotas que todavía
+            tengan saldo pendiente.
           */
 
           const pendientes =
             lista
               .filter(
                 (cuota) =>
-                  cuota.estado !==
-                    "Anulada" &&
                   Number(
                     cuota.saldoPendiente
                   ) > 0
               )
               .sort(
-                (a, b) => {
+                (
+                  a,
+                  b
+                ) => {
                   const fechaA =
                     new Date(
                       a.fechaVencimiento
@@ -432,7 +503,9 @@ export default function PagoModal({
             error
           );
 
-          setCuotas([]);
+          setCuotas(
+            []
+          );
 
           setError(
             error?.response?.data
@@ -453,12 +526,13 @@ export default function PagoModal({
   ]);
 
   /* =======================================================
-     CLIENTES CON VENTAS FINANCIADAS
+     CLIENTES CON VENTAS FINANCIADAS ACTIVAS
   ======================================================= */
 
   const clientesDisponibles =
     useMemo(() => {
-      const mapa = new Map();
+      const mapa =
+        new Map();
 
       ventas.forEach(
         (venta) => {
@@ -487,7 +561,9 @@ export default function PagoModal({
       return Array.from(
         mapa.values()
       );
-    }, [ventas]);
+    }, [
+      ventas,
+    ]);
 
   /* =======================================================
      BUSCAR CLIENTE
@@ -543,14 +619,39 @@ export default function PagoModal({
 
   const clienteSeleccionado =
     useMemo(() => {
-      return clientesDisponibles.find(
-        (cliente) =>
-          cliente._id ===
-          clienteSeleccionadoId
-      ) || null;
+      /*
+        Si viene una venta inicial, puede que todavía
+        no haya terminado de cargar la lista de ventas.
+      */
+
+      const encontrado =
+        clientesDisponibles.find(
+          (cliente) =>
+            cliente._id ===
+            clienteSeleccionadoId
+        );
+
+      if (
+        encontrado
+      ) {
+        return encontrado;
+      }
+
+      if (
+        ventaInicial?.cliente &&
+        (
+          ventaInicial.cliente?._id ===
+            clienteSeleccionadoId
+        )
+      ) {
+        return ventaInicial.cliente;
+      }
+
+      return null;
     }, [
       clientesDisponibles,
       clienteSeleccionadoId,
+      ventaInicial,
     ]);
 
   /* =======================================================
@@ -591,9 +692,13 @@ export default function PagoModal({
         )
       );
 
-      setCuotas([]);
+      setCuotas(
+        []
+      );
 
-      setError("");
+      setError(
+        ""
+      );
 
       const ventasCliente =
         ventas.filter(
@@ -603,12 +708,13 @@ export default function PagoModal({
         );
 
       /*
-        Si únicamente tiene una venta financiada,
+        Si tiene una sola venta financiada activa,
         la seleccionamos automáticamente.
       */
 
       if (
-        ventasCliente.length === 1
+        ventasCliente.length ===
+        1
       ) {
         setFormulario(
           (prev) => ({
@@ -617,26 +723,37 @@ export default function PagoModal({
             venta:
               ventasCliente[0]._id,
 
-            valorPago: "",
+            valorPago:
+              "",
           })
+        );
+
+        setTipoPago(
+          "cuota"
         );
 
         return;
       }
 
       /*
-        Si tiene varias ventas,
-        esperamos que seleccione una tarjeta.
+        Si tiene varias ventas, debe elegir
+        cuál de ellas va a pagar.
       */
 
       setFormulario(
         (prev) => ({
           ...prev,
 
-          venta: "",
+          venta:
+            "",
 
-          valorPago: "",
+          valorPago:
+            "",
         })
+      );
+
+      setTipoPago(
+        "cuota"
       );
     };
 
@@ -646,25 +763,37 @@ export default function PagoModal({
 
   const limpiarCliente =
     () => {
-      setBusquedaCliente("");
+      setBusquedaCliente(
+        ""
+      );
 
-      setClienteSeleccionadoId("");
+      setClienteSeleccionadoId(
+        ""
+      );
 
       setFormulario(
         (prev) => ({
           ...prev,
 
-          venta: "",
+          venta:
+            "",
 
-          valorPago: "",
+          valorPago:
+            "",
         })
       );
 
-      setCuotas([]);
+      setCuotas(
+        []
+      );
 
-      setTipoPago("cuota");
+      setTipoPago(
+        "cuota"
+      );
 
-      setError("");
+      setError(
+        ""
+      );
     };
 
   /* =======================================================
@@ -680,7 +809,8 @@ export default function PagoModal({
           venta:
             venta._id,
 
-          valorPago: "",
+          valorPago:
+            "",
         })
       );
 
@@ -688,7 +818,9 @@ export default function PagoModal({
         "cuota"
       );
 
-      setError("");
+      setError(
+        ""
+      );
     };
 
   /* =======================================================
@@ -697,15 +829,18 @@ export default function PagoModal({
 
   const ventaSeleccionada =
     useMemo(() => {
-      return ventas.find(
-        (venta) =>
-          venta._id ===
+      return (
+        ventas.find(
+          (venta) =>
+            venta._id ===
+            formulario.venta
+        ) ||
+        (
+          ventaInicial?._id ===
           formulario.venta
-      ) || (
-        ventaInicial?._id ===
-        formulario.venta
-          ? ventaInicial
-          : null
+            ? ventaInicial
+            : null
+        )
       );
     }, [
       ventas,
@@ -714,7 +849,9 @@ export default function PagoModal({
     ]);
 
   /* =======================================================
-     SALDO REAL
+     SALDO REAL PENDIENTE
+
+     Se calcula directamente con las cuotas.
   ======================================================= */
 
   const saldoPendiente =
@@ -733,36 +870,39 @@ export default function PagoModal({
               ),
             0
           )
-          .toFixed(2)
+          .toFixed(
+            2
+          )
       );
-    }, [cuotas]);
+    }, [
+      cuotas,
+    ]);
 
   /* =======================================================
      CUOTA ACTUAL
 
-     Siempre será la primera cuota que todavía tenga saldo.
+     Primera cuota que todavía tiene saldo.
   ======================================================= */
 
   const cuotaActual =
     useMemo(() => {
       if (
-        !Array.isArray(cuotas) ||
-        cuotas.length === 0
+        !Array.isArray(
+          cuotas
+        ) ||
+        cuotas.length ===
+          0
       ) {
         return null;
       }
 
       return cuotas[0];
-    }, [cuotas]);
+    }, [
+      cuotas,
+    ]);
 
   /* =======================================================
-     VALOR REAL A PAGAR DE LA CUOTA ACTUAL
-
-     Si la cuota fue abonada parcialmente:
-
-     Valor original:   $1.000.000
-     Pagado:             $300.000
-     Valor a pagar:      $700.000
+     VALOR PENDIENTE DE LA CUOTA ACTUAL
   ======================================================= */
 
   const valorCuotaActual =
@@ -772,8 +912,6 @@ export default function PagoModal({
 
   /* =======================================================
      SALDO INICIAL FINANCIADO
-
-     Valor venta - cuota inicial
   ======================================================= */
 
   const saldoInicialFinanciado =
@@ -783,6 +921,8 @@ export default function PagoModal({
 
   /* =======================================================
      TOTAL PAGADO HASTA EL MOMENTO
+
+     Saldo inicial financiado - saldo actual.
   ======================================================= */
 
   const totalPagadoVenta =
@@ -805,11 +945,16 @@ export default function PagoModal({
       return;
     }
 
-    if (cuotas.length === 0) {
+    if (
+      cuotas.length ===
+      0
+    ) {
       setFormulario(
         (prev) => ({
           ...prev,
-          valorPago: "",
+
+          valorPago:
+            "",
         })
       );
 
@@ -867,14 +1012,6 @@ export default function PagoModal({
 
   /* =======================================================
      VISTA PREVIA DE APLICACIÓN
-
-     Ejemplo:
-
-     Pago $2.500.000
-
-     C1 -> 1.000.000
-     C2 -> 1.000.000
-     C3 ->   500.000
   ======================================================= */
 
   const aplicacionesPrevias =
@@ -885,19 +1022,22 @@ export default function PagoModal({
         ) || 0;
 
       if (
-        disponible <= 0
+        disponible <=
+        0
       ) {
         return [];
       }
 
-      const aplicaciones = [];
+      const aplicaciones =
+        [];
 
       for (
         const cuota
         of cuotas
       ) {
         if (
-          disponible <= 0
+          disponible <=
+          0
         ) {
           break;
         }
@@ -908,7 +1048,8 @@ export default function PagoModal({
           ) || 0;
 
         if (
-          saldo <= 0
+          saldo <=
+          0
         ) {
           continue;
         }
@@ -970,7 +1111,8 @@ export default function PagoModal({
   const pagoExcedeSaldo =
     valorPago >
       saldoPendiente &&
-    saldoPendiente > 0;
+    saldoPendiente >
+      0;
 
   const saldoDespuesPago =
     Math.max(
@@ -988,7 +1130,8 @@ export default function PagoModal({
       const {
         name,
         value,
-      } = event.target;
+      } =
+        event.target;
 
       setFormulario(
         (prev) => ({
@@ -999,7 +1142,9 @@ export default function PagoModal({
         })
       );
 
-      setError("");
+      setError(
+        ""
+      );
     };
 
   /* =======================================================
@@ -1012,7 +1157,9 @@ export default function PagoModal({
     ) => {
       event.preventDefault();
 
-      setError("");
+      setError(
+        ""
+      );
 
       /* =========================
          VENTA
@@ -1033,7 +1180,8 @@ export default function PagoModal({
       ========================= */
 
       if (
-        cuotas.length === 0
+        cuotas.length ===
+        0
       ) {
         setError(
           "La venta seleccionada no tiene cuotas pendientes."
@@ -1050,7 +1198,8 @@ export default function PagoModal({
         !Number.isFinite(
           valorPago
         ) ||
-        valorPago <= 0
+        valorPago <=
+          0
       ) {
         setError(
           "El valor del pago debe ser mayor que cero."
@@ -1136,7 +1285,9 @@ export default function PagoModal({
               formulario.observaciones.trim(),
           });
 
-        if (onGuardado) {
+        if (
+          onGuardado
+        ) {
           await onGuardado(
             respuesta
           );
@@ -1167,7 +1318,9 @@ export default function PagoModal({
 
   const cerrarModal =
     () => {
-      if (guardando) {
+      if (
+        guardando
+      ) {
         return;
       }
 
@@ -1178,7 +1331,9 @@ export default function PagoModal({
      NO MOSTRAR
   ======================================================= */
 
-  if (!abierto) {
+  if (
+    !abierto
+  ) {
     return null;
   }
 
@@ -1204,7 +1359,9 @@ export default function PagoModal({
         ================================================= */}
 
         <div className="pagos-modal-header">
+
           <div className="pagos-modal-title">
+
             <div className="pagos-modal-icon">
               <WalletCards
                 size={22}
@@ -1220,6 +1377,7 @@ export default function PagoModal({
                 Registrar pago
               </h2>
             </div>
+
           </div>
 
           <button
@@ -1232,8 +1390,11 @@ export default function PagoModal({
               guardando
             }
           >
-            <X size={20} />
+            <X
+              size={20}
+            />
           </button>
+
         </div>
 
         {/* =================================================
@@ -1247,9 +1408,7 @@ export default function PagoModal({
         >
           <div className="pagos-modal-body">
 
-            {/* =============================================
-                ERROR
-            ============================================= */}
+            {/* ERROR */}
 
             {error && (
               <div className="pago-modal-error">
@@ -1257,202 +1416,208 @@ export default function PagoModal({
               </div>
             )}
 
-            {/* =============================================
-                BUSCAR Y SELECCIONAR CLIENTE
-            ============================================= */}
+            {/* =================================================
+                BUSCAR CLIENTE
+            ================================================= */}
 
-            <div className="pagos-field pago-field-full">
-              <label>
-                Buscar cliente *
-              </label>
+            {!ventaInicial && (
+              <div className="pagos-field pago-field-full">
 
-              <div className="pago-client-search">
-                <Search
-                  size={17}
-                />
+                <label>
+                  Buscar cliente *
+                </label>
 
-                <input
-                  type="text"
-                  value={
-                    busquedaCliente
-                  }
-                  onChange={(e) => {
-                    setBusquedaCliente(
-                      e.target.value
-                    );
+                <div className="pago-client-search">
 
-                    /*
-                      Si empieza a escribir nuevamente,
-                      quitamos la selección anterior.
-                    */
+                  <Search
+                    size={17}
+                  />
 
-                    if (
-                      clienteSeleccionadoId
-                    ) {
-                      setClienteSeleccionadoId(
-                        ""
+                  <input
+                    type="text"
+                    value={
+                      busquedaCliente
+                    }
+                    onChange={(e) => {
+                      setBusquedaCliente(
+                        e.target.value
                       );
 
-                      setFormulario(
-                        (prev) => ({
-                          ...prev,
+                      if (
+                        clienteSeleccionadoId
+                      ) {
+                        setClienteSeleccionadoId(
+                          ""
+                        );
 
-                          venta: "",
+                        setFormulario(
+                          (prev) => ({
+                            ...prev,
 
-                          valorPago: "",
-                        })
-                      );
+                            venta:
+                              "",
 
-                      setCuotas([]);
-                    }
-                  }}
-                  placeholder="Escriba nombre, apellido o documento..."
-                  disabled={
-                    guardando ||
-                    cargandoVentas ||
-                    Boolean(
-                      ventaInicial
-                    )
-                  }
-                />
+                            valorPago:
+                              "",
+                          })
+                        );
 
-                {busquedaCliente && (
-                  <button
-                    type="button"
-                    className="pago-client-search-clear"
-                    onClick={
-                      limpiarCliente
-                    }
+                        setCuotas(
+                          []
+                        );
+                      }
+                    }}
+                    placeholder="Escriba nombre, apellido o documento..."
                     disabled={
-                      guardando
+                      guardando ||
+                      cargandoVentas
                     }
-                    title="Limpiar"
-                  >
-                    <X size={15} />
-                  </button>
-                )}
-              </div>
+                  />
 
-              {/* =========================================
-                  RESULTADOS DE BÚSQUEDA
-              ========================================= */}
+                  {busquedaCliente && (
+                    <button
+                      type="button"
+                      className="pago-client-search-clear"
+                      onClick={
+                        limpiarCliente
+                      }
+                      disabled={
+                        guardando
+                      }
+                      title="Limpiar"
+                    >
+                      <X
+                        size={15}
+                      />
+                    </button>
+                  )}
 
-              {busquedaCliente.trim() &&
-                !clienteSeleccionadoId && (
-                  <div className="pago-client-results">
-
-                    {clientesFiltrados.length ===
-                    0 ? (
-                      <div className="pago-client-no-results">
-                        No se encontró ningún cliente
-                        con ventas financiadas.
-                      </div>
-                    ) : (
-                      clientesFiltrados.map(
-                        (cliente) => (
-                          <button
-                            type="button"
-                            key={
-                              cliente._id
-                            }
-                            className="pago-client-result"
-                            onClick={() =>
-                              seleccionarCliente(
-                                cliente
-                              )
-                            }
-                          >
-                            <div className="pago-client-result-icon">
-                              <UserRound
-                                size={17}
-                              />
-                            </div>
-
-                            <div className="pago-client-result-info">
-                              <strong>
-                                {obtenerNombreCliente(
-                                  cliente
-                                )}
-                              </strong>
-
-                              <span>
-                                Documento:{" "}
-                                {cliente.documento ||
-                                  "Sin documento"}
-                              </span>
-                            </div>
-
-                            <small>
-                              Seleccionar
-                            </small>
-                          </button>
-                        )
-                      )
-                    )}
-                  </div>
-                )}
-
-              {/* =========================================
-                  CLIENTE YA SELECCIONADO
-              ========================================= */}
-
-              {clienteSeleccionado && (
-                <div className="pago-selected-client">
-                  <div className="pago-selected-client-icon">
-                    <CheckCircle2
-                      size={18}
-                    />
-                  </div>
-
-                  <div>
-                    <span>
-                      Cliente seleccionado
-                    </span>
-
-                    <strong>
-                      {obtenerNombreCliente(
-                        clienteSeleccionado
-                      )}
-                    </strong>
-
-                    <small>
-                      Documento:{" "}
-                      {clienteSeleccionado.documento ||
-                        "Sin documento"}
-                    </small>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={
-                      limpiarCliente
-                    }
-                    disabled={
-                      guardando
-                    }
-                  >
-                    Cambiar
-                  </button>
                 </div>
-              )}
-            </div>
 
-            {/* =============================================
+                {/* RESULTADOS */}
+
+                {busquedaCliente.trim() &&
+                  !clienteSeleccionadoId && (
+                    <div className="pago-client-results">
+
+                      {clientesFiltrados.length ===
+                      0 ? (
+                        <div className="pago-client-no-results">
+                          No se encontró ningún cliente con ventas financiadas activas.
+                        </div>
+                      ) : (
+                        clientesFiltrados.map(
+                          (cliente) => (
+                            <button
+                              type="button"
+                              key={
+                                cliente._id
+                              }
+                              className="pago-client-result"
+                              onClick={() =>
+                                seleccionarCliente(
+                                  cliente
+                                )
+                              }
+                            >
+
+                              <div className="pago-client-result-icon">
+                                <UserRound
+                                  size={17}
+                                />
+                              </div>
+
+                              <div className="pago-client-result-info">
+
+                                <strong>
+                                  {obtenerNombreCliente(
+                                    cliente
+                                  )}
+                                </strong>
+
+                                <span>
+                                  Documento:{" "}
+                                  {cliente.documento ||
+                                    "Sin documento"}
+                                </span>
+
+                              </div>
+
+                              <small>
+                                Seleccionar
+                              </small>
+
+                            </button>
+                          )
+                        )
+                      )}
+
+                    </div>
+                  )}
+
+                {/* CLIENTE SELECCIONADO */}
+
+                {clienteSeleccionado && (
+                  <div className="pago-selected-client">
+
+                    <div className="pago-selected-client-icon">
+                      <CheckCircle2
+                        size={18}
+                      />
+                    </div>
+
+                    <div>
+                      <span>
+                        Cliente seleccionado
+                      </span>
+
+                      <strong>
+                        {obtenerNombreCliente(
+                          clienteSeleccionado
+                        )}
+                      </strong>
+
+                      <small>
+                        Documento:{" "}
+                        {clienteSeleccionado.documento ||
+                          "Sin documento"}
+                      </small>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={
+                        limpiarCliente
+                      }
+                      disabled={
+                        guardando
+                      }
+                    >
+                      Cambiar
+                    </button>
+
+                  </div>
+                )}
+
+              </div>
+            )}
+
+            {/* =================================================
                 VENTAS DEL CLIENTE
+            ================================================= */}
 
-                Si tiene una sola se selecciona automáticamente.
-                Si tiene varias, debe escoger cuál va a pagar.
-            ============================================= */}
-
-            {clienteSeleccionado &&
+            {!ventaInicial &&
+              clienteSeleccionado &&
               ventasClienteSeleccionado.length >
                 1 && (
                 <div className="pagos-field pago-field-full">
+
                   <label>
                     Seleccione la venta que va a pagar *
                   </label>
 
                   <div className="pago-client-sales">
+
                     {ventasClienteSeleccionado.map(
                       (venta) => {
                         const seleccionada =
@@ -1479,13 +1644,16 @@ export default function PagoModal({
                               guardando
                             }
                           >
+
                             <div>
                               <span>
                                 Venta
                               </span>
 
                               <strong>
-                                {venta.codigo}
+                                {
+                                  venta.codigo
+                                }
                               </strong>
                             </div>
 
@@ -1517,17 +1685,19 @@ export default function PagoModal({
                                 size={18}
                               />
                             )}
+
                           </button>
                         );
                       }
                     )}
+
                   </div>
                 </div>
               )}
 
-            {/* =============================================
+            {/* =================================================
                 INFORMACIÓN DE LA VENTA
-            ============================================= */}
+            ================================================= */}
 
             {ventaSeleccionada && (
               <div className="pago-sale-info">
@@ -1613,21 +1783,24 @@ export default function PagoModal({
 
                   <small>
                     {cuotas.length} cuota
-                    {cuotas.length === 1
+                    {cuotas.length ===
+                    1
                       ? ""
                       : "s"}{" "}
                     pendiente
-                    {cuotas.length === 1
+                    {cuotas.length ===
+                    1
                       ? ""
                       : "s"}
                   </small>
                 </div>
+
               </div>
             )}
 
-            {/* =============================================
-                ESTADO DE LA FINANCIACIÓN
-            ============================================= */}
+            {/* =================================================
+                ESTADO DE FINANCIACIÓN
+            ================================================= */}
 
             {ventaSeleccionada &&
               !cargandoCuotas && (
@@ -1688,28 +1861,29 @@ export default function PagoModal({
                       )}
                     </strong>
                   </div>
+
                 </div>
               )}
 
-            {/* =============================================
-                FORMA DE APLICAR EL PAGO
-            ============================================= */}
+            {/* =================================================
+                TIPO DE PAGO
+            ================================================= */}
 
             <div className="pagos-field pago-field-full">
+
               <label>
                 ¿Qué desea pagar? *
               </label>
 
               <div className="pago-type-options">
 
-                {/* =========================================
-                    PAGAR CUOTA
-                ========================================= */}
+                {/* PAGAR CUOTA */}
 
                 <button
                   type="button"
                   className={`pago-type-option ${
-                    tipoPago === "cuota"
+                    tipoPago ===
+                    "cuota"
                       ? "active"
                       : ""
                   }`}
@@ -1724,11 +1898,13 @@ export default function PagoModal({
                     !cuotaActual
                   }
                 >
+
                   <div className="pago-type-radio">
                     <span />
                   </div>
 
                   <div className="pago-type-content">
+
                     <span>
                       Pagar cuota actual
                     </span>
@@ -1751,17 +1927,18 @@ export default function PagoModal({
                           )}`
                         : "No hay cuotas pendientes"}
                     </small>
+
                   </div>
+
                 </button>
 
-                {/* =========================================
-                    PAGAR TODO
-                ========================================= */}
+                {/* PAGAR TODO */}
 
                 <button
                   type="button"
                   className={`pago-type-option ${
-                    tipoPago === "todo"
+                    tipoPago ===
+                    "todo"
                       ? "active"
                       : ""
                   }`}
@@ -1773,14 +1950,17 @@ export default function PagoModal({
                   disabled={
                     guardando ||
                     cargandoCuotas ||
-                    saldoPendiente <= 0
+                    saldoPendiente <=
+                      0
                   }
                 >
+
                   <div className="pago-type-radio">
                     <span />
                   </div>
 
                   <div className="pago-type-content">
+
                     <span>
                       Pagar todo
                     </span>
@@ -1794,17 +1974,18 @@ export default function PagoModal({
                         saldoPendiente
                       )}
                     </small>
+
                   </div>
+
                 </button>
 
-                {/* =========================================
-                    OTRO VALOR
-                ========================================= */}
+                {/* OTRO VALOR */}
 
                 <button
                   type="button"
                   className={`pago-type-option ${
-                    tipoPago === "otro"
+                    tipoPago ===
+                    "otro"
                       ? "active"
                       : ""
                   }`}
@@ -1816,21 +1997,26 @@ export default function PagoModal({
                     setFormulario(
                       (prev) => ({
                         ...prev,
-                        valorPago: "",
+
+                        valorPago:
+                          "",
                       })
                     );
                   }}
                   disabled={
                     guardando ||
                     cargandoCuotas ||
-                    saldoPendiente <= 0
+                    saldoPendiente <=
+                      0
                   }
                 >
+
                   <div className="pago-type-radio">
                     <span />
                   </div>
 
                   <div className="pago-type-content">
+
                     <span>
                       Otro valor
                     </span>
@@ -1840,24 +2026,28 @@ export default function PagoModal({
                     </strong>
 
                     <small>
-                      Puede pagar menos o más
-                      de una cuota
+                      Puede pagar menos o más de una cuota
                     </small>
+
                   </div>
+
                 </button>
+
               </div>
             </div>
 
-            {/* =============================================
+            {/* =================================================
                 VALOR DEL PAGO
-            ============================================= */}
+            ================================================= */}
 
             <div className="pagos-field">
+
               <label>
                 Valor del pago *
               </label>
 
               <div className="pago-money-input">
+
                 <span>
                   $
                 </span>
@@ -1884,15 +2074,15 @@ export default function PagoModal({
                     !formulario.venta
                   }
                 />
+
               </div>
 
-              {/* =============================================
-                  VALOR ESCRITO EN FORMATO PESOS
-              ============================================= */}
-
-              {formulario.valorPago !== "" &&
-                valorPago > 0 && (
+              {formulario.valorPago !==
+                "" &&
+                valorPago >
+                  0 && (
                   <div className="pago-live-value">
+
                     <span>
                       Valor que va a registrar
                     </span>
@@ -1902,6 +2092,7 @@ export default function PagoModal({
                         valorPago
                       )}
                     </strong>
+
                   </div>
                 )}
 
@@ -1909,8 +2100,7 @@ export default function PagoModal({
                 "cuota" &&
                 cuotaActual && (
                   <small className="pago-value-help">
-                    Valor correspondiente a
-                    la cuota{" "}
+                    Valor correspondiente a la cuota{" "}
                     {cuotaActual.numeroCuota}.
                   </small>
                 )}
@@ -1918,34 +2108,33 @@ export default function PagoModal({
               {tipoPago ===
                 "todo" && (
                   <small className="pago-value-help">
-                    Se cancelará completamente
-                    el saldo pendiente.
+                    Se cancelará completamente el saldo pendiente.
                   </small>
                 )}
 
               {tipoPago ===
                 "otro" && (
                   <small className="pago-value-help">
-                    Ingrese el valor que recibió
-                    del cliente.
+                    Ingrese el valor que recibió del cliente.
                   </small>
                 )}
+
             </div>
 
-            {/* =============================================
-                DATOS DEL PAGO (FECHA, MÉTODO, REFERENCIA)
-            ============================================= */}
+            {/* =================================================
+                FECHA, MÉTODO Y REFERENCIA
+            ================================================= */}
 
             <div className="pago-form-grid">
 
-              {/* FECHA */}
-
               <div className="pagos-field">
+
                 <label>
                   Fecha del pago *
                 </label>
 
                 <div className="pago-input-icon">
+
                   <CalendarDays
                     size={16}
                   />
@@ -1963,17 +2152,18 @@ export default function PagoModal({
                       guardando
                     }
                   />
+
                 </div>
               </div>
 
-              {/* MÉTODO */}
-
               <div className="pagos-field">
+
                 <label>
                   Método de pago *
                 </label>
 
                 <div className="pago-input-icon">
+
                   <CreditCard
                     size={16}
                   />
@@ -2010,12 +2200,12 @@ export default function PagoModal({
                       Otro
                     </option>
                   </select>
+
                 </div>
               </div>
 
-              {/* REFERENCIA */}
-
               <div className="pagos-field pago-field-full">
+
                 <label>
                   Referencia
                 </label>
@@ -2029,7 +2219,9 @@ export default function PagoModal({
                   onChange={
                     handleChange
                   }
-                  maxLength={100}
+                  maxLength={
+                    100
+                  }
                   placeholder={
                     formulario.metodoPago ===
                     "Efectivo"
@@ -2040,17 +2232,18 @@ export default function PagoModal({
                     guardando
                   }
                 />
+
               </div>
+
             </div>
 
-            {/* =============================================
-                VALIDACIÓN DEL SALDO
-            ============================================= */}
+            {/* =================================================
+                VALIDACIÓN SALDO
+            ================================================= */}
 
             {pagoExcedeSaldo && (
               <div className="pago-balance-warning">
-                El valor ingresado supera el
-                saldo pendiente de{" "}
+                El valor ingresado supera el saldo pendiente de{" "}
                 <strong>
                   {formatearDinero(
                     saldoPendiente
@@ -2060,17 +2253,19 @@ export default function PagoModal({
               </div>
             )}
 
-            {/* =============================================
-                VISTA PREVIA DE DISTRIBUCIÓN
-            ============================================= */}
+            {/* =================================================
+                DISTRIBUCIÓN DEL PAGO
+            ================================================= */}
 
-            {valorPago > 0 &&
+            {valorPago >
+                0 &&
               !pagoExcedeSaldo &&
               aplicacionesPrevias.length >
                 0 && (
                 <div className="pago-distribution">
 
                   <div className="pago-distribution-header">
+
                     <div>
                       <span>
                         Aplicación automática
@@ -2092,9 +2287,11 @@ export default function PagoModal({
                         )}
                       </strong>
                     </div>
+
                   </div>
 
                   <div className="pago-distribution-list">
+
                     {aplicacionesPrevias.map(
                       (
                         aplicacion
@@ -2113,6 +2310,7 @@ export default function PagoModal({
                               cuota._id
                             }
                           >
+
                             <div className="pago-distribution-number">
                               <span>
                                 Cuota
@@ -2177,6 +2375,7 @@ export default function PagoModal({
                             </div>
 
                             <div className="pago-distribution-result">
+
                               {saldoDespues ===
                               0 ? (
                                 <>
@@ -2195,20 +2394,24 @@ export default function PagoModal({
                                   Parcial
                                 </>
                               )}
+
                             </div>
+
                           </div>
                         );
                       }
                     )}
+
                   </div>
                 </div>
               )}
 
-            {/* =============================================
+            {/* =================================================
                 OBSERVACIONES
-            ============================================= */}
+            ================================================= */}
 
             <div className="pagos-field pago-field-full">
+
               <label>
                 Observaciones
               </label>
@@ -2222,13 +2425,17 @@ export default function PagoModal({
                   handleChange
                 }
                 rows="3"
-                maxLength={500}
+                maxLength={
+                  500
+                }
                 placeholder="Información adicional sobre el pago..."
                 disabled={
                   guardando
                 }
               />
+
             </div>
+
           </div>
 
           {/* =================================================
@@ -2236,6 +2443,7 @@ export default function PagoModal({
           ================================================= */}
 
           <div className="pagos-modal-footer">
+
             <button
               type="button"
               className="pagos-btn-secondary"
@@ -2256,9 +2464,11 @@ export default function PagoModal({
                 guardando ||
                 cargandoCuotas ||
                 !formulario.venta ||
-                valorPago <= 0 ||
+                valorPago <=
+                  0 ||
                 pagoExcedeSaldo ||
-                cuotas.length === 0
+                cuotas.length ===
+                  0
               }
             >
               {guardando ? (
@@ -2280,8 +2490,11 @@ export default function PagoModal({
                 </>
               )}
             </button>
+
           </div>
+
         </form>
+
       </div>
     </div>
   );

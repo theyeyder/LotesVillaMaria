@@ -74,18 +74,21 @@ const convertirFechaUTC = (fecha) => {
 ========================================================= */
 
 const generarCodigoPago = async () => {
-  const ultimoPago = await Pago.findOne({
-    codigo: /^PG-\d+$/,
-  })
-    .sort({
-      codigo: -1,
+  const ultimoPago =
+    await Pago.findOne({
+      codigo: /^PG-\d+$/,
     })
-    .select("codigo")
-    .lean();
+      .sort({
+        codigo: -1,
+      })
+      .select("codigo")
+      .lean();
 
   let consecutivo = 1;
 
-  if (ultimoPago?.codigo) {
+  if (
+    ultimoPago?.codigo
+  ) {
     const numero = Number(
       ultimoPago.codigo.replace(
         "PG-",
@@ -94,7 +97,9 @@ const generarCodigoPago = async () => {
     );
 
     if (
-      Number.isFinite(numero)
+      Number.isFinite(
+        numero
+      )
     ) {
       consecutivo =
         numero + 1;
@@ -103,23 +108,26 @@ const generarCodigoPago = async () => {
 
   return `PG-${String(
     consecutivo
-  ).padStart(4, "0")}`;
+  ).padStart(
+    4,
+    "0"
+  )}`;
 };
 
 /* =========================================================
    DETERMINAR ESTADO DE UNA CUOTA
+
+   Estados válidos:
+
+   - Pendiente
+   - Parcial
+   - Pagada
+   - Vencida
 ========================================================= */
 
 const determinarEstadoCuota = (
   cuota
 ) => {
-  if (
-    cuota.estado ===
-    "Anulada"
-  ) {
-    return "Anulada";
-  }
-
   const valorCuota =
     Number(
       cuota.valorCuota
@@ -137,9 +145,19 @@ const determinarEstadoCuota = (
         valorPagado
     );
 
-  if (saldo <= 0) {
+  /* =========================
+     PAGADA
+  ========================= */
+
+  if (
+    saldo <= 0
+  ) {
     return "Pagada";
   }
+
+  /* =========================
+     VENCIDA
+  ========================= */
 
   const hoy =
     obtenerHoyUTC();
@@ -156,59 +174,73 @@ const determinarEstadoCuota = (
     return "Vencida";
   }
 
+  /* =========================
+     PARCIAL
+  ========================= */
+
   if (
     valorPagado > 0
   ) {
     return "Parcial";
   }
 
+  /* =========================
+     PENDIENTE
+  ========================= */
+
   return "Pendiente";
 };
 
 /* =========================================================
-   RECALCULAR UNA CUOTA DESDE LOS PAGOS ACTIVOS
+   RECALCULAR CUOTA DESDE LOS PAGOS EXISTENTES
 
-   Esto es especialmente importante cuando se anula
-   un pago.
+   Esta función se utiliza tanto después de crear
+   como después de eliminar un pago.
 
-   En lugar de "adivinar" cuánto había pagado,
-   sumamos nuevamente todos los pagos Aplicados.
+   Si un pago desaparece, su valor deja de contar
+   automáticamente y vuelve al saldo pendiente.
 ========================================================= */
 
 const recalcularCuotaDesdePagos =
-  async (cuotaId) => {
+  async (
+    cuotaId
+  ) => {
     const cuota =
       await Cuota.findById(
         cuotaId
       );
 
-    if (!cuota) {
+    if (
+      !cuota
+    ) {
       return null;
     }
 
-    /*
-      Si la cuota fue anulada porque la venta fue
-      anulada, no debemos volverla a activar.
-    */
+    /* =====================================================
+       BUSCAR TODOS LOS PAGOS QUE AFECTAN ESTA CUOTA
+    ===================================================== */
 
-    if (
-      cuota.estado ===
-      "Anulada"
-    ) {
-      return cuota;
-    }
-
-    const pagosAplicados =
+    const pagos =
       await Pago.find({
-        estado: "Aplicado",
-
         "aplicaciones.cuota":
           cuota._id,
-      }).lean();
+      })
+        .select(
+          "fechaPago aplicaciones createdAt"
+        )
+        .sort({
+          fechaPago: 1,
+          createdAt: 1,
+        })
+        .lean();
 
-    let totalPagado = 0;
+    let totalPagado =
+      0;
 
-    pagosAplicados.forEach(
+    let ultimaFechaAplicada =
+      null;
+
+    pagos.forEach(
       (pago) => {
         pago.aplicaciones?.forEach(
           (aplicacion) => {
@@ -224,24 +256,33 @@ const recalcularCuotaDesdePagos =
                 Number(
                   aplicacion.valorAplicado
                 ) || 0;
+
+              ultimaFechaAplicada =
+                pago.fechaPago ||
+                pago.createdAt ||
+                ultimaFechaAplicada;
             }
           }
         );
       }
     );
 
-    /*
-      Evitamos diferencias mínimas por decimales.
-    */
-
-    totalPagado = Number(
-      totalPagado.toFixed(2)
-    );
+    totalPagado =
+      Number(
+        totalPagado.toFixed(
+          2
+        )
+      );
 
     const valorCuota =
       Number(
         cuota.valorCuota
       ) || 0;
+
+    /*
+      Una cuota nunca puede quedar
+      con más dinero pagado que su valor.
+    */
 
     if (
       totalPagado >
@@ -260,7 +301,9 @@ const recalcularCuotaDesdePagos =
           0,
           valorCuota -
             totalPagado
-        ).toFixed(2)
+        ).toFixed(
+          2
+        )
       );
 
     cuota.estado =
@@ -268,10 +311,15 @@ const recalcularCuotaDesdePagos =
         cuota
       );
 
+    /*
+      fechaPago solamente se conserva cuando
+      la cuota quedó totalmente pagada.
+    */
+
     cuota.fechaPago =
       cuota.estado ===
       "Pagada"
-        ? cuota.fechaPago ||
+        ? ultimaFechaAplicada ||
           new Date()
         : null;
 
@@ -283,29 +331,28 @@ const recalcularCuotaDesdePagos =
 /* =========================================================
    ACTUALIZAR ESTADO GENERAL DE LA VENTA
 
-   Si no queda ninguna cuota pendiente:
-   Venta -> Pagada
+   Venta financiada:
 
-   Si vuelve a existir saldo:
-   Venta -> Activa
+   Tiene saldo
+   -> Activa
+
+   No tiene saldo
+   -> Pagada
 ========================================================= */
 
 const actualizarEstadoVenta =
-  async (ventaId) => {
+  async (
+    ventaId
+  ) => {
     const venta =
       await Venta.findById(
         ventaId
       );
 
-    if (!venta) {
-      return null;
-    }
-
     if (
-      venta.estado ===
-      "Anulada"
+      !venta
     ) {
-      return venta;
+      return null;
     }
 
     if (
@@ -315,27 +362,22 @@ const actualizarEstadoVenta =
       return venta;
     }
 
-    const cuotasActivas =
+    const cuotas =
       await Cuota.find({
         venta:
           venta._id,
-
-        estado: {
-          $ne: "Anulada",
-        },
       }).select(
         "saldoPendiente"
       );
 
     if (
-      cuotasActivas.length ===
-      0
+      cuotas.length === 0
     ) {
       return venta;
     }
 
     const tieneSaldo =
-      cuotasActivas.some(
+      cuotas.some(
         (cuota) =>
           Number(
             cuota.saldoPendiente
@@ -353,11 +395,13 @@ const actualizarEstadoVenta =
   };
 
 /* =========================================================
-   POPULATE DE PAGO
+   OBTENER PAGO COMPLETO
 ========================================================= */
 
 const obtenerPagoCompleto =
-  async (pagoId) => {
+  async (
+    pagoId
+  ) => {
     return Pago.findById(
       pagoId
     )
@@ -365,10 +409,12 @@ const obtenerPagoCompleto =
         "cliente"
       )
       .populate({
-        path: "venta",
+        path:
+          "venta",
 
         populate: {
-          path: "lote",
+          path:
+            "lote",
 
           populate: {
             path:
@@ -403,7 +449,6 @@ export const obtenerPagos =
       const {
         venta = "",
         cliente = "",
-        estado = "",
         metodoPago = "",
         fechaInicio = "",
         fechaFinal = "",
@@ -415,13 +460,17 @@ export const obtenerPagos =
          VENTA
       ========================= */
 
-      if (venta) {
+      if (
+        venta
+      ) {
         if (
           !mongoose.Types.ObjectId.isValid(
             venta
           )
         ) {
-          return res.status(400).json({
+          return res.status(
+            400
+          ).json({
             message:
               "La venta seleccionada no es válida",
           });
@@ -435,13 +484,17 @@ export const obtenerPagos =
          CLIENTE
       ========================= */
 
-      if (cliente) {
+      if (
+        cliente
+      ) {
         if (
           !mongoose.Types.ObjectId.isValid(
             cliente
           )
         ) {
-          return res.status(400).json({
+          return res.status(
+            400
+          ).json({
             message:
               "El cliente seleccionado no es válido",
           });
@@ -452,19 +505,12 @@ export const obtenerPagos =
       }
 
       /* =========================
-         ESTADO
-      ========================= */
-
-      if (estado) {
-        filtro.estado =
-          estado;
-      }
-
-      /* =========================
          MÉTODO
       ========================= */
 
-      if (metodoPago) {
+      if (
+        metodoPago
+      ) {
         filtro.metodoPago =
           metodoPago;
       }
@@ -479,14 +525,20 @@ export const obtenerPagos =
       ) {
         filtro.fechaPago = {};
 
-        if (fechaInicio) {
+        if (
+          fechaInicio
+        ) {
           const inicio =
             convertirFechaUTC(
               fechaInicio
             );
 
-          if (!inicio) {
-            return res.status(400).json({
+          if (
+            !inicio
+          ) {
+            return res.status(
+              400
+            ).json({
               message:
                 "La fecha inicial no es válida",
             });
@@ -496,14 +548,20 @@ export const obtenerPagos =
             inicio;
         }
 
-        if (fechaFinal) {
+        if (
+          fechaFinal
+        ) {
           const final =
             convertirFechaUTC(
               fechaFinal
             );
 
-          if (!final) {
-            return res.status(400).json({
+          if (
+            !final
+          ) {
+            return res.status(
+              400
+            ).json({
               message:
                 "La fecha final no es válida",
             });
@@ -520,6 +578,10 @@ export const obtenerPagos =
             final;
         }
       }
+
+      /* =========================
+         CONSULTAR
+      ========================= */
 
       const pagos =
         await Pago.find(
@@ -557,7 +619,9 @@ export const obtenerPagos =
             createdAt: -1,
           });
 
-      res.status(200).json(
+      res.status(
+        200
+      ).json(
         pagos
       );
     } catch (error) {
@@ -566,7 +630,9 @@ export const obtenerPagos =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener los pagos",
       });
@@ -575,6 +641,8 @@ export const obtenerPagos =
 
 /* =========================================================
    OBTENER PAGO POR ID
+
+   GET /api/pagos/:id
 ========================================================= */
 
 export const obtenerPagoPorId =
@@ -583,12 +651,18 @@ export const obtenerPagoPorId =
     res
   ) => {
     try {
+      const {
+        id,
+      } = req.params;
+
       if (
         !mongoose.Types.ObjectId.isValid(
-          req.params.id
+          id
         )
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "El identificador del pago no es válido",
         });
@@ -596,17 +670,23 @@ export const obtenerPagoPorId =
 
       const pago =
         await obtenerPagoCompleto(
-          req.params.id
+          id
         );
 
-      if (!pago) {
-        return res.status(404).json({
+      if (
+        !pago
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "El pago no fue encontrado",
         });
       }
 
-      res.status(200).json(
+      res.status(
+        200
+      ).json(
         pago
       );
     } catch (error) {
@@ -615,7 +695,9 @@ export const obtenerPagoPorId =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener el pago",
       });
@@ -627,19 +709,8 @@ export const obtenerPagoPorId =
 
    POST /api/pagos
 
-   Body:
-
-   {
-     venta: "...",
-     valorPago: 2500000,
-     fechaPago: "2026-08-28",
-     metodoPago: "Transferencia",
-     referencia: "ABC123",
-     observaciones: ""
-   }
-
-   El dinero se aplica automáticamente empezando
-   por la cuota más antigua pendiente.
+   El dinero se aplica comenzando
+   por la cuota pendiente más antigua.
 ========================================================= */
 
 export const crearPago =
@@ -649,13 +720,21 @@ export const crearPago =
   ) => {
     try {
       const {
-        venta: ventaId,
+        venta:
+          ventaId,
+
         valorPago,
+
         fechaPago,
+
         metodoPago =
           "Efectivo",
-        referencia = "",
-        observaciones = "",
+
+        referencia =
+          "",
+
+        observaciones =
+          "",
       } = req.body;
 
       /* =========================
@@ -668,7 +747,9 @@ export const crearPago =
           ventaId
         )
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "Debe seleccionar una venta válida",
         });
@@ -679,43 +760,35 @@ export const crearPago =
           ventaId
         );
 
-      if (!venta) {
-        return res.status(404).json({
+      if (
+        !venta
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "La venta no fue encontrada",
         });
       }
 
       /* =========================
-         VENTA ANULADA
-      ========================= */
-
-      if (
-        venta.estado ===
-        "Anulada"
-      ) {
-        return res.status(409).json({
-          message:
-            "No se pueden registrar pagos sobre una venta anulada",
-        });
-      }
-
-      /* =========================
-         SOLO VENTAS FINANCIADAS
+         SOLO FINANCIADO
       ========================= */
 
       if (
         venta.formaPago !==
         "Financiado"
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             "Esta venta es de contado y no tiene cuotas por pagar",
         });
       }
 
       /* =========================
-         VALOR DEL PAGO
+         VALOR
       ========================= */
 
       const valor =
@@ -729,7 +802,9 @@ export const crearPago =
         ) ||
         valor <= 0
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "El valor del pago debe ser mayor que cero",
         });
@@ -744,8 +819,12 @@ export const crearPago =
           fechaPago
         );
 
-      if (!fecha) {
-        return res.status(400).json({
+      if (
+        !fecha
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "La fecha del pago no es válida",
         });
@@ -768,16 +847,40 @@ export const crearPago =
           metodoPago
         )
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "El método de pago no es válido",
         });
       }
 
       /* =========================
-         CUOTAS PENDIENTES
+         REFERENCIA
+      ========================= */
 
-         Primero las más antiguas.
+      if (
+        [
+          "Transferencia",
+          "Consignación",
+          "PSE",
+        ].includes(
+          metodoPago
+        ) &&
+        !String(
+          referencia || ""
+        ).trim()
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "Debe indicar la referencia o número de la transacción",
+        });
+      }
+
+      /* =========================
+         CUOTAS CON SALDO
       ========================= */
 
       const cuotasPendientes =
@@ -785,12 +888,9 @@ export const crearPago =
           venta:
             venta._id,
 
-          estado: {
-            $ne: "Anulada",
-          },
-
           saldoPendiente: {
-            $gt: 0,
+            $gt:
+              0,
           },
         }).sort({
           fechaVencimiento: 1,
@@ -801,14 +901,16 @@ export const crearPago =
         cuotasPendientes.length ===
         0
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             "La venta no tiene cuotas pendientes por pagar",
         });
       }
 
       /* =========================
-         SALDO REAL DE LA VENTA
+         SALDO REAL
       ========================= */
 
       const saldoReal =
@@ -825,14 +927,18 @@ export const crearPago =
                 ),
               0
             )
-            .toFixed(2)
+            .toFixed(
+              2
+            )
         );
 
       if (
         valor >
         saldoReal
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             `El pago supera el saldo pendiente de la venta. Saldo actual: $${saldoReal.toLocaleString(
               "es-CO"
@@ -846,10 +952,13 @@ export const crearPago =
 
       let dineroDisponible =
         Number(
-          valor.toFixed(2)
+          valor.toFixed(
+            2
+          )
         );
 
-      const aplicaciones = [];
+      const aplicaciones =
+        [];
 
       for (
         const cuota
@@ -865,10 +974,11 @@ export const crearPago =
         const saldoCuota =
           Number(
             cuota.saldoPendiente
-          );
+          ) || 0;
 
         if (
-          saldoCuota <= 0
+          saldoCuota <=
+          0
         ) {
           continue;
         }
@@ -878,7 +988,9 @@ export const crearPago =
             Math.min(
               dineroDisponible,
               saldoCuota
-            ).toFixed(2)
+            ).toFixed(
+              2
+            )
           );
 
         aplicaciones.push({
@@ -896,7 +1008,9 @@ export const crearPago =
             (
               dineroDisponible -
               valorAplicado
-            ).toFixed(2)
+            ).toFixed(
+              2
+            )
           );
       }
 
@@ -904,14 +1018,16 @@ export const crearPago =
         aplicaciones.length ===
         0
       ) {
-        return res.status(409).json({
+        return res.status(
+          409
+        ).json({
           message:
             "No fue posible aplicar el pago a ninguna cuota",
         });
       }
 
       /* =========================
-         CREAR PAGO
+         GENERAR CÓDIGO
       ========================= */
 
       let codigo =
@@ -920,8 +1036,9 @@ export const crearPago =
       let nuevoPago;
 
       /*
-        Reintentamos unas pocas veces si existiera
-        una colisión excepcional del consecutivo.
+        Se realizan varios intentos por si dos pagos
+        fueran registrados prácticamente al mismo tiempo
+        y chocaran con el índice único del código.
       */
 
       for (
@@ -955,19 +1072,9 @@ export const crearPago =
 
               aplicaciones,
 
-              estado:
-                "Aplicado",
-
-              motivoAnulacion:
-                "",
-
-              fechaAnulacion:
-                null,
-
               observaciones:
                 String(
-                  observaciones ||
-                    ""
+                  observaciones || ""
                 ).trim(),
             });
 
@@ -976,7 +1083,8 @@ export const crearPago =
           if (
             error.code !==
               11000 ||
-            intento === 4
+            intento ===
+              4
           ) {
             throw error;
           }
@@ -986,89 +1094,53 @@ export const crearPago =
         }
       }
 
-      /* =========================
-         ACTUALIZAR CUOTAS
-      ========================= */
-
-      for (
-        const aplicacion
-        of aplicaciones
+      if (
+        !nuevoPago
       ) {
-        const cuota =
-          await Cuota.findById(
-            aplicacion.cuota
-          );
-
-        if (!cuota) {
-          continue;
-        }
-
-        cuota.valorPagado =
-          Number(
-            (
-              Number(
-                cuota.valorPagado
-              ) +
-              Number(
-                aplicacion.valorAplicado
-              )
-            ).toFixed(2)
-          );
-
-        /*
-          Nunca dejamos valor pagado por encima
-          del valor original de la cuota.
-        */
-
-        if (
-          cuota.valorPagado >
-          Number(
-            cuota.valorCuota
-          )
-        ) {
-          cuota.valorPagado =
-            Number(
-              cuota.valorCuota
-            );
-        }
-
-        cuota.saldoPendiente =
-          Number(
-            Math.max(
-              0,
-              Number(
-                cuota.valorCuota
-              ) -
-                cuota.valorPagado
-            ).toFixed(2)
-          );
-
-        cuota.estado =
-          determinarEstadoCuota(
-            cuota
-          );
-
-        if (
-          cuota.estado ===
-          "Pagada"
-        ) {
-          cuota.fechaPago =
-            fecha;
-        } else {
-          cuota.fechaPago =
-            null;
-        }
-
-        await cuota.save();
+        throw new Error(
+          "No fue posible crear el pago"
+        );
       }
 
       /* =========================
-         ACTUALIZAR VENTA
+         CUOTAS AFECTADAS
+      ========================= */
+
+      const cuotasAfectadas = [
+        ...new Set(
+          aplicaciones.map(
+            (aplicacion) =>
+              String(
+                aplicacion.cuota
+              )
+          )
+        ),
+      ];
+
+      /* =========================
+         RECALCULAR CUOTAS
+      ========================= */
+
+      for (
+        const cuotaId
+        of cuotasAfectadas
+      ) {
+        await recalcularCuotaDesdePagos(
+          cuotaId
+        );
+      }
+
+      /* =========================
+         RECALCULAR VENTA
       ========================= */
 
       await actualizarEstadoVenta(
         venta._id
       );
+
+      /* =========================
+         PAGO COMPLETO
+      ========================= */
 
       const pagoCompleto =
         await obtenerPagoCompleto(
@@ -1080,10 +1152,18 @@ export const crearPago =
           (
             saldoReal -
             valor
-          ).toFixed(2)
+          ).toFixed(
+            2
+          )
         );
 
-      res.status(201).json({
+      /* =========================
+         RESPUESTA
+      ========================= */
+
+      res.status(
+        201
+      ).json({
         message:
           saldoDespues === 0
             ? "Pago registrado correctamente. La venta quedó totalmente pagada."
@@ -1107,7 +1187,9 @@ export const crearPago =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al registrar el pago",
       });
@@ -1115,137 +1197,94 @@ export const crearPago =
   };
 
 /* =========================================================
-   ANULAR PAGO
+   ELIMINAR PAGO DEFINITIVAMENTE
 
-   PATCH /api/pagos/:id/anular
+   DELETE /api/pagos/:id
 
-   Body:
-   {
-     "motivoAnulacion": "Pago registrado por error"
-   }
-
-   El pago queda en historial y las cuotas se recalculan.
+   1. Guarda las cuotas afectadas.
+   2. Elimina definitivamente el pago.
+   3. Recalcula las cuotas con los pagos restantes.
+   4. El dinero eliminado vuelve al saldo pendiente.
+   5. Recalcula el estado de la venta.
 ========================================================= */
 
-export const anularPago =
+export const eliminarPago =
   async (
     req,
     res
   ) => {
     try {
       const {
-        motivoAnulacion,
-      } = req.body;
+        id,
+      } = req.params;
 
       /* =========================
-         ID
+         VALIDAR ID
       ========================= */
 
       if (
         !mongoose.Types.ObjectId.isValid(
-          req.params.id
+          id
         )
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "El identificador del pago no es válido",
         });
       }
 
       /* =========================
-         MOTIVO
-      ========================= */
-
-      if (
-        !motivoAnulacion ||
-        !String(
-          motivoAnulacion
-        ).trim()
-      ) {
-        return res.status(400).json({
-          message:
-            "Debe indicar el motivo de la anulación",
-        });
-      }
-
-      if (
-        String(
-          motivoAnulacion
-        )
-          .trim()
-          .length < 5
-      ) {
-        return res.status(400).json({
-          message:
-            "El motivo de anulación debe ser más descriptivo",
-        });
-      }
-
-      /* =========================
-         PAGO
+         BUSCAR PAGO
       ========================= */
 
       const pago =
         await Pago.findById(
-          req.params.id
+          id
         );
 
-      if (!pago) {
-        return res.status(404).json({
+      if (
+        !pago
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "El pago no fue encontrado",
         });
       }
 
-      if (
-        pago.estado ===
-        "Anulado"
-      ) {
-        return res.status(409).json({
-          message:
-            "El pago ya se encuentra anulado",
-        });
-      }
+      const ventaId =
+        pago.venta;
+
+      const pagoEliminado = {
+        _id:
+          pago._id,
+
+        codigo:
+          pago.codigo,
+
+        valorPago:
+          pago.valorPago,
+
+        fechaPago:
+          pago.fechaPago,
+
+        metodoPago:
+          pago.metodoPago,
+      };
 
       /* =========================
-         VENTA ANULADA
-
-         Si la venta completa ya está anulada,
-         mantenemos el historial financiero y no
-         intentamos reactivar sus cuotas.
-      ========================= */
-
-      const venta =
-        await Venta.findById(
-          pago.venta
-        );
-
-      /* =========================
-         ANULAR PAGO
-      ========================= */
-
-      pago.estado =
-        "Anulado";
-
-      pago.motivoAnulacion =
-        String(
-          motivoAnulacion
-        ).trim();
-
-      pago.fechaAnulacion =
-        new Date();
-
-      await pago.save();
-
-      /* =========================
-         RECALCULAR CUOTAS
-
-         Eliminamos duplicados por seguridad.
+         CUOTAS AFECTADAS
       ========================= */
 
       const cuotasAfectadas = [
         ...new Set(
-          pago.aplicaciones.map(
+          (
+            pago.aplicaciones ||
+            []
+          ).map(
             (aplicacion) =>
               String(
                 aplicacion.cuota
@@ -1254,411 +1293,51 @@ export const anularPago =
         ),
       ];
 
-      if (
-        venta?.estado !==
-        "Anulada"
-      ) {
-        for (
-          const cuotaId
-          of cuotasAfectadas
-        ) {
-          await recalcularCuotaDesdePagos(
-            cuotaId
-          );
-        }
-
-        await actualizarEstadoVenta(
-          pago.venta
-        );
-      }
-
-      const pagoCompleto =
-        await obtenerPagoCompleto(
-          pago._id
-        );
-
-      res.status(200).json({
-        message:
-          "Pago anulado correctamente. La cartera fue recalculada.",
-
-        pago:
-          pagoCompleto,
-      });
-    } catch (error) {
-      console.error(
-        "Error anulando pago:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Error al anular el pago",
-      });
-    }
-  };
-
-/* =========================================================
-   REVERTIR ANULACIÓN DE PAGO
-
-   Solo se permite cuando ese pago es el ÚNICO registro
-   existente para esa venta.
-
-   PATCH /api/pagos/:id/revertir
-========================================================= */
-
-export const revertirPago =
-  async (
-    req,
-    res
-  ) => {
-    try {
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          req.params.id
-        )
-      ) {
-        return res.status(400).json({
-          message:
-            "El identificador del pago no es válido",
-        });
-      }
-
-      const pago =
-        await Pago.findById(
-          req.params.id
-        );
-
-      if (!pago) {
-        return res.status(404).json({
-          message:
-            "El pago no fue encontrado",
-        });
-      }
-
-      if (
-        pago.estado !==
-        "Anulado"
-      ) {
-        return res.status(409).json({
-          message:
-            "Solamente se puede revertir un pago anulado",
-        });
-      }
-
-      /* =====================================================
-         DEBE SER EL ÚNICO PAGO DE ESA VENTA
-      ===================================================== */
-
-      const totalPagosVenta =
-        await Pago.countDocuments({
-          venta:
-            pago.venta,
-        });
-
-      if (
-        totalPagosVenta !== 1
-      ) {
-        return res.status(409).json({
-          message:
-            "Este pago no puede revertirse porque la venta ya tiene otros registros de pago.",
-        });
-      }
-
-      /* =====================================================
-         VENTA
-      ===================================================== */
-
-      const venta =
-        await Venta.findById(
-          pago.venta
-        );
-
-      if (!venta) {
-        return res.status(404).json({
-          message:
-            "La venta asociada no fue encontrada",
-        });
-      }
-
-      if (
-        venta.estado ===
-        "Anulada"
-      ) {
-        return res.status(409).json({
-          message:
-            "No se puede revertir el pago porque la venta está anulada.",
-        });
-      }
-
-      /* =====================================================
-         CUOTAS ACTUALES
-
-         IMPORTANTE:
-         No usamos necesariamente las aplicaciones antiguas,
-         porque la financiación pudo haber sido modificada.
-
-         Volvemos a distribuir el dinero sobre las cuotas
-         ACTUALES.
-      ===================================================== */
-
-      const cuotasPendientes =
-        await Cuota.find({
-          venta:
-            venta._id,
-
-          estado: {
-            $ne:
-              "Anulada",
-          },
-
-          saldoPendiente: {
-            $gt: 0,
-          },
-        }).sort({
-          fechaVencimiento: 1,
-          numeroCuota: 1,
-        });
-
-      if (
-        cuotasPendientes.length ===
-        0
-      ) {
-        return res.status(409).json({
-          message:
-            "La venta ya no tiene cuotas pendientes donde aplicar este pago.",
-        });
-      }
-
-      const saldoActual =
-        Number(
-          cuotasPendientes
-            .reduce(
-              (
-                total,
-                cuota
-              ) =>
-                total +
-                Number(
-                  cuota.saldoPendiente
-                ),
-              0
-            )
-            .toFixed(2)
-        );
-
-      if (
-        Number(
-          pago.valorPago
-        ) >
-        saldoActual
-      ) {
-        return res.status(409).json({
-          message:
-            "El valor del pago anulado supera el saldo actual de la venta y no puede revertirse.",
-        });
-      }
-
-      /* =====================================================
-         DISTRIBUIR NUEVAMENTE
-      ===================================================== */
-
-      let disponible =
-        Number(
-          Number(
-            pago.valorPago
-          ).toFixed(2)
-        );
-
-      const aplicaciones =
-        [];
-
-      for (
-        const cuota
-        of cuotasPendientes
-      ) {
-        if (
-          disponible <= 0
-        ) {
-          break;
-        }
-
-        const saldoCuota =
-          Number(
-            cuota.saldoPendiente
-          ) || 0;
-
-        if (
-          saldoCuota <= 0
-        ) {
-          continue;
-        }
-
-        const valorAplicado =
-          Number(
-            Math.min(
-              disponible,
-              saldoCuota
-            ).toFixed(2)
-          );
-
-        aplicaciones.push({
-          cuota:
-            cuota._id,
-
-          numeroCuota:
-            cuota.numeroCuota,
-
-          valorAplicado,
-        });
-
-        disponible =
-          Number(
-            (
-              disponible -
-              valorAplicado
-            ).toFixed(2)
-          );
-      }
-
-      /* =====================================================
-         REACTIVAR PAGO
-      ===================================================== */
-
-      pago.estado =
-        "Aplicado";
-
-      pago.aplicaciones =
-        aplicaciones;
-
-      await pago.save();
-
-      /* =====================================================
-         RECALCULAR CUOTAS
-      ===================================================== */
-
-      for (
-        const aplicacion
-        of aplicaciones
-      ) {
-        await recalcularCuotaDesdePagos(
-          aplicacion.cuota
-        );
-      }
-
-      await actualizarEstadoVenta(
-        venta._id
-      );
-
-      const pagoCompleto =
-        await obtenerPagoCompleto(
-          pago._id
-        );
-
-      res.status(200).json({
-        message:
-          "La anulación fue revertida y el pago volvió a aplicarse correctamente.",
-
-        pago:
-          pagoCompleto,
-      });
-    } catch (error) {
-      console.error(
-        "Error revirtiendo pago:",
-        error
-      );
-
-      res.status(500).json({
-        message:
-          "Error al revertir el pago",
-      });
-    }
-  };
-
-/* =========================================================
-   ELIMINAR DEFINITIVAMENTE PAGO ANULADO
-
-   Solo se permite si:
-   - está Anulado
-   - ya existe OTRO pago Aplicado para esa misma venta
-
-   DELETE /api/pagos/:id
-========================================================= */
-
-export const eliminarPagoAnulado =
-  async (
-    req,
-    res
-  ) => {
-    try {
-      if (
-        !mongoose.Types.ObjectId.isValid(
-          req.params.id
-        )
-      ) {
-        return res.status(400).json({
-          message:
-            "El identificador del pago no es válido",
-        });
-      }
-
-      const pago =
-        await Pago.findById(
-          req.params.id
-        );
-
-      if (!pago) {
-        return res.status(404).json({
-          message:
-            "El pago no fue encontrado",
-        });
-      }
-
-      if (
-        pago.estado !==
-        "Anulado"
-      ) {
-        return res.status(409).json({
-          message:
-            "Solamente se pueden eliminar pagos anulados.",
-        });
-      }
-
-      /* =====================================================
-         DEBE EXISTIR UN NUEVO PAGO APLICADO
-         PARA LA MISMA VENTA
-      ===================================================== */
-
-      const nuevoPagoAplicado =
-        await Pago.findOne({
-          _id: {
-            $ne:
-              pago._id,
-          },
-
-          venta:
-            pago.venta,
-
-          estado:
-            "Aplicado",
-        });
-
-      if (
-        !nuevoPagoAplicado
-      ) {
-        return res.status(409).json({
-          message:
-            "Este pago anulado todavía no puede eliminarse. Puede revertirlo mientras sea el único registro de la venta.",
-        });
-      }
+      /* =========================
+         ELIMINAR PAGO
+      ========================= */
 
       await Pago.deleteOne({
         _id:
           pago._id,
       });
 
-      res.status(200).json({
+      /* =========================
+         RECALCULAR CUOTAS
+      ========================= */
+
+      for (
+        const cuotaId
+        of cuotasAfectadas
+      ) {
+        await recalcularCuotaDesdePagos(
+          cuotaId
+        );
+      }
+
+      /* =========================
+         RECALCULAR VENTA
+      ========================= */
+
+      if (
+        ventaId
+      ) {
+        await actualizarEstadoVenta(
+          ventaId
+        );
+      }
+
+      /* =========================
+         RESPUESTA
+      ========================= */
+
+      res.status(
+        200
+      ).json({
         message:
-          "El pago anulado fue eliminado definitivamente.",
+          "Pago eliminado correctamente. El valor volvió al saldo pendiente y la cartera fue recalculada.",
+
+        pagoEliminado,
       });
     } catch (error) {
       console.error(
@@ -1666,9 +1345,11 @@ export const eliminarPagoAnulado =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
-          "Error al eliminar el pago anulado",
+          "Error al eliminar el pago",
       });
     }
   };
@@ -1678,7 +1359,7 @@ export const eliminarPagoAnulado =
 
    GET /api/pagos/resumen
 
-   Los pagos anulados NO cuentan como dinero recibido.
+   Todo pago que existe representa dinero recibido.
 ========================================================= */
 
 export const obtenerResumenPagos =
@@ -1687,16 +1368,15 @@ export const obtenerResumenPagos =
     res
   ) => {
     try {
-      const pagosAplicados =
-        await Pago.find({
-          estado:
-            "Aplicado",
-        }).select(
-          "valorPago metodoPago"
-        );
+      const pagos =
+        await Pago.find({})
+          .select(
+            "valorPago metodoPago"
+          )
+          .lean();
 
       const resumen =
-        pagosAplicados.reduce(
+        pagos.reduce(
           (
             acc,
             pago
@@ -1712,44 +1392,36 @@ export const obtenerResumenPagos =
             acc.totalRecibido +=
               valor;
 
-            if (
-              pago.metodoPago ===
-              "Efectivo"
+            switch (
+              pago.metodoPago
             ) {
-              acc.efectivo +=
-                valor;
-            }
+              case "Efectivo":
+                acc.efectivo +=
+                  valor;
+                break;
 
-            if (
-              pago.metodoPago ===
-              "Transferencia"
-            ) {
-              acc.transferencia +=
-                valor;
-            }
+              case "Transferencia":
+                acc.transferencia +=
+                  valor;
+                break;
 
-            if (
-              pago.metodoPago ===
-              "Consignación"
-            ) {
-              acc.consignacion +=
-                valor;
-            }
+              case "Consignación":
+                acc.consignacion +=
+                  valor;
+                break;
 
-            if (
-              pago.metodoPago ===
-              "PSE"
-            ) {
-              acc.pse +=
-                valor;
-            }
+              case "PSE":
+                acc.pse +=
+                  valor;
+                break;
 
-            if (
-              pago.metodoPago ===
-              "Otro"
-            ) {
-              acc.otro +=
-                valor;
+              case "Otro":
+                acc.otro +=
+                  valor;
+                break;
+
+              default:
+                break;
             }
 
             return acc;
@@ -1771,6 +1443,10 @@ export const obtenerResumenPagos =
           }
         );
 
+      /*
+        Redondeamos todos los valores monetarios.
+      */
+
       resumen.totalRecibido =
         Number(
           resumen.totalRecibido.toFixed(
@@ -1778,13 +1454,44 @@ export const obtenerResumenPagos =
           )
         );
 
-      resumen.anulados =
-        await Pago.countDocuments({
-          estado:
-            "Anulado",
-        });
+      resumen.efectivo =
+        Number(
+          resumen.efectivo.toFixed(
+            2
+          )
+        );
 
-      res.status(200).json(
+      resumen.transferencia =
+        Number(
+          resumen.transferencia.toFixed(
+            2
+          )
+        );
+
+      resumen.consignacion =
+        Number(
+          resumen.consignacion.toFixed(
+            2
+          )
+        );
+
+      resumen.pse =
+        Number(
+          resumen.pse.toFixed(
+            2
+          )
+        );
+
+      resumen.otro =
+        Number(
+          resumen.otro.toFixed(
+            2
+          )
+        );
+
+      res.status(
+        200
+      ).json(
         resumen
       );
     } catch (error) {
@@ -1793,7 +1500,9 @@ export const obtenerResumenPagos =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener el resumen de pagos",
       });

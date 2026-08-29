@@ -6,7 +6,6 @@ import {
   obtenerVentaActivaPorLote,
   crearVenta,
   actualizarVenta,
-  anularVenta,
   eliminarVenta,
 } from "./venta.controller.js";
 
@@ -16,78 +15,79 @@ const router = Router();
    VENTAS
 ========================================================= */
 
-/*
-  Listar ventas
-  GET /api/ventas
-*/
+/* =========================================================
+   LISTAR VENTAS
+
+   GET /api/ventas
+========================================================= */
+
 router.get(
   "/",
   obtenerVentas
 );
 
-/*
-  Obtener la venta activa asociada a un lote
+/* =========================================================
+   OBTENER VENTA ASOCIADA A UN LOTE
 
-  IMPORTANTE:
-  Esta ruta debe ir ANTES de "/:id"
-  para que Express no interprete "lote"
-  como si fuera el ID de una venta.
+   IMPORTANTE:
+   Esta ruta debe permanecer ANTES de "/:id"
+   para que Express no interprete "lote"
+   como si fuera el ID de una venta.
 
-  GET /api/ventas/lote/:loteId/activa
-*/
+   GET /api/ventas/lote/:loteId/activa
+========================================================= */
+
 router.get(
   "/lote/:loteId/activa",
   obtenerVentaActivaPorLote
 );
 
-/*
-  Obtener venta por ID
-  GET /api/ventas/:id
-*/
+/* =========================================================
+   OBTENER VENTA POR ID
+
+   GET /api/ventas/:id
+========================================================= */
+
 router.get(
   "/:id",
   obtenerVentaPorId
 );
 
-/*
-  Crear venta
-  POST /api/ventas
-*/
+/* =========================================================
+   CREAR VENTA
+
+   POST /api/ventas
+========================================================= */
+
 router.post(
   "/",
   crearVenta
 );
 
-/*
-  Actualizar venta
-  PUT /api/ventas/:id
-*/
+/* =========================================================
+   ACTUALIZAR VENTA
+
+   PUT /api/ventas/:id
+========================================================= */
+
 router.put(
   "/:id",
   actualizarVenta
 );
 
-/*
-  Anular venta con motivo
+/* =========================================================
+   ELIMINAR VENTA DEFINITIVAMENTE
 
-  PATCH /api/ventas/:id/anular
+   DELETE /api/ventas/:id
 
-  Body:
-  {
-    "motivoAnulacion": "Medidas incorrectas del lote"
-  }
-*/
-router.patch(
-  "/:id/anular",
-  anularVenta
-);
+   REGLA:
+   - Si tiene pagos registrados, NO permite eliminar.
+   - Primero deben eliminarse los pagos.
+   - Después elimina cuotas.
+   - Libera el lote.
+   - Elimina definitivamente la venta.
+========================================================= */
 
-/*
-  DELETE también conserva el historial:
-  realmente anula la venta.
-
-  Requiere igualmente motivoAnulacion.
-*/
 router.delete(
   "/:id",
   eliminarVenta

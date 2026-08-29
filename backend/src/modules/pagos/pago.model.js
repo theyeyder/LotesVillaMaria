@@ -16,6 +16,10 @@ import mongoose from "mongoose";
 const aplicacionPagoSchema =
   new mongoose.Schema(
     {
+      /* =====================================================
+         CUOTA
+      ===================================================== */
+
       cuota: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Cuota",
@@ -27,7 +31,10 @@ const aplicacionPagoSchema =
       },
 
       /* =====================================================
-         NÚMERO DE CUOTA GUARDADO COMO HISTORIAL
+         NÚMERO DE CUOTA
+
+         Se guarda también para facilitar comprobantes,
+         consultas y trazabilidad del pago.
       ===================================================== */
 
       numeroCuota: {
@@ -103,8 +110,10 @@ const pagoSchema =
       /* =====================================================
          CLIENTE
 
-         Lo guardamos también directamente para facilitar
-         consultas, reportes y comprobantes.
+         También se guarda directamente para facilitar:
+         - búsquedas
+         - reportes
+         - comprobantes
       ===================================================== */
 
       cliente: {
@@ -151,7 +160,7 @@ const pagoSchema =
       },
 
       /* =====================================================
-         FORMA DE PAGO
+         MÉTODO DE PAGO
       ===================================================== */
 
       metodoPago: {
@@ -171,7 +180,7 @@ const pagoSchema =
       /* =====================================================
          REFERENCIA
 
-         Útil para:
+         Útil principalmente para:
          - transferencia
          - consignación
          - PSE
@@ -188,53 +197,22 @@ const pagoSchema =
       /* =====================================================
          DISTRIBUCIÓN DEL PAGO
 
-         Aquí quedará registrado cuánto dinero del pago
-         se aplicó a cada cuota.
+         Aquí se registra cuánto dinero de este pago
+         fue aplicado a cada cuota.
+
+         IMPORTANTE:
+         Ya NO existe estado Aplicado / Anulado.
+
+         Si el pago existe, afecta la cartera.
+         Si se elimina, deja de afectarla.
       ===================================================== */
 
       aplicaciones: {
-        type: [aplicacionPagoSchema],
-
-        default: [],
-      },
-
-      /* =====================================================
-         ESTADO
-
-         Aplicado:
-         afecta cuotas y cartera.
-
-         Anulado:
-         queda únicamente como historial.
-      ===================================================== */
-
-      estado: {
-        type: String,
-
-        enum: [
-          "Aplicado",
-          "Anulado",
+        type: [
+          aplicacionPagoSchema,
         ],
 
-        default: "Aplicado",
-      },
-
-      /* =====================================================
-         ANULACIÓN
-      ===================================================== */
-
-      motivoAnulacion: {
-        type: String,
-
-        trim: true,
-
-        default: "",
-      },
-
-      fechaAnulacion: {
-        type: Date,
-
-        default: null,
+        default: [],
       },
 
       /* =====================================================
@@ -260,28 +238,27 @@ const pagoSchema =
    ÍNDICES
 ========================================================= */
 
-/* Pagos de una venta */
+/* =========================================================
+   PAGOS DE UNA VENTA
+========================================================= */
 
 pagoSchema.index({
   venta: 1,
   fechaPago: -1,
 });
 
-/* Pagos de un cliente */
+/* =========================================================
+   PAGOS DE UN CLIENTE
+========================================================= */
 
 pagoSchema.index({
   cliente: 1,
   fechaPago: -1,
 });
 
-/* Historial por estado */
-
-pagoSchema.index({
-  estado: 1,
-  fechaPago: -1,
-});
-
-/* Buscar pagos aplicados a una cuota */
+/* =========================================================
+   BUSCAR PAGOS APLICADOS A UNA CUOTA
+========================================================= */
 
 pagoSchema.index({
   "aplicaciones.cuota": 1,

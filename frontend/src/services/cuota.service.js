@@ -3,7 +3,8 @@ import api from "./api";
 /* =========================================================
    OBTENER TODAS LAS CUOTAS
 
-   Permite filtros como:
+   Filtros disponibles:
+
    {
      venta,
      cliente,
@@ -11,6 +12,12 @@ import api from "./api";
      fechaInicio,
      fechaFinal
    }
+
+   Estados válidos:
+   - Pendiente
+   - Parcial
+   - Pagada
+   - Vencida
 ========================================================= */
 
 export const obtenerCuotas = async (
@@ -27,7 +34,7 @@ export const obtenerCuotas = async (
 };
 
 /* =========================================================
-   OBTENER RESUMEN GENERAL
+   OBTENER RESUMEN GENERAL DE CUOTAS
 ========================================================= */
 
 export const obtenerResumenCuotas =
@@ -53,7 +60,7 @@ export const obtenerCuotaPorId =
   };
 
 /* =========================================================
-   OBTENER TODAS LAS CUOTAS DE UNA VENTA
+   OBTENER CUOTAS DE UNA VENTA
 ========================================================= */
 
 export const obtenerCuotasPorVenta =
@@ -68,13 +75,17 @@ export const obtenerCuotasPorVenta =
 /* =========================================================
    GENERAR CUOTAS MANUALMENTE
 
-   Esto nos sirve principalmente para ventas financiadas
-   creadas antes de implementar la generación automática.
+   Principalmente útil para una venta financiada
+   que todavía no tenga cuotas generadas.
 
    fechaPrimeraCuota es opcional.
 
    Ejemplo:
-   generarCuotasVenta(id, "2026-09-28")
+
+   generarCuotasVenta(
+     ventaId,
+     "2026-09-28"
+   );
 ========================================================= */
 
 export const generarCuotasVenta =
@@ -84,15 +95,18 @@ export const generarCuotasVenta =
   ) => {
     const body = {};
 
-    if (fechaPrimeraCuota) {
+    if (
+      fechaPrimeraCuota
+    ) {
       body.fechaPrimeraCuota =
         fechaPrimeraCuota;
     }
 
-    const response = await api.post(
-      `/cuotas/generar/${ventaId}`,
-      body
-    );
+    const response =
+      await api.post(
+        `/cuotas/generar/${ventaId}`,
+        body
+      );
 
     return response.data;
   };

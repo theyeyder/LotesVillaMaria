@@ -40,14 +40,16 @@ import {
 
 import {
   obtenerVentaActivaPorLote,
-  anularVenta,
+  eliminarVenta,
 } from "../../services/venta.service";
 
 /* =========================================================
    FORMATEADORES
 ========================================================= */
 
-const formatearDinero = (valor = 0) => {
+const formatearDinero = (
+  valor = 0
+) => {
   return new Intl.NumberFormat(
     "es-CO",
     {
@@ -55,11 +57,17 @@ const formatearDinero = (valor = 0) => {
       currency: "COP",
       maximumFractionDigits: 0,
     }
-  ).format(Number(valor) || 0);
+  ).format(
+    Number(valor) || 0
+  );
 };
 
-const formatearArea = (valor = 0) => {
-  return Number(valor || 0).toLocaleString(
+const formatearArea = (
+  valor = 0
+) => {
+  return Number(
+    valor || 0
+  ).toLocaleString(
     "es-CO",
     {
       minimumFractionDigits: 2,
@@ -69,73 +77,160 @@ const formatearArea = (valor = 0) => {
 };
 
 /* =========================================================
+   NOMBRE DEL CLIENTE
+========================================================= */
+
+const obtenerNombreVentaCliente = (
+  cliente
+) => {
+  if (!cliente) {
+    return "Cliente";
+  }
+
+  return (
+    [
+      cliente.nombres,
+      cliente.apellidos,
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .trim() ||
+    cliente.nombre ||
+    cliente.razonSocial ||
+    "Cliente"
+  );
+};
+
+/* =========================================================
    COMPONENTE
 ========================================================= */
 
 export default function Lotes() {
-  /* =========================
+  /* =======================================================
      DATOS
-  ========================= */
+  ======================================================= */
 
-  const [manzanas, setManzanas] = useState([]);
-  const [lotes, setLotes] = useState([]);
+  const [
+    manzanas,
+    setManzanas,
+  ] = useState([]);
 
-  /* =========================
+  const [
+    lotes,
+    setLotes,
+  ] = useState([]);
+
+  /* =======================================================
      CARGA
-  ========================= */
+  ======================================================= */
 
-  const [cargando, setCargando] = useState(true);
-  const [guardandoManzana, setGuardandoManzana] = useState(false);
-  const [guardandoLote, setGuardandoLote] = useState(false);
+  const [
+    cargando,
+    setCargando,
+  ] = useState(true);
 
-  /* =========================
+  const [
+    guardandoManzana,
+    setGuardandoManzana,
+  ] = useState(false);
+
+  const [
+    guardandoLote,
+    setGuardandoLote,
+  ] = useState(false);
+
+  /* =======================================================
      SELECCIÓN
-  ========================= */
+  ======================================================= */
 
-  const [manzanaSeleccionada, setManzanaSeleccionada] = useState("");
+  const [
+    manzanaSeleccionada,
+    setManzanaSeleccionada,
+  ] = useState("");
 
-  /* =========================
+  /* =======================================================
      FILTROS
-  ========================= */
+  ======================================================= */
 
-  const [busqueda, setBusqueda] = useState("");
-  const [filtroEstado, setFiltroEstado] = useState("");
+  const [
+    busqueda,
+    setBusqueda,
+  ] = useState("");
 
-  /* =========================
+  const [
+    filtroEstado,
+    setFiltroEstado,
+  ] = useState("");
+
+  /* =======================================================
      MODAL MANZANA
-  ========================= */
+  ======================================================= */
 
-  const [modalManzanaAbierto, setModalManzanaAbierto] = useState(false);
-  const [manzanaEditar, setManzanaEditar] = useState(null);
+  const [
+    modalManzanaAbierto,
+    setModalManzanaAbierto,
+  ] = useState(false);
 
-  /* =========================
+  const [
+    manzanaEditar,
+    setManzanaEditar,
+  ] = useState(null);
+
+  /* =======================================================
      MODAL LOTE
-  ========================= */
+  ======================================================= */
 
-  const [modalLoteAbierto, setModalLoteAbierto] = useState(false);
-  const [loteEditar, setLoteEditar] = useState(null);
+  const [
+    modalLoteAbierto,
+    setModalLoteAbierto,
+  ] = useState(false);
 
-  /* =========================================================
-     ANULACIÓN DE VENTA DESDE LOTES
-  ========================================================= */
+  const [
+    loteEditar,
+    setLoteEditar,
+  ] = useState(null);
 
-  const [modalAnulacionAbierto, setModalAnulacionAbierto] = useState(false);
-  const [ventaParaAnular, setVentaParaAnular] = useState(null);
-  const [lotePendienteEditar, setLotePendienteEditar] = useState(null);
-  const [motivoAnulacion, setMotivoAnulacion] = useState("");
-  const [procesandoAnulacion, setProcesandoAnulacion] = useState(false);
+  /* =======================================================
+     ELIMINAR VENTA PARA EDITAR LOTE VENDIDO
+  ======================================================= */
 
-  /* =========================
+  const [
+    modalEliminarVentaAbierto,
+    setModalEliminarVentaAbierto,
+  ] = useState(false);
+
+  const [
+    ventaParaEliminar,
+    setVentaParaEliminar,
+  ] = useState(null);
+
+  const [
+    lotePendienteEditar,
+    setLotePendienteEditar,
+  ] = useState(null);
+
+  const [
+    procesandoEliminacion,
+    setProcesandoEliminacion,
+  ] = useState(false);
+
+  /* =======================================================
      NOTIFICACIÓN
-  ========================= */
+  ======================================================= */
 
-  const [notificacion, setNotificacion] = useState({
+  const [
+    notificacion,
+    setNotificacion,
+  ] = useState({
     visible: false,
     mensaje: "",
     tipo: "success",
   });
 
-  const mostrarNotificacion = (mensaje, tipo = "success") => {
+  const mostrarNotificacion = (
+    mensaje,
+    tipo = "success"
+  ) => {
     setNotificacion({
       visible: true,
       mensaje,
@@ -143,74 +238,103 @@ export default function Lotes() {
     });
   };
 
-  const cerrarNotificacion = () => {
-    setNotificacion((prev) => ({
-      ...prev,
-      visible: false,
-    }));
-  };
+  const cerrarNotificacion =
+    () => {
+      setNotificacion(
+        (prev) => ({
+          ...prev,
+          visible: false,
+        })
+      );
+    };
 
   /* =======================================================
      CARGAR MANZANAS
   ======================================================= */
 
-  const cargarManzanas = async () => {
-    try {
-      const datos = await obtenerManzanas();
+  const cargarManzanas =
+    async () => {
+      try {
+        const datos =
+          await obtenerManzanas();
 
-      setManzanas(Array.isArray(datos) ? datos : []);
-    } catch (error) {
-      console.error("Error cargando manzanas:", error);
+        setManzanas(
+          Array.isArray(datos)
+            ? datos
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Error cargando manzanas:",
+          error
+        );
 
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible cargar las manzanas.",
-        "error"
-      );
-    }
-  };
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible cargar las manzanas.",
+          "error"
+        );
+      }
+    };
 
   /* =======================================================
-     CARGAR LOTES (devuelve los datos)
+     CARGAR LOTES
   ======================================================= */
 
-  const cargarLotes = async () => {
-    try {
-      setCargando(true);
+  const cargarLotes =
+    async () => {
+      try {
+        setCargando(
+          true
+        );
 
-      const datos = await obtenerLotes();
+        const datos =
+          await obtenerLotes();
 
-      const lista = Array.isArray(datos) ? datos : [];
+        const lista =
+          Array.isArray(datos)
+            ? datos
+            : [];
 
-      setLotes(lista);
+        setLotes(
+          lista
+        );
 
-      return lista;
-    } catch (error) {
-      console.error("Error cargando lotes:", error);
+        return lista;
+      } catch (error) {
+        console.error(
+          "Error cargando lotes:",
+          error
+        );
 
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible cargar los lotes.",
-        "error"
-      );
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible cargar los lotes.",
+          "error"
+        );
 
-      return [];
-    } finally {
-      setCargando(false);
-    }
-  };
+        return [];
+      } finally {
+        setCargando(
+          false
+        );
+      }
+    };
 
   /* =======================================================
      CARGA INICIAL
   ======================================================= */
 
   useEffect(() => {
-    const cargarTodo = async () => {
-      await Promise.all([
-        cargarManzanas(),
-        cargarLotes(),
-      ]);
-    };
+    const cargarTodo =
+      async () => {
+        await Promise.all([
+          cargarManzanas(),
+          cargarLotes(),
+        ]);
+      };
 
     cargarTodo();
   }, []);
@@ -220,546 +344,818 @@ export default function Lotes() {
   ======================================================= */
 
   useEffect(() => {
-    if (!manzanaSeleccionada && manzanas.length > 0) {
-      setManzanaSeleccionada(manzanas[0]._id);
+    if (
+      !manzanaSeleccionada &&
+      manzanas.length > 0
+    ) {
+      setManzanaSeleccionada(
+        manzanas[0]._id
+      );
     }
-  }, [manzanas, manzanaSeleccionada]);
+  }, [
+    manzanas,
+    manzanaSeleccionada,
+  ]);
 
   /* =======================================================
      MANZANA ACTUAL
   ======================================================= */
 
-  const manzanaActual = useMemo(() => {
-    return manzanas.find(
-      (manzana) => manzana._id === manzanaSeleccionada
-    );
-  }, [manzanas, manzanaSeleccionada]);
+  const manzanaActual =
+    useMemo(() => {
+      return manzanas.find(
+        (manzana) =>
+          manzana._id ===
+          manzanaSeleccionada
+      );
+    }, [
+      manzanas,
+      manzanaSeleccionada,
+    ]);
 
   /* =======================================================
      LOTES POR MANZANA
   ======================================================= */
 
-  const lotesManzana = useMemo(() => {
-    if (!manzanaSeleccionada) {
-      return [];
-    }
-
-    return lotes.filter((lote) => {
-      const idManzana = lote.manzana?._id || lote.manzana;
-
-      return idManzana === manzanaSeleccionada;
-    });
-  }, [lotes, manzanaSeleccionada]);
-
-  /* =======================================================
-     FILTRO DE LOTES
-  ======================================================= */
-
-  const lotesFiltrados = useMemo(() => {
-    const texto = busqueda.trim().toLowerCase();
-
-    return lotesManzana.filter((lote) => {
-      const cumpleEstado = !filtroEstado || lote.estado === filtroEstado;
-
-      if (!cumpleEstado) {
-        return false;
+  const lotesManzana =
+    useMemo(() => {
+      if (
+        !manzanaSeleccionada
+      ) {
+        return [];
       }
 
-      if (!texto) {
-        return true;
+      return lotes.filter(
+        (lote) => {
+          const idManzana =
+            lote.manzana?._id ||
+            lote.manzana;
+
+          return (
+            idManzana ===
+            manzanaSeleccionada
+          );
+        }
+      );
+    }, [
+      lotes,
+      manzanaSeleccionada,
+    ]);
+
+  /* =======================================================
+     FILTRAR LOTES
+  ======================================================= */
+
+  const lotesFiltrados =
+    useMemo(() => {
+      const texto =
+        busqueda
+          .trim()
+          .toLowerCase();
+
+      return lotesManzana.filter(
+        (lote) => {
+          const cumpleEstado =
+            !filtroEstado ||
+            lote.estado ===
+              filtroEstado;
+
+          if (
+            !cumpleEstado
+          ) {
+            return false;
+          }
+
+          if (
+            !texto
+          ) {
+            return true;
+          }
+
+          const datos = [
+            lote.codigo,
+            lote.numeroLote,
+            lote.estado,
+            lote.observaciones,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+          return datos.includes(
+            texto
+          );
+        }
+      );
+    }, [
+      lotesManzana,
+      busqueda,
+      filtroEstado,
+    ]);
+
+  /* =======================================================
+     ESTADÍSTICAS
+  ======================================================= */
+
+  const estadisticas =
+    useMemo(() => {
+      return lotesManzana.reduce(
+        (
+          acc,
+          lote
+        ) => {
+          acc.total += 1;
+
+          acc.valorTotal +=
+            Number(
+              lote.valorLote
+            ) || 0;
+
+          acc.areaTotal +=
+            Number(
+              lote.areaM2
+            ) || 0;
+
+          if (
+            lote.estado ===
+            "Disponible"
+          ) {
+            acc.disponibles += 1;
+          }
+
+          if (
+            lote.estado ===
+            "Reservado"
+          ) {
+            acc.reservados += 1;
+          }
+
+          if (
+            lote.estado ===
+            "Vendido"
+          ) {
+            acc.vendidos += 1;
+          }
+
+          return acc;
+        },
+        {
+          total: 0,
+          disponibles: 0,
+          reservados: 0,
+          vendidos: 0,
+          valorTotal: 0,
+          areaTotal: 0,
+        }
+      );
+    }, [
+      lotesManzana,
+    ]);
+
+  /* =======================================================
+     CANTIDAD DE LOTES POR MANZANA
+  ======================================================= */
+
+  const contarLotesManzana =
+    (manzanaId) => {
+      return lotes.filter(
+        (lote) => {
+          const id =
+            lote.manzana?._id ||
+            lote.manzana;
+
+          return (
+            id ===
+            manzanaId
+          );
+        }
+      ).length;
+    };
+
+  /* =======================================================
+     NUEVA MANZANA
+  ======================================================= */
+
+  const abrirNuevaManzana =
+    () => {
+      setManzanaEditar(
+        null
+      );
+
+      setModalManzanaAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     EDITAR MANZANA
+  ======================================================= */
+
+  const abrirEditarManzana =
+    (
+      manzana,
+      event
+    ) => {
+      event?.stopPropagation();
+
+      setManzanaEditar(
+        manzana
+      );
+
+      setModalManzanaAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     CERRAR MODAL MANZANA
+  ======================================================= */
+
+  const cerrarModalManzana =
+    () => {
+      if (
+        guardandoManzana
+      ) {
+        return;
       }
 
-      const datos = [
-        lote.codigo,
-        lote.numeroLote,
-        lote.estado,
-        lote.observaciones,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+      setModalManzanaAbierto(
+        false
+      );
 
-      return datos.includes(texto);
-    });
-  }, [lotesManzana, busqueda, filtroEstado]);
-
-  /* =======================================================
-     ESTADÍSTICAS DE LA MANZANA
-  ======================================================= */
-
-  const estadisticas = useMemo(() => {
-    return lotesManzana.reduce(
-      (acc, lote) => {
-        acc.total += 1;
-
-        acc.valorTotal += Number(lote.valorLote) || 0;
-
-        acc.areaTotal += Number(lote.areaM2) || 0;
-
-        if (lote.estado === "Disponible") {
-          acc.disponibles += 1;
-        }
-
-        if (lote.estado === "Reservado") {
-          acc.reservados += 1;
-        }
-
-        if (lote.estado === "Vendido") {
-          acc.vendidos += 1;
-        }
-
-        return acc;
-      },
-      {
-        total: 0,
-        disponibles: 0,
-        reservados: 0,
-        vendidos: 0,
-        valorTotal: 0,
-        areaTotal: 0,
-      }
-    );
-  }, [lotesManzana]);
-
-  /* =======================================================
-     CANTIDAD LOTES POR MANZANA
-  ======================================================= */
-
-  const contarLotesManzana = (manzanaId) => {
-    return lotes.filter((lote) => {
-      const id = lote.manzana?._id || lote.manzana;
-
-      return id === manzanaId;
-    }).length;
-  };
-
-  /* =======================================================
-     MODAL NUEVA MANZANA
-  ======================================================= */
-
-  const abrirNuevaManzana = () => {
-    setManzanaEditar(null);
-    setModalManzanaAbierto(true);
-  };
-
-  const abrirEditarManzana = (manzana, event) => {
-    event?.stopPropagation();
-
-    setManzanaEditar(manzana);
-    setModalManzanaAbierto(true);
-  };
-
-  const cerrarModalManzana = () => {
-    if (guardandoManzana) {
-      return;
-    }
-
-    setModalManzanaAbierto(false);
-    setManzanaEditar(null);
-  };
+      setManzanaEditar(
+        null
+      );
+    };
 
   /* =======================================================
      GUARDAR MANZANA
   ======================================================= */
 
-  const guardarManzana = async (datos) => {
-    try {
-      setGuardandoManzana(true);
+  const guardarManzana =
+    async (
+      datos
+    ) => {
+      try {
+        setGuardandoManzana(
+          true
+        );
 
-      let respuesta;
+        let respuesta;
 
-      if (manzanaEditar?._id) {
-        respuesta = await actualizarManzana(manzanaEditar._id, datos);
-      } else {
-        respuesta = await crearManzana(datos);
+        const esEdicion =
+          Boolean(
+            manzanaEditar?._id
+          );
+
+        if (
+          esEdicion
+        ) {
+          respuesta =
+            await actualizarManzana(
+              manzanaEditar._id,
+              datos
+            );
+        } else {
+          respuesta =
+            await crearManzana(
+              datos
+            );
+        }
+
+        await cargarManzanas();
+
+        setModalManzanaAbierto(
+          false
+        );
+
+        setManzanaEditar(
+          null
+        );
+
+        if (
+          respuesta?.manzana?._id
+        ) {
+          setManzanaSeleccionada(
+            respuesta.manzana._id
+          );
+        }
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            (
+              esEdicion
+                ? "Manzana actualizada correctamente"
+                : "Manzana creada correctamente"
+            )
+        );
+      } catch (error) {
+        console.error(
+          "Error guardando manzana:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible guardar la manzana.",
+          "error"
+        );
+      } finally {
+        setGuardandoManzana(
+          false
+        );
       }
-
-      await cargarManzanas();
-
-      setModalManzanaAbierto(false);
-      setManzanaEditar(null);
-
-      if (respuesta?.manzana?._id) {
-        setManzanaSeleccionada(respuesta.manzana._id);
-      }
-
-      mostrarNotificacion(
-        respuesta?.message ||
-          (manzanaEditar
-            ? "Manzana actualizada correctamente"
-            : "Manzana creada correctamente")
-      );
-    } catch (error) {
-      console.error("Error guardando manzana:", error);
-
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible guardar la manzana.",
-        "error"
-      );
-    } finally {
-      setGuardandoManzana(false);
-    }
-  };
+    };
 
   /* =======================================================
      ELIMINAR MANZANA
   ======================================================= */
 
-  const handleEliminarManzana = async (manzana, event) => {
-    event?.stopPropagation();
+  const handleEliminarManzana =
+    async (
+      manzana,
+      event
+    ) => {
+      event?.stopPropagation();
 
-    const cantidad = contarLotesManzana(manzana._id);
+      const cantidad =
+        contarLotesManzana(
+          manzana._id
+        );
 
-    if (cantidad > 0) {
-      mostrarNotificacion(
-        `No se puede eliminar ${manzana.nombre} porque contiene ${cantidad} lote${cantidad === 1 ? "" : "s"}.`,
-        "error"
-      );
+      if (
+        cantidad > 0
+      ) {
+        mostrarNotificacion(
+          `No se puede eliminar ${manzana.nombre} porque contiene ${cantidad} lote${cantidad === 1 ? "" : "s"}.`,
+          "error"
+        );
 
-      return;
-    }
-
-    const confirmar = window.confirm(
-      `¿Está seguro de eliminar ${manzana.nombre}?`
-    );
-
-    if (!confirmar) {
-      return;
-    }
-
-    try {
-      const respuesta = await eliminarManzana(manzana._id);
-
-      if (manzanaSeleccionada === manzana._id) {
-        setManzanaSeleccionada("");
+        return;
       }
 
-      await cargarManzanas();
+      const confirmar =
+        window.confirm(
+          `¿Está seguro de eliminar ${manzana.nombre}?`
+        );
 
-      mostrarNotificacion(
-        respuesta?.message || "Manzana eliminada correctamente"
-      );
-    } catch (error) {
-      console.error("Error eliminando manzana:", error);
+      if (
+        !confirmar
+      ) {
+        return;
+      }
 
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible eliminar la manzana.",
-        "error"
-      );
-    }
-  };
+      try {
+        const respuesta =
+          await eliminarManzana(
+            manzana._id
+          );
+
+        if (
+          manzanaSeleccionada ===
+          manzana._id
+        ) {
+          setManzanaSeleccionada(
+            ""
+          );
+        }
+
+        await cargarManzanas();
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Manzana eliminada correctamente"
+        );
+      } catch (error) {
+        console.error(
+          "Error eliminando manzana:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible eliminar la manzana.",
+          "error"
+        );
+      }
+    };
 
   /* =======================================================
      NUEVO LOTE
   ======================================================= */
 
-  const abrirNuevoLote = () => {
-    if (!manzanaSeleccionada) {
-      mostrarNotificacion(
-        "Primero debe seleccionar una manzana.",
-        "info"
+  const abrirNuevoLote =
+    () => {
+      if (
+        !manzanaSeleccionada
+      ) {
+        mostrarNotificacion(
+          "Primero debe seleccionar una manzana.",
+          "info"
+        );
+
+        return;
+      }
+
+      if (
+        manzanaActual?.estado !==
+        "Activa"
+      ) {
+        mostrarNotificacion(
+          "No puede crear lotes dentro de una manzana inactiva.",
+          "error"
+        );
+
+        return;
+      }
+
+      setLoteEditar(
+        null
       );
 
-      return;
-    }
-
-    if (manzanaActual?.estado !== "Activa") {
-      mostrarNotificacion(
-        "No puede crear lotes dentro de una manzana inactiva.",
-        "error"
+      setModalLoteAbierto(
+        true
       );
-
-      return;
-    }
-
-    setLoteEditar(null);
-    setModalLoteAbierto(true);
-  };
+    };
 
   /* =======================================================
      EDITAR LOTE
 
      Disponible / Reservado:
-     abre edición normalmente.
+     → abre edición.
 
      Vendido:
-     primero consulta la venta activa.
+     → consulta la venta relacionada.
+     → pide eliminar la venta antes de editar.
   ======================================================= */
 
-  const abrirEditarLote = async (lote) => {
-    /*
-      Si NO está vendido,
-      editamos normalmente.
-    */
+  const abrirEditarLote =
+    async (
+      lote
+    ) => {
+      if (
+        lote.estado !==
+        "Vendido"
+      ) {
+        setLoteEditar(
+          lote
+        );
 
-    if (lote.estado !== "Vendido") {
-      setLoteEditar(lote);
-      setModalLoteAbierto(true);
-      return;
-    }
+        setModalLoteAbierto(
+          true
+        );
 
-    /*
-      Si está vendido,
-      debemos anular primero
-      la venta relacionada.
-    */
+        return;
+      }
 
-    try {
-      setProcesandoAnulacion(true);
+      try {
+        setProcesandoEliminacion(
+          true
+        );
 
-      const venta = await obtenerVentaActivaPorLote(lote._id);
+        const venta =
+          await obtenerVentaActivaPorLote(
+            lote._id
+          );
 
-      setVentaParaAnular(venta);
-      setLotePendienteEditar(lote);
-      setMotivoAnulacion("");
-      setModalAnulacionAbierto(true);
-    } catch (error) {
-      console.error("Error consultando venta del lote:", error);
+        setVentaParaEliminar(
+          venta
+        );
 
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible consultar la venta asociada a este lote.",
-        "error"
-      );
-    } finally {
-      setProcesandoAnulacion(false);
-    }
-  };
+        setLotePendienteEditar(
+          lote
+        );
 
-  /* =========================================================
-     CERRAR MODAL DE ANULACIÓN
-  ========================================================= */
+        setModalEliminarVentaAbierto(
+          true
+        );
+      } catch (error) {
+        console.error(
+          "Error consultando venta del lote:",
+          error
+        );
 
-  const cerrarModalAnulacion = () => {
-    if (procesandoAnulacion) {
-      return;
-    }
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible consultar la venta asociada a este lote.",
+          "error"
+        );
+      } finally {
+        setProcesandoEliminacion(
+          false
+        );
+      }
+    };
 
-    setModalAnulacionAbierto(false);
-    setVentaParaAnular(null);
-    setLotePendienteEditar(null);
-    setMotivoAnulacion("");
-  };
+  /* =======================================================
+     CERRAR MODAL ELIMINAR VENTA
+  ======================================================= */
 
-  /* =========================================================
-     NOMBRE DEL CLIENTE
-  ========================================================= */
+  const cerrarModalEliminarVenta =
+    () => {
+      if (
+        procesandoEliminacion
+      ) {
+        return;
+      }
 
-  const obtenerNombreVentaCliente = (cliente) => {
-    if (!cliente) {
-      return "Cliente";
-    }
-
-    return (
-      [cliente.nombres, cliente.apellidos]
-        .filter(Boolean)
-        .join(" ")
-        .trim() ||
-      cliente.nombre ||
-      "Cliente"
-    );
-  };
-
-  /* =========================================================
-     ANULAR VENTA Y ABRIR EDICIÓN DEL LOTE
-  ========================================================= */
-
-  const confirmarAnulacionYEditar = async () => {
-    const motivo = motivoAnulacion.trim();
-
-    if (!motivo) {
-      mostrarNotificacion(
-        "Debe escribir el motivo de la anulación.",
-        "error"
+      setModalEliminarVentaAbierto(
+        false
       );
 
-      return;
-    }
-
-    if (motivo.length < 5) {
-      mostrarNotificacion(
-        "El motivo de anulación debe ser más descriptivo.",
-        "error"
+      setVentaParaEliminar(
+        null
       );
 
-      return;
-    }
-
-    if (!ventaParaAnular?._id || !lotePendienteEditar?._id) {
-      mostrarNotificacion(
-        "No fue posible identificar la venta o el lote.",
-        "error"
+      setLotePendienteEditar(
+        null
       );
+    };
 
-      return;
-    }
+  /* =======================================================
+     ELIMINAR VENTA Y ABRIR EDICIÓN DEL LOTE
 
-    try {
-      setProcesandoAnulacion(true);
+     Backend:
+     - si existen pagos → bloquea eliminación
+     - si no existen pagos:
+       * elimina cuotas
+       * elimina venta
+       * lote vuelve a Disponible
+  ======================================================= */
 
-      const respuesta = await anularVenta(
-        ventaParaAnular._id,
-        motivo
+  const confirmarEliminarVentaYEditar =
+    async () => {
+      if (
+        !ventaParaEliminar?._id ||
+        !lotePendienteEditar?._id
+      ) {
+        mostrarNotificacion(
+          "No fue posible identificar la venta o el lote.",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+        setProcesandoEliminacion(
+          true
+        );
+
+        const respuesta =
+          await eliminarVenta(
+            ventaParaEliminar._id
+          );
+
+        /*
+          Actualizamos los lotes después de eliminar
+          la venta para obtener el estado real del lote.
+        */
+
+        const lotesActualizados =
+          await cargarLotes();
+
+        const loteActualizado =
+          lotesActualizados.find(
+            (lote) =>
+              lote._id ===
+              lotePendienteEditar._id
+          );
+
+        /*
+          Cerramos confirmación.
+        */
+
+        setModalEliminarVentaAbierto(
+          false
+        );
+
+        setVentaParaEliminar(
+          null
+        );
+
+        /*
+          Abrimos inmediatamente la edición del lote.
+        */
+
+        setLoteEditar(
+          loteActualizado || {
+            ...lotePendienteEditar,
+            estado:
+              "Disponible",
+          }
+        );
+
+        setLotePendienteEditar(
+          null
+        );
+
+        setModalLoteAbierto(
+          true
+        );
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Venta eliminada. Ya puede editar los datos del lote.",
+          "success"
+        );
+      } catch (error) {
+        console.error(
+          "Error eliminando venta:",
+          error
+        );
+
+        /*
+          Si existen pagos, aquí llegará el mensaje
+          del backend indicando que deben eliminarse primero.
+        */
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible eliminar la venta.",
+          "error"
+        );
+      } finally {
+        setProcesandoEliminacion(
+          false
+        );
+      }
+    };
+
+  /* =======================================================
+     CERRAR MODAL LOTE
+  ======================================================= */
+
+  const cerrarModalLote =
+    () => {
+      if (
+        guardandoLote
+      ) {
+        return;
+      }
+
+      setModalLoteAbierto(
+        false
       );
-
-      /*
-        La venta ya fue anulada
-        y el backend dejó el lote
-        nuevamente Disponible.
-      */
-
-      const lotesActualizados = await cargarLotes();
-
-      const loteActualizado = lotesActualizados.find(
-        (lote) => lote._id === lotePendienteEditar._id
-      );
-
-      /*
-        Cerramos modal de anulación.
-      */
-
-      setModalAnulacionAbierto(false);
-      setVentaParaAnular(null);
-      setMotivoAnulacion("");
-
-      /*
-        Abrimos inmediatamente
-        la edición del lote.
-      */
 
       setLoteEditar(
-        loteActualizado || {
-          ...lotePendienteEditar,
-          estado: "Disponible",
-        }
+        null
       );
-
-      setLotePendienteEditar(null);
-      setModalLoteAbierto(true);
-
-      mostrarNotificacion(
-        respuesta?.message ||
-          "Venta anulada. Ya puede corregir los datos del lote."
-      );
-    } catch (error) {
-      console.error("Error anulando venta:", error);
-
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible anular la venta.",
-        "error"
-      );
-    } finally {
-      setProcesandoAnulacion(false);
-    }
-  };
-
-  const cerrarModalLote = () => {
-    if (guardandoLote) {
-      return;
-    }
-
-    setModalLoteAbierto(false);
-    setLoteEditar(null);
-  };
+    };
 
   /* =======================================================
      GUARDAR LOTE
   ======================================================= */
 
-  const guardarLote = async (datos) => {
-    try {
-      setGuardandoLote(true);
+  const guardarLote =
+    async (
+      datos
+    ) => {
+      try {
+        setGuardandoLote(
+          true
+        );
 
-      let respuesta;
+        let respuesta;
 
-      if (loteEditar?._id) {
-        respuesta = await actualizarLote(loteEditar._id, datos);
-      } else {
-        respuesta = await crearLote(datos);
+        const esEdicion =
+          Boolean(
+            loteEditar?._id
+          );
+
+        if (
+          esEdicion
+        ) {
+          respuesta =
+            await actualizarLote(
+              loteEditar._id,
+              datos
+            );
+        } else {
+          respuesta =
+            await crearLote(
+              datos
+            );
+        }
+
+        await cargarLotes();
+
+        setModalLoteAbierto(
+          false
+        );
+
+        setLoteEditar(
+          null
+        );
+
+        if (
+          datos.manzana
+        ) {
+          setManzanaSeleccionada(
+            datos.manzana
+          );
+        }
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            (
+              esEdicion
+                ? "Lote actualizado correctamente"
+                : "Lote creado correctamente"
+            )
+        );
+      } catch (error) {
+        console.error(
+          "Error guardando lote:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible guardar el lote.",
+          "error"
+        );
+      } finally {
+        setGuardandoLote(
+          false
+        );
       }
-
-      await cargarLotes();
-
-      setModalLoteAbierto(false);
-      setLoteEditar(null);
-
-      if (datos.manzana) {
-        setManzanaSeleccionada(datos.manzana);
-      }
-
-      mostrarNotificacion(
-        respuesta?.message ||
-          (loteEditar
-            ? "Lote actualizado correctamente"
-            : "Lote creado correctamente")
-      );
-    } catch (error) {
-      console.error("Error guardando lote:", error);
-
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible guardar el lote.",
-        "error"
-      );
-    } finally {
-      setGuardandoLote(false);
-    }
-  };
+    };
 
   /* =======================================================
      ELIMINAR LOTE
   ======================================================= */
 
-  const handleEliminarLote = async (lote) => {
-    if (lote.estado === "Vendido") {
-      mostrarNotificacion(
-        "Un lote vendido no puede eliminarse.",
-        "error"
-      );
+  const handleEliminarLote =
+    async (
+      lote
+    ) => {
+      if (
+        lote.estado ===
+        "Vendido"
+      ) {
+        mostrarNotificacion(
+          "Un lote vendido no puede eliminarse mientras tenga una venta asociada.",
+          "error"
+        );
 
-      return;
-    }
+        return;
+      }
 
-    const confirmar = window.confirm(
-      `¿Está seguro de eliminar el lote ${lote.codigo}?`
-    );
+      const confirmar =
+        window.confirm(
+          `¿Está seguro de eliminar el lote ${lote.codigo}?`
+        );
 
-    if (!confirmar) {
-      return;
-    }
+      if (
+        !confirmar
+      ) {
+        return;
+      }
 
-    try {
-      const respuesta = await eliminarLote(lote._id);
+      try {
+        const respuesta =
+          await eliminarLote(
+            lote._id
+          );
 
-      await cargarLotes();
+        await cargarLotes();
 
-      mostrarNotificacion(
-        respuesta?.message || "Lote eliminado correctamente"
-      );
-    } catch (error) {
-      console.error("Error eliminando lote:", error);
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Lote eliminado correctamente"
+        );
+      } catch (error) {
+        console.error(
+          "Error eliminando lote:",
+          error
+        );
 
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible eliminar el lote.",
-        "error"
-      );
-    }
-  };
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible eliminar el lote.",
+          "error"
+        );
+      }
+    };
 
   /* =======================================================
      ACTUALIZAR
   ======================================================= */
 
-  const actualizarTodo = async () => {
-    await Promise.all([
-      cargarManzanas(),
-      cargarLotes(),
-    ]);
-  };
+  const actualizarTodo =
+    async () => {
+      await Promise.all([
+        cargarManzanas(),
+        cargarLotes(),
+      ]);
+    };
 
   /* =======================================================
      RENDER
@@ -767,11 +1163,13 @@ export default function Lotes() {
 
   return (
     <section className="lotes-page">
+
       {/* =================================================
           CABECERA
       ================================================= */}
 
       <div className="lotes-header">
+
         <div>
           <span className="lotes-kicker">
             Gestión del proyecto
@@ -789,12 +1187,17 @@ export default function Lotes() {
         </div>
 
         <div className="lotes-header-actions">
+
           <button
             type="button"
             className="lotes-secondary-action"
-            onClick={abrirNuevaManzana}
+            onClick={
+              abrirNuevaManzana
+            }
           >
-            <Building2 size={18} />
+            <Building2
+              size={18}
+            />
 
             Nueva manzana
           </button>
@@ -802,12 +1205,17 @@ export default function Lotes() {
           <button
             type="button"
             className="lotes-primary-action"
-            onClick={abrirNuevoLote}
+            onClick={
+              abrirNuevoLote
+            }
           >
-            <Plus size={19} />
+            <Plus
+              size={19}
+            />
 
             Nuevo lote
           </button>
+
         </div>
       </div>
 
@@ -816,6 +1224,7 @@ export default function Lotes() {
       ================================================= */}
 
       <div className="lotes-section-heading">
+
         <div>
           <span>
             Organización
@@ -828,15 +1237,21 @@ export default function Lotes() {
 
         <strong>
           {manzanas.length}{" "}
-          {manzanas.length === 1
+          {manzanas.length ===
+          1
             ? "manzana"
             : "manzanas"}
         </strong>
+
       </div>
 
-      {manzanas.length === 0 ? (
+      {manzanas.length ===
+      0 ? (
         <div className="manzanas-empty">
-          <Building2 size={38} />
+
+          <Building2
+            size={38}
+          />
 
           <strong>
             No hay manzanas creadas
@@ -849,107 +1264,151 @@ export default function Lotes() {
 
           <button
             type="button"
-            onClick={abrirNuevaManzana}
+            onClick={
+              abrirNuevaManzana
+            }
           >
-            <Plus size={17} />
+            <Plus
+              size={17}
+            />
+
             Crear primera manzana
           </button>
+
         </div>
       ) : (
         <div className="manzanas-grid">
-          {manzanas.map((manzana) => {
-            const cantidad = contarLotesManzana(manzana._id);
 
-            const activa = manzana._id === manzanaSeleccionada;
+          {manzanas.map(
+            (manzana) => {
+              const cantidad =
+                contarLotesManzana(
+                  manzana._id
+                );
 
-            return (
-              <article
-                key={manzana._id}
-                className={`manzana-card ${
-                  activa
-                    ? "manzana-card-active"
-                    : ""
-                }`}
-                onClick={() =>
-                  setManzanaSeleccionada(manzana._id)
-                }
-              >
-                <div className="manzana-card-top">
-                  <div className="manzana-card-icon">
-                    <Building2 size={20} />
-                  </div>
+              const activa =
+                manzana._id ===
+                manzanaSeleccionada;
 
-                  <span
-                    className={`manzana-status ${
-                      manzana.estado === "Activa"
-                        ? "activa"
-                        : "inactiva"
-                    }`}
-                  >
-                    {manzana.estado}
-                  </span>
-                </div>
+              return (
+                <article
+                  key={
+                    manzana._id
+                  }
+                  className={`manzana-card ${
+                    activa
+                      ? "manzana-card-active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    setManzanaSeleccionada(
+                      manzana._id
+                    )
+                  }
+                >
 
-                <span className="manzana-code">
-                  {manzana.codigo}
-                </span>
+                  <div className="manzana-card-top">
 
-                <h3>
-                  {manzana.nombre}
-                </h3>
+                    <div className="manzana-card-icon">
+                      <Building2
+                        size={20}
+                      />
+                    </div>
 
-                <p>
-                  {manzana.descripcion ||
-                    "Sin descripción"}
-                </p>
-
-                <div className="manzana-card-bottom">
-                  <div>
-                    <strong>
-                      {cantidad}
-                    </strong>
-
-                    <span>
-                      {cantidad === 1
-                        ? "lote"
-                        : "lotes"}
+                    <span
+                      className={`manzana-status ${
+                        manzana.estado ===
+                        "Activa"
+                          ? "activa"
+                          : "inactiva"
+                      }`}
+                    >
+                      {
+                        manzana.estado
+                      }
                     </span>
+
                   </div>
 
-                  <div className="manzana-card-actions">
-                    <button
-                      type="button"
-                      title="Editar manzana"
-                      onClick={(event) =>
-                        abrirEditarManzana(
-                          manzana,
-                          event
-                        )
-                      }
-                    >
-                      <Edit3 size={16} />
-                    </button>
+                  <span className="manzana-code">
+                    {
+                      manzana.codigo
+                    }
+                  </span>
 
-                    <button
-                      type="button"
-                      className="delete"
-                      title="Eliminar manzana"
-                      onClick={(event) =>
-                        handleEliminarManzana(
-                          manzana,
-                          event
-                        )
-                      }
-                    >
-                      <Trash2 size={16} />
-                    </button>
+                  <h3>
+                    {
+                      manzana.nombre
+                    }
+                  </h3>
 
-                    <ChevronRight size={18} />
+                  <p>
+                    {manzana.descripcion ||
+                      "Sin descripción"}
+                  </p>
+
+                  <div className="manzana-card-bottom">
+
+                    <div>
+                      <strong>
+                        {
+                          cantidad
+                        }
+                      </strong>
+
+                      <span>
+                        {cantidad ===
+                        1
+                          ? "lote"
+                          : "lotes"}
+                      </span>
+                    </div>
+
+                    <div className="manzana-card-actions">
+
+                      <button
+                        type="button"
+                        title="Editar manzana"
+                        onClick={(event) =>
+                          abrirEditarManzana(
+                            manzana,
+                            event
+                          )
+                        }
+                      >
+                        <Edit3
+                          size={16}
+                        />
+                      </button>
+
+                      <button
+                        type="button"
+                        className="delete"
+                        title="Eliminar manzana"
+                        onClick={(event) =>
+                          handleEliminarManzana(
+                            manzana,
+                            event
+                          )
+                        }
+                      >
+                        <Trash2
+                          size={16}
+                        />
+                      </button>
+
+                      <ChevronRight
+                        size={18}
+                      />
+
+                    </div>
                   </div>
-                </div>
-              </article>
-            );
-          })}
+
+                </article>
+              );
+            }
+          )}
+
         </div>
       )}
 
@@ -959,36 +1418,54 @@ export default function Lotes() {
 
       {manzanaActual && (
         <>
+
           <div className="lotes-current-heading">
+
             <div>
+
               <div className="lotes-current-title">
-                <LandPlot size={22} />
+
+                <LandPlot
+                  size={22}
+                />
 
                 <div>
                   <span>
-                    {manzanaActual.codigo}
+                    {
+                      manzanaActual.codigo
+                    }
                   </span>
 
                   <h2>
-                    {manzanaActual.nombre}
+                    {
+                      manzanaActual.nombre
+                    }
                   </h2>
                 </div>
+
               </div>
 
               <p>
                 {manzanaActual.descripcion ||
                   "Lotes registrados dentro de esta manzana."}
               </p>
+
             </div>
 
             <button
               type="button"
               className="lotes-add-inside-button"
-              onClick={abrirNuevoLote}
+              onClick={
+                abrirNuevoLote
+              }
             >
-              <Plus size={18} />
+              <Plus
+                size={18}
+              />
+
               Crear lote aquí
             </button>
+
           </div>
 
           {/* =============================================
@@ -996,13 +1473,16 @@ export default function Lotes() {
           ============================================= */}
 
           <div className="lotes-stats">
+
             <article className="lotes-stat">
               <span>
                 Total lotes
               </span>
 
               <strong>
-                {estadisticas.total}
+                {
+                  estadisticas.total
+                }
               </strong>
             </article>
 
@@ -1012,7 +1492,9 @@ export default function Lotes() {
               </span>
 
               <strong>
-                {estadisticas.disponibles}
+                {
+                  estadisticas.disponibles
+                }
               </strong>
             </article>
 
@@ -1022,7 +1504,9 @@ export default function Lotes() {
               </span>
 
               <strong>
-                {estadisticas.reservados}
+                {
+                  estadisticas.reservados
+                }
               </strong>
             </article>
 
@@ -1032,7 +1516,9 @@ export default function Lotes() {
               </span>
 
               <strong>
-                {estadisticas.vendidos}
+                {
+                  estadisticas.vendidos
+                }
               </strong>
             </article>
 
@@ -1047,6 +1533,7 @@ export default function Lotes() {
                 )}
               </strong>
             </article>
+
           </div>
 
           {/* =============================================
@@ -1054,25 +1541,40 @@ export default function Lotes() {
           ============================================= */}
 
           <div className="lotes-panel">
+
             <div className="lotes-toolbar">
+
               <div className="lotes-search">
-                <Search size={18} />
+
+                <Search
+                  size={18}
+                />
 
                 <input
                   type="text"
-                  value={busqueda}
+                  value={
+                    busqueda
+                  }
                   onChange={(e) =>
-                    setBusqueda(e.target.value)
+                    setBusqueda(
+                      e.target.value
+                    )
                   }
                   placeholder="Buscar por código, número u observación..."
                 />
+
               </div>
 
               <div className="lotes-toolbar-right">
+
                 <select
-                  value={filtroEstado}
+                  value={
+                    filtroEstado
+                  }
                   onChange={(e) =>
-                    setFiltroEstado(e.target.value)
+                    setFiltroEstado(
+                      e.target.value
+                    )
                   }
                 >
                   <option value="">
@@ -1095,7 +1597,9 @@ export default function Lotes() {
                 <button
                   type="button"
                   className="lotes-refresh-button"
-                  onClick={actualizarTodo}
+                  onClick={
+                    actualizarTodo
+                  }
                   title="Actualizar"
                 >
                   <RefreshCw
@@ -1107,6 +1611,7 @@ export default function Lotes() {
                     }
                   />
                 </button>
+
               </div>
             </div>
 
@@ -1115,15 +1620,35 @@ export default function Lotes() {
             ============================================= */}
 
             <div className="lotes-table-wrapper">
+
               <table className="lotes-table">
+
                 <thead>
                   <tr>
-                    <th>Lote</th>
-                    <th>Medidas</th>
-                    <th>Área</th>
-                    <th>Valor general</th>
-                    <th>Estado</th>
-                    <th>Observaciones</th>
+                    <th>
+                      Lote
+                    </th>
+
+                    <th>
+                      Medidas
+                    </th>
+
+                    <th>
+                      Área
+                    </th>
+
+                    <th>
+                      Valor general
+                    </th>
+
+                    <th>
+                      Estado
+                    </th>
+
+                    <th>
+                      Observaciones
+                    </th>
+
                     <th className="lotes-actions-heading">
                       Acciones
                     </th>
@@ -1131,6 +1656,7 @@ export default function Lotes() {
                 </thead>
 
                 <tbody>
+
                   {cargando ? (
                     <tr>
                       <td
@@ -1147,13 +1673,16 @@ export default function Lotes() {
                         </span>
                       </td>
                     </tr>
-                  ) : lotesFiltrados.length === 0 ? (
+                  ) : lotesFiltrados.length ===
+                    0 ? (
                     <tr>
                       <td
                         colSpan="7"
                         className="lotes-empty"
                       >
-                        <LandPlot size={34} />
+                        <LandPlot
+                          size={34}
+                        />
 
                         <strong>
                           No hay lotes
@@ -1167,133 +1696,183 @@ export default function Lotes() {
                       </td>
                     </tr>
                   ) : (
-                    lotesFiltrados.map((lote) => (
-                      <tr key={lote._id}>
-                        {/* LOTE */}
+                    lotesFiltrados.map(
+                      (lote) => (
+                        <tr
+                          key={
+                            lote._id
+                          }
+                        >
 
-                        <td>
-                          <div className="lote-main-cell">
-                            <div className="lote-main-icon">
-                              <LandPlot size={18} />
+                          {/* LOTE */}
+
+                          <td>
+                            <div className="lote-main-cell">
+
+                              <div className="lote-main-icon">
+                                <LandPlot
+                                  size={18}
+                                />
+                              </div>
+
+                              <div>
+                                <strong>
+                                  {
+                                    lote.codigo
+                                  }
+                                </strong>
+
+                                <span>
+                                  Lote{" "}
+                                  {
+                                    lote.numeroLote
+                                  }
+                                </span>
+                              </div>
+
                             </div>
+                          </td>
 
-                            <div>
-                              <strong>
-                                {lote.codigo}
-                              </strong>
+                          {/* MEDIDAS */}
+
+                          <td>
+                            <div className="lote-medidas-table">
 
                               <span>
-                                Lote {lote.numeroLote}
+                                <strong>
+                                  Frente:
+                                </strong>{" "}
+                                {lote.frenteMetros} m{" "}
+                                {lote.frenteCentimetros} cm
                               </span>
+
+                              <span>
+                                <strong>
+                                  Fondo:
+                                </strong>{" "}
+                                {lote.fondoMetros} m{" "}
+                                {lote.fondoCentimetros} cm
+                              </span>
+
                             </div>
-                          </div>
-                        </td>
+                          </td>
 
-                        {/* MEDIDAS */}
+                          {/* ÁREA */}
 
-                        <td>
-                          <div className="lote-medidas-table">
-                            <span>
-                              <strong>
-                                Frente:
-                              </strong>{" "}
-                              {lote.frenteMetros} m{" "}
-                              {lote.frenteCentimetros} cm
-                            </span>
+                          <td>
+                            <strong className="lote-area-table">
+                              {formatearArea(
+                                lote.areaM2
+                              )}{" "}
+                              m²
+                            </strong>
+                          </td>
 
-                            <span>
-                              <strong>
-                                Fondo:
-                              </strong>{" "}
-                              {lote.fondoMetros} m{" "}
-                              {lote.fondoCentimetros} cm
-                            </span>
-                          </div>
-                        </td>
+                          {/* VALOR */}
 
-                        {/* ÁREA */}
+                          <td>
+                            <strong className="lote-value-table">
+                              {formatearDinero(
+                                lote.valorLote
+                              )}
+                            </strong>
+                          </td>
 
-                        <td>
-                          <strong className="lote-area-table">
-                            {formatearArea(lote.areaM2)} m²
-                          </strong>
-                        </td>
+                          {/* ESTADO */}
 
-                        {/* VALOR */}
-
-                        <td>
-                          <strong className="lote-value-table">
-                            {formatearDinero(lote.valorLote)}
-                          </strong>
-                        </td>
-
-                        {/* ESTADO */}
-
-                        <td>
-                          <span
-                            className={`lote-status lote-status-${lote.estado.toLowerCase()}`}
-                          >
-                            {lote.estado}
-                          </span>
-                        </td>
-
-                        {/* OBSERVACIÓN */}
-
-                        <td>
-                          {lote.observaciones ? (
-                            <span className="lote-observation">
-                              {lote.observaciones}
-                            </span>
-                          ) : (
-                            <span className="lote-muted">
-                              Sin observación
-                            </span>
-                          )}
-                        </td>
-
-                        {/* ACCIONES */}
-
-                        <td>
-                          <div className="lotes-actions">
-                            <button
-                              type="button"
-                              className="edit"
-                              title="Editar lote"
-                              onClick={() =>
-                                abrirEditarLote(lote)
-                              }
+                          <td>
+                            <span
+                              className={`lote-status lote-status-${lote.estado.toLowerCase()}`}
                             >
-                              <Edit3 size={16} />
-                            </button>
-
-                            <button
-                              type="button"
-                              className="delete"
-                              title="Eliminar lote"
-                              onClick={() =>
-                                handleEliminarLote(lote)
+                              {
+                                lote.estado
                               }
-                            >
-                              <Trash2 size={16} />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
+                            </span>
+                          </td>
+
+                          {/* OBSERVACIÓN */}
+
+                          <td>
+                            {lote.observaciones ? (
+                              <span className="lote-observation">
+                                {
+                                  lote.observaciones
+                                }
+                              </span>
+                            ) : (
+                              <span className="lote-muted">
+                                Sin observación
+                              </span>
+                            )}
+                          </td>
+
+                          {/* ACCIONES */}
+
+                          <td>
+                            <div className="lotes-actions">
+
+                              <button
+                                type="button"
+                                className="edit"
+                                title={
+                                  lote.estado ===
+                                  "Vendido"
+                                    ? "Editar lote eliminando primero la venta"
+                                    : "Editar lote"
+                                }
+                                onClick={() =>
+                                  abrirEditarLote(
+                                    lote
+                                  )
+                                }
+                              >
+                                <Edit3
+                                  size={16}
+                                />
+                              </button>
+
+                              <button
+                                type="button"
+                                className="delete"
+                                title="Eliminar lote"
+                                onClick={() =>
+                                  handleEliminarLote(
+                                    lote
+                                  )
+                                }
+                              >
+                                <Trash2
+                                  size={16}
+                                />
+                              </button>
+
+                            </div>
+                          </td>
+
+                        </tr>
+                      )
+                    )
                   )}
+
                 </tbody>
               </table>
+
             </div>
 
             <div className="lotes-table-footer">
+
               <span>
                 Mostrando{" "}
                 <strong>
-                  {lotesFiltrados.length}
+                  {
+                    lotesFiltrados.length
+                  }
                 </strong>{" "}
                 de{" "}
                 <strong>
-                  {lotesManzana.length}
+                  {
+                    lotesManzana.length
+                  }
                 </strong>{" "}
                 lotes
               </span>
@@ -1303,11 +1882,15 @@ export default function Lotes() {
                 <strong>
                   {formatearArea(
                     estadisticas.areaTotal
-                  )} m²
+                  )}{" "}
+                  m²
                 </strong>
               </span>
+
             </div>
+
           </div>
+
         </>
       )}
 
@@ -1316,11 +1899,21 @@ export default function Lotes() {
       ================================================= */}
 
       <ManzanaModal
-        abierto={modalManzanaAbierto}
-        onCerrar={cerrarModalManzana}
-        onGuardar={guardarManzana}
-        manzanaEditar={manzanaEditar}
-        guardando={guardandoManzana}
+        abierto={
+          modalManzanaAbierto
+        }
+        onCerrar={
+          cerrarModalManzana
+        }
+        onGuardar={
+          guardarManzana
+        }
+        manzanaEditar={
+          manzanaEditar
+        }
+        guardando={
+          guardandoManzana
+        }
       />
 
       {/* =================================================
@@ -1328,29 +1921,57 @@ export default function Lotes() {
       ================================================= */}
 
       <LoteModal
-        abierto={modalLoteAbierto}
-        onCerrar={cerrarModalLote}
-        onGuardar={guardarLote}
-        loteEditar={loteEditar}
-        guardando={guardandoLote}
-        manzanas={manzanas}
-        manzanaInicial={manzanaSeleccionada}
+        abierto={
+          modalLoteAbierto
+        }
+        onCerrar={
+          cerrarModalLote
+        }
+        onGuardar={
+          guardarLote
+        }
+        loteEditar={
+          loteEditar
+        }
+        guardando={
+          guardandoLote
+        }
+        manzanas={
+          manzanas
+        }
+        manzanaInicial={
+          manzanaSeleccionada
+        }
       />
 
       {/* =================================================
-          ANULAR VENTA PARA EDITAR LOTE
+          ELIMINAR VENTA PARA EDITAR LOTE
       ================================================= */}
 
-      {modalAnulacionAbierto && (
-        <div className="lotes-modal-overlay">
-          <div className="lotes-modal anulacion-lote-modal">
+      {modalEliminarVentaAbierto && (
+        <div
+          className="lotes-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target ===
+              e.currentTarget
+            ) {
+              cerrarModalEliminarVenta();
+            }
+          }}
+        >
+          <div className="lotes-modal eliminar-venta-lote-modal">
 
             {/* CABECERA */}
 
             <div className="lotes-modal-header">
+
               <div className="lotes-modal-title">
-                <div className="anulacion-lote-icon">
-                  <AlertTriangle size={21} />
+
+                <div className="eliminar-venta-lote-icon">
+                  <Trash2
+                    size={21}
+                  />
                 </div>
 
                 <div>
@@ -1359,50 +1980,62 @@ export default function Lotes() {
                   </span>
 
                   <h2>
-                    Anular venta para editar
+                    Eliminar venta para editar
                   </h2>
                 </div>
+
               </div>
 
               <button
                 type="button"
                 className="lotes-modal-close"
-                onClick={cerrarModalAnulacion}
-                disabled={procesandoAnulacion}
+                onClick={
+                  cerrarModalEliminarVenta
+                }
+                disabled={
+                  procesandoEliminacion
+                }
               >
-                <X size={20} />
+                <X
+                  size={20}
+                />
               </button>
+
             </div>
 
             {/* CUERPO */}
 
             <div className="lotes-modal-body">
-              <div className="anulacion-lote-warning">
-                <AlertTriangle size={22} />
+
+              <div className="eliminar-venta-lote-warning">
+
+                <AlertTriangle
+                  size={22}
+                />
 
                 <div>
                   <strong>
-                    Este lote ya tiene
-                    una venta registrada
+                    Este lote tiene una venta registrada
                   </strong>
 
                   <span>
-                    Para modificar sus
-                    datos primero debe
-                    anularse la venta
-                    asociada.
+                    Para modificar los datos del lote,
+                    primero debe eliminarse la venta asociada.
                   </span>
                 </div>
+
               </div>
 
-              <div className="anulacion-lote-info">
+              <div className="eliminar-venta-lote-info">
+
                 <div>
                   <span>
                     Venta
                   </span>
 
                   <strong>
-                    {ventaParaAnular?.codigo || "—"}
+                    {ventaParaEliminar?.codigo ||
+                      "—"}
                   </strong>
                 </div>
 
@@ -1412,7 +2045,8 @@ export default function Lotes() {
                   </span>
 
                   <strong>
-                    {lotePendienteEditar?.codigo || "—"}
+                    {lotePendienteEditar?.codigo ||
+                      "—"}
                   </strong>
                 </div>
 
@@ -1423,76 +2057,97 @@ export default function Lotes() {
 
                   <strong>
                     {obtenerNombreVentaCliente(
-                      ventaParaAnular?.cliente
+                      ventaParaEliminar?.cliente
                     )}
                   </strong>
                 </div>
+
               </div>
 
-              <div className="lotes-field anulacion-lote-motivo">
-                <label htmlFor="motivoAnulacionLote">
-                  Motivo de anulación *
-                </label>
+              <div className="eliminar-venta-lote-after">
 
-                <textarea
-                  id="motivoAnulacionLote"
-                  value={motivoAnulacion}
-                  onChange={(e) =>
-                    setMotivoAnulacion(e.target.value)
-                  }
-                  rows="4"
-                  maxLength={500}
-                  placeholder="Ej. Se registraron incorrectamente las medidas del lote y deben corregirse."
-                  disabled={procesandoAnulacion}
-                />
-
-                <small className="lotes-field-help">
-                  Este motivo quedará
-                  guardado en el historial
-                  de la venta.
-                </small>
-              </div>
-
-              <div className="anulacion-lote-after">
                 <strong>
-                  ¿Qué ocurrirá?
+                  Al continuar:
                 </strong>
 
                 <span>
-                  La venta quedará como
-                  Anulada, el lote volverá
-                  a Disponible y se abrirá
-                  automáticamente la
-                  ventana para editarlo.
+                  • La venta será eliminada definitivamente.
                 </span>
+
+                <span>
+                  • Las cuotas de la venta serán eliminadas.
+                </span>
+
+                <span>
+                  • El lote volverá a estado Disponible.
+                </span>
+
+                <span>
+                  • Se abrirá automáticamente la ventana para editar el lote.
+                </span>
+
               </div>
+
+              <div className="eliminar-venta-lote-payments">
+
+                <AlertTriangle
+                  size={18}
+                />
+
+                <div>
+                  <strong>
+                    Si la venta tiene pagos registrados
+                  </strong>
+
+                  <span>
+                    El sistema no permitirá eliminarla.
+                    Primero deberá eliminar todos los pagos
+                    asociados desde el módulo Pagos.
+                  </span>
+                </div>
+
+              </div>
+
             </div>
 
             {/* BOTONES */}
 
             <div className="lotes-modal-footer">
+
               <button
                 type="button"
                 className="lotes-btn-secondary"
-                onClick={cerrarModalAnulacion}
-                disabled={procesandoAnulacion}
+                onClick={
+                  cerrarModalEliminarVenta
+                }
+                disabled={
+                  procesandoEliminacion
+                }
               >
                 Cancelar
               </button>
 
               <button
                 type="button"
-                className="anulacion-lote-button"
-                onClick={confirmarAnulacionYEditar}
-                disabled={procesandoAnulacion}
+                className="eliminar-venta-lote-button"
+                onClick={
+                  confirmarEliminarVentaYEditar
+                }
+                disabled={
+                  procesandoEliminacion
+                }
               >
-                <AlertTriangle size={17} />
+                <Trash2
+                  size={17}
+                />
 
-                {procesandoAnulacion
-                  ? "Anulando..."
-                  : "Anular venta y editar lote"}
+                {procesandoEliminacion
+                  ? "Eliminando..."
+                  : "Eliminar venta y editar lote"}
               </button>
+
             </div>
+
           </div>
         </div>
       )}
@@ -1502,11 +2157,20 @@ export default function Lotes() {
       ================================================= */}
 
       <Toast
-        visible={notificacion.visible}
-        mensaje={notificacion.mensaje}
-        tipo={notificacion.tipo}
-        onClose={cerrarNotificacion}
+        visible={
+          notificacion.visible
+        }
+        mensaje={
+          notificacion.mensaje
+        }
+        tipo={
+          notificacion.tipo
+        }
+        onClose={
+          cerrarNotificacion
+        }
       />
+
     </section>
   );
 }

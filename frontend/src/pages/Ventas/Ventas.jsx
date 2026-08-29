@@ -5,7 +5,6 @@ import {
 } from "react";
 
 import {
-  Ban,
   CalendarDays,
   CheckCircle2,
   Edit3,
@@ -14,6 +13,7 @@ import {
   RefreshCw,
   Search,
   ShoppingCart,
+  Trash2,
   UserRound,
   WalletCards,
 } from "lucide-react";
@@ -22,12 +22,12 @@ import "./Ventas.css";
 
 import Toast from "../../components/ui/Toast";
 import VentaModal from "./VentaModal";
-import "./Ventas.css";
+
 import {
   obtenerVentas,
   crearVenta,
   actualizarVenta,
-  anularVenta,
+  eliminarVenta,
 } from "../../services/venta.service";
 
 import {
@@ -41,8 +41,6 @@ import {
 import {
   obtenerLotes,
 } from "../../services/lote.service";
-
-
 
 /* =========================================================
    FORMATEADORES
@@ -170,19 +168,32 @@ export default function Ventas() {
   ] = useState(null);
 
   /* =======================================================
-     ESTADOS DE ANULACIÓN
+     ELIMINAR VENTA
   ======================================================= */
 
-  const [ventaParaAnular, setVentaParaAnular] = useState(null);
-  const [motivoAnulacion, setMotivoAnulacion] = useState("");
-  const [anulandoVenta, setAnulandoVenta] = useState(false);
+  const [
+    ventaParaEliminar,
+    setVentaParaEliminar,
+  ] = useState(null);
+
+  const [
+    eliminandoVenta,
+    setEliminandoVenta,
+  ] = useState(false);
 
   /* =======================================================
-     ESTADOS DE BÚSQUEDA DE CLIENTE
+     BÚSQUEDA DE CLIENTE
   ======================================================= */
 
-  const [busquedaClienteVenta, setBusquedaClienteVenta] = useState("");
-  const [mostrarResultadosClientes, setMostrarResultadosClientes] = useState(false);
+  const [
+    busquedaClienteVenta,
+    setBusquedaClienteVenta,
+  ] = useState("");
+
+  const [
+    mostrarResultadosClientes,
+    setMostrarResultadosClientes,
+  ] = useState(false);
 
   /* =======================================================
      FILTROS
@@ -212,7 +223,8 @@ export default function Ventas() {
     setPaginaActual,
   ] = useState(1);
 
-  const VENTAS_POR_PAGINA = 8;
+  const VENTAS_POR_PAGINA =
+    8;
 
   /* =======================================================
      NOTIFICACIONES
@@ -243,7 +255,9 @@ export default function Ventas() {
       setNotificacion(
         (prev) => ({
           ...prev,
-          visible: false,
+
+          visible:
+            false,
         })
       );
     };
@@ -252,7 +266,10 @@ export default function Ventas() {
      FORMULARIO
   ======================================================= */
 
-  const [formulario, setFormulario] = useState({
+  const [
+    formulario,
+    setFormulario,
+  ] = useState({
     cliente: "",
     lote: "",
     fechaVenta: "",
@@ -304,9 +321,13 @@ export default function Ventas() {
           await obtenerClientes();
 
         if (
-          Array.isArray(datos)
+          Array.isArray(
+            datos
+          )
         ) {
-          setClientes(datos);
+          setClientes(
+            datos
+          );
 
           return;
         }
@@ -394,7 +415,9 @@ export default function Ventas() {
   const cargarTodo =
     async () => {
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
 
         await Promise.all([
           cargarVentas(),
@@ -403,7 +426,9 @@ export default function Ventas() {
           cargarLotes(),
         ]);
       } finally {
-        setCargando(false);
+        setCargando(
+          false
+        );
       }
     };
 
@@ -488,104 +513,122 @@ export default function Ventas() {
     ]);
 
   /* =======================================================
-     BUSCAR CLIENTE PARA NUEVA / EDITAR VENTA
+     BUSCAR CLIENTE NUEVA / EDITAR VENTA
   ======================================================= */
 
-  const clientesFiltradosVenta = useMemo(() => {
-    const texto = busquedaClienteVenta
-      .trim()
-      .toLowerCase();
+  const clientesFiltradosVenta =
+    useMemo(() => {
+      const texto =
+        busquedaClienteVenta
+          .trim()
+          .toLowerCase();
 
-    if (!texto) {
-      return [];
-    }
+      if (!texto) {
+        return [];
+      }
 
-    return clientes.filter((cliente) => {
-      const nombreCompleto = [
-        cliente.nombres,
-        cliente.apellidos,
-      ]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+      return clientes.filter(
+        (cliente) => {
+          const nombreCompleto = [
+            cliente.nombres,
+            cliente.apellidos,
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
 
-      const documento = String(
-        cliente.documento || ""
-      ).toLowerCase();
+          const documento =
+            String(
+              cliente.documento ||
+                ""
+            ).toLowerCase();
 
-      return (
-        nombreCompleto.includes(texto) ||
-        documento.includes(texto)
+          return (
+            nombreCompleto.includes(
+              texto
+            ) ||
+            documento.includes(
+              texto
+            )
+          );
+        }
       );
-    });
-  }, [clientes, busquedaClienteVenta]);
+    }, [
+      clientes,
+      busquedaClienteVenta,
+    ]);
 
   /* =======================================================
-     SELECCIONAR CLIENTE EN LA VENTA
+     SELECCIONAR CLIENTE
   ======================================================= */
 
-  const seleccionarClienteVenta = (cliente) => {
-    setFormulario((prev) => ({
-      ...prev,
-      cliente: cliente._id,
-    }));
+  const seleccionarClienteVenta =
+    (cliente) => {
+      setFormulario(
+        (prev) => ({
+          ...prev,
 
-    setBusquedaClienteVenta(
-      [
-        cliente.nombres,
-        cliente.apellidos,
-      ]
-        .filter(Boolean)
-        .join(" ")
-    );
+          cliente:
+            cliente._id,
+        })
+      );
 
-    setMostrarResultadosClientes(false);
-  };
+      setBusquedaClienteVenta(
+        [
+          cliente.nombres,
+          cliente.apellidos,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+    };
 
   /* =======================================================
      LIMPIAR CLIENTE
   ======================================================= */
 
-  const limpiarClienteVenta = () => {
-    setBusquedaClienteVenta("");
-    setMostrarResultadosClientes(false);
-    setFormulario((prev) => ({
-      ...prev,
-      cliente: "",
-    }));
-  };
+  const limpiarClienteVenta =
+    () => {
+      setBusquedaClienteVenta(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+
+      setFormulario(
+        (prev) => ({
+          ...prev,
+
+          cliente:
+            "",
+        })
+      );
+    };
 
   /* =======================================================
      ESTADÍSTICAS
 
-     IMPORTANTE:
-     Las ventas ANULADAS se conservan como historial,
-     pero NO cuentan en los totales comerciales.
+     Ya NO existen ventas anuladas.
+
+     Si una venta se elimina, deja de existir
+     y automáticamente desaparece de estos totales.
   ======================================================= */
 
   const estadisticas =
     useMemo(() => {
       return ventas.reduce(
-        (acc, venta) => {
-          /* =========================
-             ANULADAS
-             Solo historial
-          ========================= */
-
-          if (
-            venta.estado ===
-            "Anulada"
-          ) {
-            acc.anuladas += 1;
-
-            return acc;
-          }
-
-          /* =========================
-             VENTA VÁLIDA
-          ========================= */
-
-          acc.total += 1;
+        (
+          acc,
+          venta
+        ) => {
+          acc.total +=
+            1;
 
           acc.valorVentas +=
             Number(
@@ -602,38 +645,47 @@ export default function Ventas() {
               venta.saldoFinanciar
             ) || 0;
 
-          /* =========================
-             ESTADOS
-          ========================= */
-
           if (
             venta.estado ===
             "Activa"
           ) {
-            acc.activas += 1;
+            acc.activas +=
+              1;
           }
 
           if (
             venta.estado ===
             "Pagada"
           ) {
-            acc.pagadas += 1;
+            acc.pagadas +=
+              1;
           }
 
           return acc;
         },
         {
-          total: 0,
-          activas: 0,
-          pagadas: 0,
-          anuladas: 0,
+          total:
+            0,
 
-          valorVentas: 0,
-          iniciales: 0,
-          saldo: 0,
+          activas:
+            0,
+
+          pagadas:
+            0,
+
+          valorVentas:
+            0,
+
+          iniciales:
+            0,
+
+          saldo:
+            0,
         }
       );
-    }, [ventas]);
+    }, [
+      ventas,
+    ]);
 
   /* =======================================================
      PAGINACIÓN
@@ -649,7 +701,10 @@ export default function Ventas() {
     );
 
   const indiceInicial =
-    (paginaActual - 1) *
+    (
+      paginaActual -
+      1
+    ) *
     VENTAS_POR_PAGINA;
 
   const ventasPaginadas =
@@ -660,7 +715,9 @@ export default function Ventas() {
     );
 
   useEffect(() => {
-    setPaginaActual(1);
+    setPaginaActual(
+      1
+    );
   }, [
     busqueda,
     filtroEstado,
@@ -695,7 +752,8 @@ export default function Ventas() {
         );
 
       if (
-        clientes.length === 0
+        clientes.length ===
+        0
       ) {
         mostrarNotificacion(
           "Debe registrar al menos un cliente antes de crear una venta.",
@@ -706,7 +764,8 @@ export default function Ventas() {
       }
 
       if (
-        disponibles.length === 0
+        disponibles.length ===
+        0
       ) {
         mostrarNotificacion(
           "No hay lotes disponibles para vender.",
@@ -716,67 +775,104 @@ export default function Ventas() {
         return;
       }
 
-      setVentaEditar(null);
+      setVentaEditar(
+        null
+      );
+
       setFormulario({
         cliente: "",
         lote: "",
         fechaVenta: "",
         valorVenta: "",
         cuotaInicial: "",
-        formaPago: "Financiado",
+        formaPago:
+          "Financiado",
         numeroCuotas: "",
         observaciones: "",
       });
-      setBusquedaClienteVenta("");
-      setMostrarResultadosClientes(false);
-      setModalAbierto(true);
+
+      setBusquedaClienteVenta(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+
+      setModalAbierto(
+        true
+      );
     };
 
   /* =======================================================
-     EDITAR
+     EDITAR VENTA
   ======================================================= */
 
-  const abrirEditarVenta = (
-    venta
-  ) => {
-    if (
-      venta.estado ===
-      "Anulada"
-    ) {
-      mostrarNotificacion(
-        "Una venta anulada no puede modificarse.",
-        "info"
+  const abrirEditarVenta =
+    (venta) => {
+      setVentaEditar(
+        venta
       );
 
-      return;
-    }
+      setFormulario({
+        cliente:
+          venta.cliente?._id ||
+          venta.cliente ||
+          "",
 
-    setVentaEditar(venta);
-    setFormulario({
-      cliente: venta.cliente?._id || venta.cliente || "",
-      lote: venta.lote?._id || venta.lote || "",
-      fechaVenta: venta.fechaVenta ? venta.fechaVenta.split("T")[0] : "",
-      valorVenta: venta.valorVenta || "",
-      cuotaInicial: venta.cuotaInicial || "",
-      formaPago: venta.formaPago || "Financiado",
-      numeroCuotas: venta.numeroCuotas || "",
-      observaciones: venta.observaciones || "",
-    });
+        lote:
+          venta.lote?._id ||
+          venta.lote ||
+          "",
 
-    const clienteActual = venta.cliente;
+        fechaVenta:
+          venta.fechaVenta
+            ? venta.fechaVenta.split(
+                "T"
+              )[0]
+            : "",
 
-    setBusquedaClienteVenta(
-      [
-        clienteActual?.nombres,
-        clienteActual?.apellidos,
-      ]
-        .filter(Boolean)
-        .join(" ")
-    );
+        valorVenta:
+          venta.valorVenta ||
+          "",
 
-    setMostrarResultadosClientes(false);
-    setModalAbierto(true);
-  };
+        cuotaInicial:
+          venta.cuotaInicial ||
+          "",
+
+        formaPago:
+          venta.formaPago ||
+          "Financiado",
+
+        numeroCuotas:
+          venta.numeroCuotas ||
+          "",
+
+        observaciones:
+          venta.observaciones ||
+          "",
+      });
+
+      const clienteActual =
+        venta.cliente;
+
+      setBusquedaClienteVenta(
+        [
+          clienteActual?.nombres,
+          clienteActual?.apellidos,
+        ]
+          .filter(Boolean)
+          .join(" ")
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+
+      setModalAbierto(
+        true
+      );
+    };
 
   /* =======================================================
      CERRAR MODAL
@@ -784,14 +880,27 @@ export default function Ventas() {
 
   const cerrarModal =
     () => {
-      if (guardando) {
+      if (
+        guardando
+      ) {
         return;
       }
 
-      setModalAbierto(false);
-      setVentaEditar(null);
-      setBusquedaClienteVenta("");
-      setMostrarResultadosClientes(false);
+      setModalAbierto(
+        false
+      );
+
+      setVentaEditar(
+        null
+      );
+
+      setBusquedaClienteVenta(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
     };
 
   /* =======================================================
@@ -799,14 +908,23 @@ export default function Ventas() {
   ======================================================= */
 
   const guardarVenta =
-    async (datos) => {
+    async (
+      datos
+    ) => {
       try {
-        setGuardando(true);
+        setGuardando(
+          true
+        );
 
         let respuesta;
 
+        const esEdicion =
+          Boolean(
+            ventaEditar?._id
+          );
+
         if (
-          ventaEditar?._id
+          esEdicion
         ) {
           respuesta =
             await actualizarVenta(
@@ -833,11 +951,21 @@ export default function Ventas() {
           null
         );
 
+        setBusquedaClienteVenta(
+          ""
+        );
+
+        setMostrarResultadosClientes(
+          false
+        );
+
         mostrarNotificacion(
           respuesta?.message ||
-            (ventaEditar
-              ? "Venta actualizada correctamente."
-              : "Venta registrada correctamente.")
+            (
+              esEdicion
+                ? "Venta actualizada correctamente."
+                : "Venta registrada correctamente."
+            )
         );
       } catch (error) {
         console.error(
@@ -852,92 +980,102 @@ export default function Ventas() {
           "error"
         );
       } finally {
-        setGuardando(false);
+        setGuardando(
+          false
+        );
       }
     };
 
   /* =======================================================
-     ABRIR VENTANA DE ANULACIÓN
+     ABRIR CONFIRMACIÓN DE ELIMINACIÓN
   ======================================================= */
 
-  const handleAnularVenta = (venta) => {
-    if (venta.estado === "Anulada") {
-      mostrarNotificacion(
-        "Esta venta ya se encuentra anulada.",
-        "info"
+  const abrirEliminarVenta =
+    (venta) => {
+      setVentaParaEliminar(
+        venta
       );
-
-      return;
-    }
-
-    setVentaParaAnular(venta);
-    setMotivoAnulacion("");
-  };
+    };
 
   /* =======================================================
-     CERRAR VENTANA
+     CERRAR CONFIRMACIÓN
   ======================================================= */
 
-  const cerrarAnulacionVenta = () => {
-    if (anulandoVenta) return;
+  const cerrarEliminarVenta =
+    () => {
+      if (
+        eliminandoVenta
+      ) {
+        return;
+      }
 
-    setVentaParaAnular(null);
-    setMotivoAnulacion("");
-  };
+      setVentaParaEliminar(
+        null
+      );
+    };
 
   /* =======================================================
-     CONFIRMAR ANULACIÓN
+     CONFIRMAR ELIMINACIÓN
+
+     El backend verificará primero si existen pagos.
+
+     Si tiene pagos:
+     → NO elimina.
+     → muestra que deben eliminarse primero.
+
+     Si no tiene pagos:
+     → elimina cuotas.
+     → elimina venta.
+     → libera lote.
   ======================================================= */
 
-  const confirmarAnulacionVenta = async () => {
-    const motivo = motivoAnulacion.trim();
+  const confirmarEliminarVenta =
+    async () => {
+      if (
+        !ventaParaEliminar?._id
+      ) {
+        return;
+      }
 
-    if (motivo.length < 5) {
-      mostrarNotificacion(
-        "Debe escribir un motivo de anulación de mínimo 5 caracteres.",
-        "error"
-      );
+      try {
+        setEliminandoVenta(
+          true
+        );
 
-      return;
-    }
+        const respuesta =
+          await eliminarVenta(
+            ventaParaEliminar._id
+          );
 
-    if (!ventaParaAnular?._id) {
-      return;
-    }
+        setVentaParaEliminar(
+          null
+        );
 
-    try {
-      setAnulandoVenta(true);
+        await cargarTodo();
 
-      const respuesta = await anularVenta(
-        ventaParaAnular._id,
-        motivo
-      );
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Venta eliminada correctamente.",
+          "success"
+        );
+      } catch (error) {
+        console.error(
+          "Error eliminando venta:",
+          error
+        );
 
-      mostrarNotificacion(
-        respuesta?.message ||
-          "Venta anulada correctamente.",
-        "success"
-      );
-
-      setVentaParaAnular(null);
-      setMotivoAnulacion("");
-
-      await cargarTodo();
-    } catch (error) {
-      console.error(
-        "Error anulando venta:",
-        error
-      );
-
-      mostrarNotificacion(
-        error?.response?.data?.message ||
-          "No fue posible anular la venta.",
-        "error"
-      );
-    } finally {
-      setAnulandoVenta(false);
-    }
-  };
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible eliminar la venta.",
+          "error"
+        );
+      } finally {
+        setEliminandoVenta(
+          false
+        );
+      }
+    };
 
   /* =======================================================
      RENDER
@@ -969,6 +1107,7 @@ export default function Ventas() {
         </div>
 
         <div className="ventas-header-actions">
+
           <button
             type="button"
             className="ventas-refresh"
@@ -996,10 +1135,13 @@ export default function Ventas() {
               abrirNuevaVenta
             }
           >
-            <Plus size={19} />
+            <Plus
+              size={19}
+            />
 
             Nueva venta
           </button>
+
         </div>
       </div>
 
@@ -1008,6 +1150,7 @@ export default function Ventas() {
       ================================================= */}
 
       <div className="ventas-stats">
+
         <article className="ventas-stat-card">
           <div className="ventas-stat-icon">
             <ShoppingCart
@@ -1021,7 +1164,9 @@ export default function Ventas() {
             </span>
 
             <strong>
-              {estadisticas.total}
+              {
+                estadisticas.total
+              }
             </strong>
           </div>
         </article>
@@ -1039,7 +1184,9 @@ export default function Ventas() {
             </span>
 
             <strong>
-              {estadisticas.activas}
+              {
+                estadisticas.activas
+              }
             </strong>
           </div>
         </article>
@@ -1057,7 +1204,9 @@ export default function Ventas() {
             </span>
 
             <strong>
-              {estadisticas.pagadas}
+              {
+                estadisticas.pagadas
+              }
             </strong>
           </div>
         </article>
@@ -1097,6 +1246,7 @@ export default function Ventas() {
             </strong>
           </div>
         </article>
+
       </div>
 
       {/* =================================================
@@ -1110,12 +1260,17 @@ export default function Ventas() {
         ============================================= */}
 
         <div className="ventas-toolbar">
+
           <div className="ventas-search">
-            <Search size={18} />
+            <Search
+              size={18}
+            />
 
             <input
               type="text"
-              value={busqueda}
+              value={
+                busqueda
+              }
               onChange={(e) =>
                 setBusqueda(
                   e.target.value
@@ -1126,6 +1281,7 @@ export default function Ventas() {
           </div>
 
           <div className="ventas-filters">
+
             <select
               value={
                 filtroEstado
@@ -1146,10 +1302,6 @@ export default function Ventas() {
 
               <option value="Pagada">
                 Pagada
-              </option>
-
-              <option value="Anulada">
-                Anulada
               </option>
             </select>
 
@@ -1175,6 +1327,7 @@ export default function Ventas() {
                 Financiado
               </option>
             </select>
+
           </div>
         </div>
 
@@ -1183,18 +1336,47 @@ export default function Ventas() {
         ================================================= */}
 
         <div className="ventas-table-wrapper">
+
           <table className="ventas-table">
+
             <thead>
               <tr>
-                <th>Venta</th>
-                <th>Cliente</th>
-                <th>Lote</th>
-                <th>Fecha</th>
-                <th>Valor venta</th>
-                <th>Inicial</th>
-                <th>Saldo</th>
-                <th>Pago</th>
-                <th>Estado</th>
+                <th>
+                  Venta
+                </th>
+
+                <th>
+                  Cliente
+                </th>
+
+                <th>
+                  Lote
+                </th>
+
+                <th>
+                  Fecha
+                </th>
+
+                <th>
+                  Valor venta
+                </th>
+
+                <th>
+                  Inicial
+                </th>
+
+                <th>
+                  Saldo
+                </th>
+
+                <th>
+                  Pago
+                </th>
+
+                <th>
+                  Estado
+                </th>
+
                 <th className="ventas-th-actions">
                   Acciones
                 </th>
@@ -1202,6 +1384,7 @@ export default function Ventas() {
             </thead>
 
             <tbody>
+
               {cargando ? (
                 <tr>
                   <td
@@ -1257,20 +1440,13 @@ export default function Ventas() {
                         key={
                           venta._id
                         }
-                        className={
-                          venta.estado ===
-                          "Anulada"
-                            ? "venta-row-anulada"
-                            : ""
-                        }
                       >
 
-                        {/* =====================
-                            VENTA
-                        ===================== */}
+                        {/* VENTA */}
 
                         <td>
                           <div className="venta-code-cell">
+
                             <div className="venta-code-icon">
                               <ShoppingCart
                                 size={17}
@@ -1288,15 +1464,15 @@ export default function Ventas() {
                                 Venta
                               </span>
                             </div>
+
                           </div>
                         </td>
 
-                        {/* =====================
-                            CLIENTE
-                        ===================== */}
+                        {/* CLIENTE */}
 
                         <td>
                           <div className="venta-cliente-cell">
+
                             <UserRound
                               size={16}
                             />
@@ -1313,15 +1489,15 @@ export default function Ventas() {
                                   "Sin documento"}
                               </span>
                             </div>
+
                           </div>
                         </td>
 
-                        {/* =====================
-                            LOTE
-                        ===================== */}
+                        {/* LOTE */}
 
                         <td>
                           <div className="venta-lote-cell">
+
                             <LandPlot
                               size={16}
                             />
@@ -1341,15 +1517,15 @@ export default function Ventas() {
                                   : ""}
                               </span>
                             </div>
+
                           </div>
                         </td>
 
-                        {/* =====================
-                            FECHA
-                        ===================== */}
+                        {/* FECHA */}
 
                         <td>
                           <div className="venta-fecha-cell">
+
                             <CalendarDays
                               size={15}
                             />
@@ -1359,12 +1535,11 @@ export default function Ventas() {
                                 venta.fechaVenta
                               )}
                             </span>
+
                           </div>
                         </td>
 
-                        {/* =====================
-                            VALOR
-                        ===================== */}
+                        {/* VALOR */}
 
                         <td>
                           <strong className="venta-money">
@@ -1374,9 +1549,7 @@ export default function Ventas() {
                           </strong>
                         </td>
 
-                        {/* =====================
-                            INICIAL
-                        ===================== */}
+                        {/* INICIAL */}
 
                         <td>
                           <span className="venta-money-secondary">
@@ -1386,9 +1559,7 @@ export default function Ventas() {
                           </span>
                         </td>
 
-                        {/* =====================
-                            SALDO
-                        ===================== */}
+                        {/* SALDO */}
 
                         <td>
                           <strong
@@ -1406,12 +1577,11 @@ export default function Ventas() {
                           </strong>
                         </td>
 
-                        {/* =====================
-                            FORMA DE PAGO
-                        ===================== */}
+                        {/* FORMA DE PAGO */}
 
                         <td>
                           <div className="venta-pago-cell">
+
                             <strong>
                               {
                                 venta.formaPago
@@ -1430,12 +1600,11 @@ export default function Ventas() {
                                 )}
                               </span>
                             )}
+
                           </div>
                         </td>
 
-                        {/* =====================
-                            ESTADO
-                        ===================== */}
+                        {/* ESTADO */}
 
                         <td>
                           <span
@@ -1449,9 +1618,7 @@ export default function Ventas() {
                           </span>
                         </td>
 
-                        {/* =====================
-                            ACCIONES
-                        ===================== */}
+                        {/* ACCIONES */}
 
                         <td>
                           <div className="ventas-actions">
@@ -1459,16 +1626,7 @@ export default function Ventas() {
                             <button
                               type="button"
                               className="edit"
-                              title={
-                                venta.estado ===
-                                "Anulada"
-                                  ? "Venta anulada"
-                                  : "Editar venta"
-                              }
-                              disabled={
-                                venta.estado ===
-                                "Anulada"
-                              }
+                              title="Editar venta"
                               onClick={() =>
                                 abrirEditarVenta(
                                   venta
@@ -1482,34 +1640,28 @@ export default function Ventas() {
 
                             <button
                               type="button"
-                              className="anular"
-                              title={
-                                venta.estado ===
-                                "Anulada"
-                                  ? "Venta anulada"
-                                  : "Anular venta"
-                              }
-                              disabled={
-                                venta.estado ===
-                                "Anulada"
-                              }
+                              className="delete"
+                              title="Eliminar venta"
                               onClick={() =>
-                                handleAnularVenta(
+                                abrirEliminarVenta(
                                   venta
                                 )
                               }
                             >
-                              <Ban
+                              <Trash2
                                 size={16}
                               />
                             </button>
+
                           </div>
                         </td>
+
                       </tr>
                     );
                   }
                 )
               )}
+
             </tbody>
           </table>
         </div>
@@ -1519,23 +1671,30 @@ export default function Ventas() {
         ================================================= */}
 
         <div className="ventas-table-footer">
+
           <div>
             Mostrando{" "}
             <strong>
-              {ventasFiltradas.length}
+              {
+                ventasFiltradas.length
+              }
             </strong>{" "}
             de{" "}
             <strong>
-              {ventas.length}
+              {
+                ventas.length
+              }
             </strong>{" "}
             ventas
           </div>
 
           <div className="ventas-pagination">
+
             <button
               type="button"
               disabled={
-                paginaActual === 1
+                paginaActual ===
+                1
               }
               onClick={() =>
                 setPaginaActual(
@@ -1553,11 +1712,15 @@ export default function Ventas() {
             <span>
               Página{" "}
               <strong>
-                {paginaActual}
+                {
+                  paginaActual
+                }
               </strong>{" "}
               de{" "}
               <strong>
-                {totalPaginas}
+                {
+                  totalPaginas
+                }
               </strong>
             </span>
 
@@ -1579,12 +1742,13 @@ export default function Ventas() {
             >
               Siguiente
             </button>
+
           </div>
         </div>
       </div>
 
       {/* =================================================
-          MODAL
+          MODAL NUEVA / EDITAR VENTA
       ================================================= */}
 
       <VentaModal
@@ -1612,179 +1776,199 @@ export default function Ventas() {
         lotes={
           lotes
         }
-        formulario={formulario}
-        setFormulario={setFormulario}
-        busquedaClienteVenta={busquedaClienteVenta}
-        setBusquedaClienteVenta={setBusquedaClienteVenta}
-        mostrarResultadosClientes={mostrarResultadosClientes}
-        setMostrarResultadosClientes={setMostrarResultadosClientes}
-        clientesFiltradosVenta={clientesFiltradosVenta}
-        seleccionarClienteVenta={seleccionarClienteVenta}
-        limpiarClienteVenta={limpiarClienteVenta}
+        formulario={
+          formulario
+        }
+        setFormulario={
+          setFormulario
+        }
+        busquedaClienteVenta={
+          busquedaClienteVenta
+        }
+        setBusquedaClienteVenta={
+          setBusquedaClienteVenta
+        }
+        mostrarResultadosClientes={
+          mostrarResultadosClientes
+        }
+        setMostrarResultadosClientes={
+          setMostrarResultadosClientes
+        }
+        clientesFiltradosVenta={
+          clientesFiltradosVenta
+        }
+        seleccionarClienteVenta={
+          seleccionarClienteVenta
+        }
+        limpiarClienteVenta={
+          limpiarClienteVenta
+        }
       />
 
       {/* =====================================================
-          MODAL ANULAR VENTA
+          MODAL ELIMINAR VENTA
       ===================================================== */}
 
-      {ventaParaAnular && (
+      {ventaParaEliminar && (
         <div
-          className="venta-anular-overlay"
+          className="venta-eliminar-overlay"
           onMouseDown={(e) => {
-            if (e.target === e.currentTarget) {
-              cerrarAnulacionVenta();
+            if (
+              e.target ===
+              e.currentTarget
+            ) {
+              cerrarEliminarVenta();
             }
           }}
         >
-          <div className="venta-anular-modal">
+          <div className="venta-eliminar-modal">
 
             {/* CABECERA */}
 
-            <div className="venta-anular-header">
-              <div className="venta-anular-icon">
-                !
+            <div className="venta-eliminar-header">
+
+              <div className="venta-eliminar-icon">
+                <Trash2
+                  size={20}
+                />
               </div>
 
               <div>
-                <span>ANULACIÓN DE VENTA</span>
+                <span>
+                  ELIMINAR VENTA
+                </span>
 
                 <h3>
-                  ¿Desea anular esta venta?
+                  ¿Desea eliminar esta venta?
                 </h3>
               </div>
 
               <button
                 type="button"
-                className="venta-anular-close"
-                onClick={cerrarAnulacionVenta}
-                disabled={anulandoVenta}
+                className="venta-eliminar-close"
+                onClick={
+                  cerrarEliminarVenta
+                }
+                disabled={
+                  eliminandoVenta
+                }
               >
                 ×
               </button>
+
             </div>
 
             {/* ADVERTENCIA */}
 
-            <div className="venta-anular-warning">
-              Esta acción dejará la venta como
-              <strong> Anulada</strong> y liberará el lote
-              asociado.
+            <div className="venta-eliminar-warning">
+              Esta acción eliminará definitivamente la venta y sus cuotas.
+              El lote volverá a quedar disponible.
             </div>
 
-            {/* INFORMACIÓN DE LA VENTA */}
+            {/* INFORMACIÓN */}
 
-            <div className="venta-anular-info">
-
-              <div>
-                <span>Venta</span>
-
-                <strong>
-                  {ventaParaAnular.codigo || "—"}
-                </strong>
-              </div>
+            <div className="venta-eliminar-info">
 
               <div>
-                <span>Cliente</span>
-
-                <strong>
-                  {[
-                    ventaParaAnular.cliente?.nombres,
-                    ventaParaAnular.cliente?.apellidos,
-                  ]
-                    .filter(Boolean)
-                    .join(" ") || "—"}
-                </strong>
-              </div>
-
-              <div>
-                <span>Lote</span>
-
-                <strong>
-                  {ventaParaAnular.lote?.codigo || "—"}
-                </strong>
-              </div>
-
-            </div>
-
-            {/* MOTIVO */}
-
-            <div className="venta-anular-field">
-              <label>
-                Motivo de la anulación *
-              </label>
-
-              <textarea
-                value={motivoAnulacion}
-                onChange={(e) =>
-                  setMotivoAnulacion(
-                    e.target.value
-                  )
-                }
-                placeholder="Escriba por qué se está anulando esta venta..."
-                maxLength={300}
-                disabled={anulandoVenta}
-                autoFocus
-              />
-
-              <div className="venta-anular-counter">
                 <span>
-                  Mínimo 5 caracteres
+                  Venta
                 </span>
 
-                <span>
-                  {motivoAnulacion.length}/300
-                </span>
+                <strong>
+                  {ventaParaEliminar.codigo ||
+                    "—"}
+                </strong>
               </div>
+
+              <div>
+                <span>
+                  Cliente
+                </span>
+
+                <strong>
+                  {obtenerNombreCliente(
+                    ventaParaEliminar.cliente
+                  )}
+                </strong>
+              </div>
+
+              <div>
+                <span>
+                  Lote
+                </span>
+
+                <strong>
+                  {ventaParaEliminar.lote?.codigo ||
+                    "—"}
+                </strong>
+              </div>
+
             </div>
 
-            {/* QUÉ PASARÁ */}
+            {/* IMPORTANTE */}
 
-            <div className="venta-anular-after">
+            <div className="venta-eliminar-after">
+
               <strong>
-                Al confirmar:
+                Importante:
               </strong>
 
               <span>
-                • La venta quedará anulada.
+                • La venta será eliminada definitivamente.
               </span>
 
               <span>
-                • Las cuotas quedarán anuladas.
+                • Sus cuotas serán eliminadas.
               </span>
 
               <span>
                 • El lote volverá a estar disponible.
               </span>
+
+              <span>
+                • Si existen pagos registrados, el sistema no permitirá eliminar la venta.
+              </span>
+
+              <span>
+                • En ese caso primero debe eliminar los pagos desde el módulo Pagos.
+              </span>
+
             </div>
 
             {/* BOTONES */}
 
-            <div className="venta-anular-actions">
+            <div className="venta-eliminar-actions">
 
               <button
                 type="button"
-                className="venta-anular-cancel"
-                onClick={cerrarAnulacionVenta}
-                disabled={anulandoVenta}
+                className="venta-eliminar-cancel"
+                onClick={
+                  cerrarEliminarVenta
+                }
+                disabled={
+                  eliminandoVenta
+                }
               >
                 Cancelar
               </button>
 
               <button
                 type="button"
-                className="venta-anular-confirm"
-                onClick={confirmarAnulacionVenta}
+                className="venta-eliminar-confirm"
+                onClick={
+                  confirmarEliminarVenta
+                }
                 disabled={
-                  anulandoVenta ||
-                  motivoAnulacion.trim().length < 5
+                  eliminandoVenta
                 }
               >
-                {anulandoVenta
-                  ? "Anulando..."
-                  : "Confirmar anulación"}
+                {eliminandoVenta
+                  ? "Eliminando..."
+                  : "Eliminar venta"}
               </button>
 
             </div>
+
           </div>
         </div>
       )}
@@ -1807,6 +1991,7 @@ export default function Ventas() {
           cerrarNotificacion
         }
       />
+
     </section>
   );
 }

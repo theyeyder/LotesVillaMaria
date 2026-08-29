@@ -1,8 +1,15 @@
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import {
   Calculator,
   LandPlot,
+  Ruler,
   Save,
+  Shapes,
   X,
 } from "lucide-react";
 
@@ -14,11 +21,15 @@ const estadoInicial = {
   manzana: "",
   numeroLote: "",
 
+  tipoLote: "Regular",
+
   frenteMetros: "",
   frenteCentimetros: "",
 
   fondoMetros: "",
   fondoCentimetros: "",
+
+  areaM2: "",
 
   valorLote: "",
 
@@ -51,8 +62,12 @@ const convertirAMetros = (
    FORMATO ÁREA
 ========================================================= */
 
-const formatearArea = (area = 0) => {
-  return Number(area).toLocaleString(
+const formatearArea = (
+  area = 0
+) => {
+  return Number(
+    area || 0
+  ).toLocaleString(
     "es-CO",
     {
       minimumFractionDigits: 2,
@@ -65,7 +80,9 @@ const formatearArea = (area = 0) => {
    FORMATO MONEDA
 ========================================================= */
 
-const formatearDinero = (valor) => {
+const formatearDinero = (
+  valor
+) => {
   const numero =
     Number(valor) || 0;
 
@@ -76,7 +93,9 @@ const formatearDinero = (valor) => {
       currency: "COP",
       maximumFractionDigits: 0,
     }
-  ).format(numero);
+  ).format(
+    numero
+  );
 };
 
 /* =========================================================
@@ -96,22 +115,60 @@ export default function LoteModal({
 
   manzanaInicial = "",
 }) {
-  const [form, setForm] =
-    useState(estadoInicial);
+  const [
+    form,
+    setForm,
+  ] = useState(
+    estadoInicial
+  );
 
   /* =======================================================
      CARGAR DATOS
   ======================================================= */
 
   useEffect(() => {
-    if (!abierto) {
+    if (
+      !abierto
+    ) {
       return;
     }
 
-    /*
-      EDITAR LOTE
-    */
-    if (loteEditar) {
+    /* =====================================================
+       EDITAR LOTE
+    ===================================================== */
+
+    if (
+      loteEditar
+    ) {
+      /*
+        Compatibilidad con lotes anteriores.
+
+        Si todavía no existe tipoLote en MongoDB:
+        - si tiene frente/fondo -> Regular
+        - si no tiene frente/fondo pero sí área -> Irregular
+      */
+
+      const frenteExistente =
+        convertirAMetros(
+          loteEditar.frenteMetros,
+          loteEditar.frenteCentimetros
+        );
+
+      const fondoExistente =
+        convertirAMetros(
+          loteEditar.fondoMetros,
+          loteEditar.fondoCentimetros
+        );
+
+      const tipoDetectado =
+        loteEditar.tipoLote ||
+        (
+          frenteExistente > 0 &&
+          fondoExistente > 0
+            ? "Regular"
+            : "Irregular"
+        );
+
       setForm({
         manzana:
           loteEditar.manzana?._id ||
@@ -121,6 +178,9 @@ export default function LoteModal({
         numeroLote:
           loteEditar.numeroLote ||
           "",
+
+        tipoLote:
+          tipoDetectado,
 
         frenteMetros:
           loteEditar.frenteMetros ??
@@ -137,6 +197,16 @@ export default function LoteModal({
         fondoCentimetros:
           loteEditar.fondoCentimetros ??
           "",
+
+        areaM2:
+          loteEditar.areaM2 !==
+            undefined &&
+          loteEditar.areaM2 !==
+            null
+            ? String(
+                loteEditar.areaM2
+              )
+            : "",
 
         valorLote:
           loteEditar.valorLote
@@ -157,15 +227,16 @@ export default function LoteModal({
       return;
     }
 
-    /*
-      NUEVO LOTE
-    */
+    /* =====================================================
+       NUEVO LOTE
+    ===================================================== */
 
     setForm({
       ...estadoInicial,
 
       manzana:
-        manzanaInicial || "",
+        manzanaInicial ||
+        "",
     });
   }, [
     abierto,
@@ -174,7 +245,40 @@ export default function LoteModal({
   ]);
 
   /* =======================================================
-     ÁREA AUTOMÁTICA
+     TIPO DE LOTE
+  ======================================================= */
+
+  const esIrregular =
+    form.tipoLote ===
+    "Irregular";
+
+  const seleccionarTipoLote =
+    (
+      tipo
+    ) => {
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          tipoLote:
+            tipo,
+
+          /*
+            Si vuelve a Regular, el área manual
+            ya no se utiliza.
+          */
+
+          areaM2:
+            tipo ===
+            "Regular"
+              ? ""
+              : prev.areaM2,
+        })
+      );
+    };
+
+  /* =======================================================
+     FRENTE TOTAL
   ======================================================= */
 
   const frenteTotal =
@@ -188,6 +292,10 @@ export default function LoteModal({
       form.frenteCentimetros,
     ]);
 
+  /* =======================================================
+     FONDO TOTAL
+  ======================================================= */
+
   const fondoTotal =
     useMemo(() => {
       return convertirAMetros(
@@ -199,6 +307,10 @@ export default function LoteModal({
       form.fondoCentimetros,
     ]);
 
+  /* =======================================================
+     ÁREA AUTOMÁTICA PARA LOTE REGULAR
+  ======================================================= */
+
   const areaCalculada =
     useMemo(() => {
       const area =
@@ -206,7 +318,9 @@ export default function LoteModal({
         fondoTotal;
 
       return Number(
-        area.toFixed(2)
+        area.toFixed(
+          2
+        )
       );
     }, [
       frenteTotal,
@@ -214,223 +328,422 @@ export default function LoteModal({
     ]);
 
   /* =======================================================
+     ÁREA REAL DEL LOTE
+
+     REGULAR:
+     frente × fondo
+
+     IRREGULAR:
+     área escrita manualmente
+  ======================================================= */
+
+  const areaFinal =
+    useMemo(() => {
+      if (
+        esIrregular
+      ) {
+        return (
+          Number(
+            form.areaM2
+          ) || 0
+        );
+      }
+
+      return areaCalculada;
+    }, [
+      esIrregular,
+      form.areaM2,
+      areaCalculada,
+    ]);
+
+  /* =======================================================
      CAMBIOS GENERALES
   ======================================================= */
 
-  const handleChange = (e) => {
-    const {
-      name,
-      value,
-    } = e.target;
+  const handleChange =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
+      setForm(
+        (prev) => ({
+          ...prev,
+          [name]:
+            value,
+        })
+      );
+    };
 
   /* =======================================================
-     CAMPOS NUMÉRICOS
+     CAMPOS NUMÉRICOS DE MEDIDAS
   ======================================================= */
 
-  const handleNumeroChange = (
-    e
-  ) => {
-    const {
-      name,
-      value,
-    } = e.target;
+  const handleNumeroChange =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
 
-    /*
-      Solo números enteros.
-    */
+      const limpio =
+        value.replace(
+          /\D/g,
+          ""
+        );
 
-    const limpio =
-      value.replace(
-        /\D/g,
-        ""
-      );
+      /*
+        Los centímetros solamente
+        pueden estar entre 0 y 99.
+      */
 
-    /*
-      Los centímetros no
-      pueden superar 99.
-    */
-
-    if (
-      name ===
-        "frenteCentimetros" ||
-      name ===
-        "fondoCentimetros"
-    ) {
       if (
-        limpio !== "" &&
-        Number(limpio) > 99
+        name ===
+          "frenteCentimetros" ||
+        name ===
+          "fondoCentimetros"
       ) {
-        return;
+        if (
+          limpio !== "" &&
+          Number(
+            limpio
+          ) > 99
+        ) {
+          return;
+        }
       }
-    }
 
-    setForm((prev) => ({
-      ...prev,
-      [name]: limpio,
-    }));
-  };
+      setForm(
+        (prev) => ({
+          ...prev,
+          [name]:
+            limpio,
+        })
+      );
+    };
+
+  /* =======================================================
+     ÁREA MANUAL DEL LOTE IRREGULAR
+
+     Permite:
+     250
+     250.5
+     250.75
+  ======================================================= */
+
+  const handleAreaChange =
+    (
+      e
+    ) => {
+      let valor =
+        e.target.value
+          .replace(
+            ",",
+            "."
+          )
+          .replace(
+            /[^0-9.]/g,
+            ""
+          );
+
+      /*
+        Impedir más de un punto decimal.
+      */
+
+      const partes =
+        valor.split(
+          "."
+        );
+
+      if (
+        partes.length > 2
+      ) {
+        valor =
+          `${partes[0]}.${partes
+            .slice(1)
+            .join("")}`;
+      }
+
+      /*
+        Máximo dos decimales.
+      */
+
+      if (
+        partes.length === 2
+      ) {
+        valor =
+          `${partes[0]}.${partes[1].slice(
+            0,
+            2
+          )}`;
+      }
+
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          areaM2:
+            valor,
+        })
+      );
+    };
 
   /* =======================================================
      VALOR DEL LOTE
   ======================================================= */
 
-  const handleValorChange = (
-    e
-  ) => {
-    const limpio =
-      e.target.value.replace(
-        /\D/g,
-        ""
+  const handleValorChange =
+    (
+      e
+    ) => {
+      const limpio =
+        e.target.value.replace(
+          /\D/g,
+          ""
+        );
+
+      setForm(
+        (prev) => ({
+          ...prev,
+
+          valorLote:
+            limpio,
+        })
       );
-
-    setForm((prev) => ({
-      ...prev,
-
-      valorLote:
-        limpio,
-    }));
-  };
+    };
 
   /* =======================================================
      VALIDAR
   ======================================================= */
 
-  const validarFormulario = () => {
-    if (!form.manzana) {
-      alert(
-        "Debe seleccionar una manzana"
-      );
+  const validarFormulario =
+    () => {
+      if (
+        !form.manzana
+      ) {
+        alert(
+          "Debe seleccionar una manzana"
+        );
 
-      return false;
-    }
+        return false;
+      }
 
-    if (
-      !form.numeroLote.trim()
-    ) {
-      alert(
-        "El número del lote es obligatorio"
-      );
+      if (
+        !form.numeroLote.trim()
+      ) {
+        alert(
+          "El número del lote es obligatorio"
+        );
 
-      return false;
-    }
+        return false;
+      }
 
-    if (
-      frenteTotal <= 0
-    ) {
-      alert(
-        "La medida del frente debe ser mayor que cero"
-      );
+      /* =====================================================
+         LOTE REGULAR
 
-      return false;
-    }
+         Frente y fondo son obligatorios.
+      ===================================================== */
 
-    if (
-      fondoTotal <= 0
-    ) {
-      alert(
-        "La medida del fondo debe ser mayor que cero"
-      );
+      if (
+        !esIrregular
+      ) {
+        if (
+          frenteTotal <= 0
+        ) {
+          alert(
+            "La medida del frente debe ser mayor que cero"
+          );
 
-      return false;
-    }
+          return false;
+        }
 
-    if (
-      Number(
-        form.valorLote
-      ) <= 0
-    ) {
-      alert(
-        "El valor general del lote debe ser mayor que cero"
-      );
+        if (
+          fondoTotal <= 0
+        ) {
+          alert(
+            "La medida del fondo debe ser mayor que cero"
+          );
 
-      return false;
-    }
+          return false;
+        }
 
-    return true;
-  };
+        if (
+          areaCalculada <= 0
+        ) {
+          alert(
+            "No fue posible calcular el área del lote"
+          );
+
+          return false;
+        }
+      }
+
+      /* =====================================================
+         LOTE IRREGULAR
+
+         El área es obligatoria.
+
+         Frente y fondo pueden quedar en cero porque
+         solamente son medidas de referencia.
+      ===================================================== */
+
+      if (
+        esIrregular
+      ) {
+        const area =
+          Number(
+            form.areaM2
+          );
+
+        if (
+          !Number.isFinite(
+            area
+          ) ||
+          area <= 0
+        ) {
+          alert(
+            "Debe indicar el área total del lote irregular"
+          );
+
+          return false;
+        }
+      }
+
+      /* =====================================================
+         VALOR
+      ===================================================== */
+
+      if (
+        Number(
+          form.valorLote
+        ) <= 0
+      ) {
+        alert(
+          "El valor general del lote debe ser mayor que cero"
+        );
+
+        return false;
+      }
+
+      return true;
+    };
 
   /* =======================================================
      GUARDAR
   ======================================================= */
 
-  const handleSubmit = async (
-    e
-  ) => {
-    e.preventDefault();
+  const handleSubmit =
+    async (
+      e
+    ) => {
+      e.preventDefault();
 
-    if (
-      !validarFormulario()
-    ) {
-      return;
-    }
+      if (
+        !validarFormulario()
+      ) {
+        return;
+      }
 
-    await onGuardar({
-      manzana:
-        form.manzana,
+      await onGuardar({
+        manzana:
+          form.manzana,
 
-      numeroLote:
-        form.numeroLote
-          .trim()
-          .toUpperCase(),
+        numeroLote:
+          form.numeroLote
+            .trim()
+            .toUpperCase(),
 
-      frenteMetros:
-        Number(
-          form.frenteMetros ||
-            0
-        ),
+        /* =====================
+           TIPO
+        ===================== */
 
-      frenteCentimetros:
-        Number(
-          form.frenteCentimetros ||
-            0
-        ),
+        tipoLote:
+          form.tipoLote,
 
-      fondoMetros:
-        Number(
-          form.fondoMetros ||
-            0
-        ),
+        /* =====================
+           MEDIDAS
+        ===================== */
 
-      fondoCentimetros:
-        Number(
-          form.fondoCentimetros ||
-            0
-        ),
+        frenteMetros:
+          Number(
+            form.frenteMetros ||
+              0
+          ),
 
-      valorLote:
-        Number(
-          form.valorLote
-        ),
+        frenteCentimetros:
+          Number(
+            form.frenteCentimetros ||
+              0
+          ),
 
-      estado:
-        form.estado,
+        fondoMetros:
+          Number(
+            form.fondoMetros ||
+              0
+          ),
 
-      observaciones:
-        form.observaciones.trim(),
-    });
-  };
+        fondoCentimetros:
+          Number(
+            form.fondoCentimetros ||
+              0
+          ),
 
-  if (!abierto) {
+        /* =====================
+           ÁREA FINAL
+
+           Regular:
+           calculada
+
+           Irregular:
+           manual
+        ===================== */
+
+        areaM2:
+          Number(
+            areaFinal
+          ),
+
+        valorLote:
+          Number(
+            form.valorLote
+          ),
+
+        estado:
+          form.estado,
+
+        observaciones:
+          form.observaciones.trim(),
+      });
+    };
+
+  if (
+    !abierto
+  ) {
     return null;
   }
 
   return (
     <div className="lotes-modal-overlay">
+
       <div className="lotes-modal lote-modal">
+
         {/* =========================================
             CABECERA
         ========================================= */}
 
         <div className="lotes-modal-header">
+
           <div className="lotes-modal-title">
+
             <div className="lotes-modal-icon">
-              <LandPlot size={21} />
+              <LandPlot
+                size={21}
+              />
             </div>
 
             <div>
@@ -446,17 +759,25 @@ export default function LoteModal({
                   : "Crear lote"}
               </h2>
             </div>
+
           </div>
 
           <button
             type="button"
             className="lotes-modal-close"
-            onClick={onCerrar}
-            disabled={guardando}
+            onClick={
+              onCerrar
+            }
+            disabled={
+              guardando
+            }
             aria-label="Cerrar"
           >
-            <X size={20} />
+            <X
+              size={20}
+            />
           </button>
+
         </div>
 
         {/* =========================================
@@ -468,12 +789,16 @@ export default function LoteModal({
             handleSubmit
           }
         >
+
           <div className="lotes-modal-body">
 
-            {/* CÓDIGO EN EDICIÓN */}
+            {/* =====================================
+                CÓDIGO EN EDICIÓN
+            ===================================== */}
 
             {loteEditar?.codigo && (
               <div className="lote-code-preview">
+
                 <div>
                   <span>
                     Código del lote
@@ -487,9 +812,9 @@ export default function LoteModal({
                 </div>
 
                 <small>
-                  Generado
-                  automáticamente.
+                  Generado automáticamente.
                 </small>
+
               </div>
             )}
 
@@ -500,6 +825,7 @@ export default function LoteModal({
               ===================== */}
 
               <div className="lotes-field lotes-field-full">
+
                 <label htmlFor="manzana">
                   Manzana *
                 </label>
@@ -547,6 +873,7 @@ export default function LoteModal({
                       )
                     )}
                 </select>
+
               </div>
 
               {/* =====================
@@ -554,6 +881,7 @@ export default function LoteModal({
               ===================== */}
 
               <div className="lotes-field lotes-field-full">
+
                 <label htmlFor="numeroLote">
                   Número del lote *
                 </label>
@@ -574,20 +902,194 @@ export default function LoteModal({
                 />
 
                 <small className="lotes-field-help">
-                  El código se
-                  generará
-                  automáticamente
-                  según la manzana.
+                  El código se generará
+                  automáticamente según la manzana.
                 </small>
+
               </div>
+
             </div>
+
+            {/* =====================================
+                TIPO DE LOTE
+            ===================================== */}
+
+            <div className="lote-tipo-section">
+
+              <div className="lote-section-title">
+
+                <div>
+                  <span>
+                    Forma del terreno
+                  </span>
+
+                  <h3>
+                    Tipo de lote
+                  </h3>
+                </div>
+
+                <small>
+                  Seleccione cómo se determina el área
+                </small>
+
+              </div>
+
+              <div className="lote-tipo-options">
+
+                {/* REGULAR */}
+
+                <button
+                  type="button"
+                  className={`lote-tipo-option ${
+                    !esIrregular
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    seleccionarTipoLote(
+                      "Regular"
+                    )
+                  }
+                  disabled={
+                    guardando
+                  }
+                >
+                  <div className="lote-tipo-option-icon">
+                    <Ruler
+                      size={21}
+                    />
+                  </div>
+
+                  <div>
+                    <strong>
+                      Lote regular
+                    </strong>
+
+                    <span>
+                      Se determina con las medidas
+                      de frente y fondo.
+                    </span>
+                  </div>
+                </button>
+
+                {/* IRREGULAR */}
+
+                <button
+                  type="button"
+                  className={`lote-tipo-option irregular ${
+                    esIrregular
+                      ? "active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    seleccionarTipoLote(
+                      "Irregular"
+                    )
+                  }
+                  disabled={
+                    guardando
+                  }
+                >
+                  <div className="lote-tipo-option-icon">
+                    <Shapes
+                      size={21}
+                    />
+                  </div>
+
+                  <div>
+                    <strong>
+                      Lote irregular
+                    </strong>
+
+                    <span>
+                      Se determina por el área total
+                      en metros cuadrados.
+                    </span>
+                  </div>
+                </button>
+
+              </div>
+
+            </div>
+
+            {/* =====================================
+                ÁREA MANUAL PARA IRREGULAR
+            ===================================== */}
+
+            {esIrregular && (
+              <div className="lote-irregular-area">
+
+                <div className="lote-irregular-area-header">
+
+                  <div className="lote-irregular-area-icon">
+                    <Shapes
+                      size={22}
+                    />
+                  </div>
+
+                  <div>
+                    <span>
+                      Área del lote irregular
+                    </span>
+
+                    <strong>
+                      Área total a vender
+                    </strong>
+
+                    <small>
+                      Esta será el área oficial del lote.
+                      No se calculará con frente × fondo.
+                    </small>
+                  </div>
+
+                </div>
+
+                <div className="lote-irregular-area-control">
+
+                  <input
+                    type="text"
+                    inputMode="decimal"
+                    name="areaM2"
+                    value={
+                      form.areaM2
+                    }
+                    onChange={
+                      handleAreaChange
+                    }
+                    placeholder="Ej. 347.50"
+                  />
+
+                  <span>
+                    m²
+                  </span>
+
+                </div>
+
+                {Number(
+                  form.areaM2
+                ) > 0 && (
+                  <div className="lote-irregular-area-preview">
+                    Área registrada:{" "}
+                    <strong>
+                      {formatearArea(
+                        form.areaM2
+                      )}{" "}
+                      m²
+                    </strong>
+                  </div>
+                )}
+
+              </div>
+            )}
 
             {/* =====================================
                 MEDIDAS
             ===================================== */}
 
             <div className="lote-medidas-section">
+
               <div className="lote-section-title">
+
                 <div>
                   <span>
                     Dimensiones
@@ -599,15 +1101,47 @@ export default function LoteModal({
                 </div>
 
                 <small>
-                  Registre metros y
-                  centímetros
+                  {esIrregular
+                    ? "Opcionales como referencia"
+                    : "Obligatorias para calcular el área"}
                 </small>
+
               </div>
 
-              {/* FRENTE */}
+              {/* ===================================
+                  AVISO IRREGULAR
+              =================================== */}
+
+              {esIrregular && (
+                <div className="lote-irregular-reference">
+
+                  <Shapes
+                    size={18}
+                  />
+
+                  <div>
+                    <strong>
+                      Medidas de referencia
+                    </strong>
+
+                    <span>
+                      Puede registrar frente y fondo si
+                      los conoce, pero estas medidas no
+                      cambiarán el área total del lote.
+                    </span>
+                  </div>
+
+                </div>
+              )}
+
+              {/* ===================================
+                  FRENTE
+              =================================== */}
 
               <div className="lote-medida-card">
+
                 <div className="lote-medida-name">
+
                   <span>
                     Frente
                   </span>
@@ -618,15 +1152,19 @@ export default function LoteModal({
                     )}{" "}
                     m
                   </strong>
+
                 </div>
 
                 <div className="lote-medida-inputs">
+
                   <div className="lote-medida-field">
+
                     <label>
                       Metros
                     </label>
 
                     <div className="lote-medida-control">
+
                       <input
                         type="text"
                         inputMode="numeric"
@@ -643,15 +1181,19 @@ export default function LoteModal({
                       <span>
                         m
                       </span>
+
                     </div>
+
                   </div>
 
                   <div className="lote-medida-field">
+
                     <label>
                       Centímetros
                     </label>
 
                     <div className="lote-medida-control">
+
                       <input
                         type="text"
                         inputMode="numeric"
@@ -669,15 +1211,23 @@ export default function LoteModal({
                       <span>
                         cm
                       </span>
+
                     </div>
+
                   </div>
+
                 </div>
+
               </div>
 
-              {/* FONDO */}
+              {/* ===================================
+                  FONDO
+              =================================== */}
 
               <div className="lote-medida-card">
+
                 <div className="lote-medida-name">
+
                   <span>
                     Fondo
                   </span>
@@ -688,15 +1238,19 @@ export default function LoteModal({
                     )}{" "}
                     m
                   </strong>
+
                 </div>
 
                 <div className="lote-medida-inputs">
+
                   <div className="lote-medida-field">
+
                     <label>
                       Metros
                     </label>
 
                     <div className="lote-medida-control">
+
                       <input
                         type="text"
                         inputMode="numeric"
@@ -713,15 +1267,19 @@ export default function LoteModal({
                       <span>
                         m
                       </span>
+
                     </div>
+
                   </div>
 
                   <div className="lote-medida-field">
+
                     <label>
                       Centímetros
                     </label>
 
                     <div className="lote-medida-control">
+
                       <input
                         type="text"
                         inputMode="numeric"
@@ -739,46 +1297,68 @@ export default function LoteModal({
                       <span>
                         cm
                       </span>
+
                     </div>
+
                   </div>
+
                 </div>
+
               </div>
+
             </div>
 
             {/* =====================================
-                ÁREA AUTOMÁTICA
+                ÁREA DEL LOTE
             ===================================== */}
 
-            <div className="lote-area-preview">
+            <div
+              className={`lote-area-preview ${
+                esIrregular
+                  ? "lote-area-preview-irregular"
+                  : ""
+              }`}
+            >
+
               <div className="lote-area-icon">
-                <Calculator
-                  size={21}
-                />
+                {esIrregular ? (
+                  <Shapes
+                    size={21}
+                  />
+                ) : (
+                  <Calculator
+                    size={21}
+                  />
+                )}
               </div>
 
               <div>
+
                 <span>
-                  Área calculada
+                  {esIrregular
+                    ? "Área registrada"
+                    : "Área calculada"}
                 </span>
 
                 <strong>
                   {formatearArea(
-                    areaCalculada
+                    areaFinal
                   )}{" "}
                   m²
                 </strong>
 
                 <small>
-                  {formatearArea(
-                    frenteTotal
-                  )}{" "}
-                  m ×{" "}
-                  {formatearArea(
-                    fondoTotal
-                  )}{" "}
-                  m
+                  {esIrregular
+                    ? "Área total oficial del lote"
+                    : `${formatearArea(
+                        frenteTotal
+                      )} m × ${formatearArea(
+                        fondoTotal
+                      )} m`}
                 </small>
+
               </div>
+
             </div>
 
             {/* =====================================
@@ -786,13 +1366,18 @@ export default function LoteModal({
             ===================================== */}
 
             <div className="lotes-form-grid lote-economic-section">
+
               <div className="lotes-field">
+
                 <label htmlFor="valorLote">
                   Valor general del lote *
                 </label>
 
                 <div className="lote-money-input">
-                  <span>$</span>
+
+                  <span>
+                    $
+                  </span>
 
                   <input
                     id="valorLote"
@@ -807,6 +1392,7 @@ export default function LoteModal({
                     }
                     placeholder="45000000"
                   />
+
                 </div>
 
                 {form.valorLote && (
@@ -816,11 +1402,15 @@ export default function LoteModal({
                     )}
                   </small>
                 )}
+
               </div>
 
-              {/* ESTADO */}
+              {/* ===================================
+                  ESTADO
+              =================================== */}
 
               <div className="lotes-field">
+
                 <label htmlFor="estadoLote">
                   Estado
                 </label>
@@ -853,12 +1443,17 @@ export default function LoteModal({
                       Vendido
                     </option>
                   )}
+
                 </select>
+
               </div>
 
-              {/* OBSERVACIONES */}
+              {/* ===================================
+                  OBSERVACIONES
+              =================================== */}
 
               <div className="lotes-field lotes-field-full">
+
                 <label htmlFor="observaciones">
                   Observaciones
                 </label>
@@ -876,7 +1471,9 @@ export default function LoteModal({
                   rows="3"
                   maxLength={500}
                 />
+
               </div>
+
             </div>
 
             {/* =====================================
@@ -884,6 +1481,19 @@ export default function LoteModal({
             ===================================== */}
 
             <div className="lote-form-summary">
+
+              <div>
+                <span>
+                  Tipo de lote
+                </span>
+
+                <strong>
+                  {
+                    form.tipoLote
+                  }
+                </strong>
+              </div>
+
               <div>
                 <span>
                   Área
@@ -891,7 +1501,7 @@ export default function LoteModal({
 
                 <strong>
                   {formatearArea(
-                    areaCalculada
+                    areaFinal
                   )}{" "}
                   m²
                 </strong>
@@ -910,7 +1520,9 @@ export default function LoteModal({
                     : "$0"}
                 </strong>
               </div>
+
             </div>
+
           </div>
 
           {/* =========================================
@@ -918,11 +1530,16 @@ export default function LoteModal({
           ========================================= */}
 
           <div className="lotes-modal-footer">
+
             <button
               type="button"
               className="lotes-btn-secondary"
-              onClick={onCerrar}
-              disabled={guardando}
+              onClick={
+                onCerrar
+              }
+              disabled={
+                guardando
+              }
             >
               Cancelar
             </button>
@@ -930,9 +1547,13 @@ export default function LoteModal({
             <button
               type="submit"
               className="lotes-btn-primary"
-              disabled={guardando}
+              disabled={
+                guardando
+              }
             >
-              <Save size={18} />
+              <Save
+                size={18}
+              />
 
               {guardando
                 ? "Guardando..."
@@ -940,9 +1561,13 @@ export default function LoteModal({
                 ? "Actualizar lote"
                 : "Guardar lote"}
             </button>
+
           </div>
+
         </form>
+
       </div>
+
     </div>
   );
 }

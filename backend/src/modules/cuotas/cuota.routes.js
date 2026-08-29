@@ -14,71 +14,80 @@ const router = Router();
    CUOTAS
 ========================================================= */
 
-/*
-  Resumen general
+/* =========================================================
+   RESUMEN GENERAL
 
-  GET /api/cuotas/resumen
+   GET /api/cuotas/resumen
 
-  IMPORTANTE:
-  Debe ir antes de "/:id".
-*/
+   IMPORTANTE:
+   Debe quedar antes de "/:id".
+========================================================= */
+
 router.get(
   "/resumen",
   obtenerResumenCuotas
 );
 
-/*
-  Obtener todas las cuotas de una venta
+/* =========================================================
+   OBTENER CUOTAS DE UNA VENTA
 
-  GET /api/cuotas/venta/:ventaId
-*/
+   GET /api/cuotas/venta/:ventaId
+========================================================= */
+
 router.get(
   "/venta/:ventaId",
   obtenerCuotasPorVenta
 );
 
-/*
-  Generar las cuotas de una venta financiada
+/* =========================================================
+   GENERAR CUOTAS DE UNA VENTA FINANCIADA
 
-  POST /api/cuotas/generar/:ventaId
+   POST /api/cuotas/generar/:ventaId
 
-  Body opcional:
+   Body opcional:
 
-  {
-    "fechaPrimeraCuota": "2026-09-28"
-  }
-*/
+   {
+     "fechaPrimeraCuota": "2026-09-28"
+   }
+========================================================= */
+
 router.post(
   "/generar/:ventaId",
   generarCuotasVenta
 );
 
-/*
-  Listar cuotas
+/* =========================================================
+   LISTAR CUOTAS
 
-  GET /api/cuotas
+   GET /api/cuotas
 
-  Filtros disponibles:
+   Filtros disponibles:
 
-  ?venta=ID
-  ?cliente=ID
-  ?estado=Pendiente
-  ?fechaInicio=2026-09-01
-  ?fechaFinal=2026-09-30
-*/
+   ?venta=ID
+   ?cliente=ID
+   ?estado=Pendiente
+   ?estado=Parcial
+   ?estado=Pagada
+   ?estado=Vencida
+   ?fechaInicio=2026-09-01
+   ?fechaFinal=2026-09-30
+
+   Ya NO existe estado "Anulada".
+========================================================= */
+
 router.get(
   "/",
   obtenerCuotas
 );
 
-/*
-  Obtener una cuota por ID
+/* =========================================================
+   OBTENER CUOTA POR ID
 
-  GET /api/cuotas/:id
+   GET /api/cuotas/:id
 
-  Debe quedar después de las rutas
-  especiales de arriba.
-*/
+   Debe quedar después de las rutas especiales.
+========================================================= */
+
 router.get(
   "/:id",
   obtenerCuotaPorId

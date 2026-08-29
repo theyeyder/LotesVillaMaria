@@ -5,16 +5,12 @@ import {
 } from "react";
 
 import {
-  AlertTriangle,
-  Ban,
   CalendarDays,
-  CheckCircle2,
   CreditCard,
   Eye,
   Plus,
   ReceiptText,
   RefreshCw,
-  RotateCcw,
   Search,
   Trash2,
   UserRound,
@@ -25,14 +21,11 @@ import {
 import "./Pagos.css";
 
 import Toast from "../../components/ui/Toast";
-
 import PagoModal from "./PagoModal";
 
 import {
   obtenerPagos,
   obtenerResumenPagos,
-  anularPago,
-  revertirPago,
   eliminarPago,
 } from "../../services/pago.service";
 
@@ -89,7 +82,7 @@ const formatearFecha = (
 };
 
 /* =========================================================
-   CLIENTE
+   NOMBRE CLIENTE
 ========================================================= */
 
 const obtenerNombreCliente = (
@@ -117,6 +110,9 @@ const obtenerNombreCliente = (
 
 /* =========================================================
    RESUMEN INICIAL
+
+   Ya NO existe:
+   - anulados
 ========================================================= */
 
 const resumenInicial = {
@@ -128,8 +124,6 @@ const resumenInicial = {
   consignacion: 0,
   pse: 0,
   otro: 0,
-
-  anulados: 0,
 };
 
 /* =========================================================
@@ -181,22 +175,17 @@ export default function Pagos() {
   ] = useState(null);
 
   /* =======================================================
-     ANULACIÓN
+     ELIMINAR PAGO
   ======================================================= */
 
   const [
-    pagoParaAnular,
-    setPagoParaAnular,
+    pagoParaEliminar,
+    setPagoParaEliminar,
   ] = useState(null);
 
   const [
-    motivoAnulacion,
-    setMotivoAnulacion,
-  ] = useState("");
-
-  const [
-    anulando,
-    setAnulando,
+    eliminandoPago,
+    setEliminandoPago,
   ] = useState(false);
 
   /* =======================================================
@@ -206,11 +195,6 @@ export default function Pagos() {
   const [
     busqueda,
     setBusqueda,
-  ] = useState("");
-
-  const [
-    filtroEstado,
-    setFiltroEstado,
   ] = useState("");
 
   const [
@@ -237,7 +221,8 @@ export default function Pagos() {
     setPaginaActual,
   ] = useState(1);
 
-  const PAGOS_POR_PAGINA = 10;
+  const PAGOS_POR_PAGINA =
+    10;
 
   /* =======================================================
      TOAST
@@ -268,7 +253,9 @@ export default function Pagos() {
       setNotificacion(
         (prev) => ({
           ...prev,
-          visible: false,
+
+          visible:
+            false,
         })
       );
     };
@@ -284,7 +271,9 @@ export default function Pagos() {
           await obtenerPagos();
 
         const lista =
-          Array.isArray(datos)
+          Array.isArray(
+            datos
+          )
             ? datos
             : [];
 
@@ -322,6 +311,7 @@ export default function Pagos() {
 
         setResumen({
           ...resumenInicial,
+
           ...(datos || {}),
         });
       } catch (error) {
@@ -346,14 +336,18 @@ export default function Pagos() {
   const cargarTodo =
     async () => {
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
 
         await Promise.all([
           cargarPagos(),
           cargarResumen(),
         ]);
       } finally {
-        setCargando(false);
+        setCargando(
+          false
+        );
       }
     };
 
@@ -363,6 +357,9 @@ export default function Pagos() {
 
   /* =======================================================
      FILTRAR PAGOS
+
+     Ya NO filtramos por estado porque todos los pagos
+     que existen son pagos válidos.
   ======================================================= */
 
   const pagosFiltrados =
@@ -387,18 +384,6 @@ export default function Pagos() {
             lote?.manzana;
 
           /* =====================
-             ESTADO
-          ===================== */
-
-          if (
-            filtroEstado &&
-            pago.estado !==
-              filtroEstado
-          ) {
-            return false;
-          }
-
-          /* =====================
              MÉTODO
           ===================== */
 
@@ -414,7 +399,9 @@ export default function Pagos() {
              FECHA DESDE
           ===================== */
 
-          if (fechaInicio) {
+          if (
+            fechaInicio
+          ) {
             const fechaPago =
               new Date(
                 pago.fechaPago
@@ -437,7 +424,9 @@ export default function Pagos() {
              FECHA HASTA
           ===================== */
 
-          if (fechaFinal) {
+          if (
+            fechaFinal
+          ) {
             const fechaPago =
               new Date(
                 pago.fechaPago
@@ -477,19 +466,20 @@ export default function Pagos() {
 
             lote?.codigo,
 
+            manzana?.codigo,
+
             manzana?.nombre,
 
             pago.metodoPago,
 
             pago.referencia,
-
-            pago.estado,
           ]
             .filter(
               (dato) =>
                 dato !==
                   undefined &&
-                dato !== null
+                dato !==
+                  null
             )
             .join(" ")
             .toLowerCase();
@@ -502,7 +492,6 @@ export default function Pagos() {
     }, [
       pagos,
       busqueda,
-      filtroEstado,
       filtroMetodo,
       fechaInicio,
       fechaFinal,
@@ -522,7 +511,10 @@ export default function Pagos() {
     );
 
   const indiceInicial =
-    (paginaActual - 1) *
+    (
+      paginaActual -
+      1
+    ) *
     PAGOS_POR_PAGINA;
 
   const pagosPaginados =
@@ -533,10 +525,11 @@ export default function Pagos() {
     );
 
   useEffect(() => {
-    setPaginaActual(1);
+    setPaginaActual(
+      1
+    );
   }, [
     busqueda,
-    filtroEstado,
     filtroMetodo,
     fechaInicio,
     fechaFinal,
@@ -562,12 +555,25 @@ export default function Pagos() {
 
   const limpiarFiltros =
     () => {
-      setBusqueda("");
-      setFiltroEstado("");
-      setFiltroMetodo("");
-      setFechaInicio("");
-      setFechaFinal("");
-      setPaginaActual(1);
+      setBusqueda(
+        ""
+      );
+
+      setFiltroMetodo(
+        ""
+      );
+
+      setFechaInicio(
+        ""
+      );
+
+      setFechaFinal(
+        ""
+      );
+
+      setPaginaActual(
+        1
+      );
     };
 
   /* =======================================================
@@ -605,101 +611,63 @@ export default function Pagos() {
     };
 
   /* =======================================================
-     ABRIR ANULACIÓN
+     ABRIR ELIMINACIÓN
   ======================================================= */
 
-  const abrirAnulacion =
+  const abrirEliminarPago =
     (pago) => {
-      if (
-        pago.estado ===
-        "Anulado"
-      ) {
-        mostrarNotificacion(
-          "Este pago ya se encuentra anulado.",
-          "info"
-        );
-
-        return;
-      }
-
-      setPagoParaAnular(
+      setPagoParaEliminar(
         pago
       );
-
-      setMotivoAnulacion(
-        ""
-      );
     };
 
   /* =======================================================
-     CERRAR ANULACIÓN
+     CERRAR ELIMINACIÓN
   ======================================================= */
 
-  const cerrarAnulacion =
+  const cerrarEliminarPago =
     () => {
-      if (anulando) {
+      if (
+        eliminandoPago
+      ) {
         return;
       }
 
-      setPagoParaAnular(
+      setPagoParaEliminar(
         null
       );
-
-      setMotivoAnulacion(
-        ""
-      );
     };
 
   /* =======================================================
-     CONFIRMAR ANULACIÓN
+     ELIMINAR PAGO
+
+     El backend:
+     - elimina el pago definitivamente
+     - recalcula cuotas
+     - devuelve el dinero al saldo pendiente
+     - recalcula la venta
   ======================================================= */
 
-  const confirmarAnulacion =
+  const confirmarEliminarPago =
     async () => {
-      const motivo =
-        motivoAnulacion.trim();
-
-      if (!motivo) {
-        mostrarNotificacion(
-          "Debe escribir el motivo de la anulación.",
-          "error"
-        );
-
-        return;
-      }
-
       if (
-        motivo.length < 5
-      ) {
-        mostrarNotificacion(
-          "El motivo de anulación debe ser más descriptivo.",
-          "error"
-        );
-
-        return;
-      }
-
-      if (
-        !pagoParaAnular?._id
+        !pagoParaEliminar?._id
       ) {
         return;
       }
 
       try {
-        setAnulando(true);
-
-        const respuesta =
-          await anularPago(
-            pagoParaAnular._id,
-            motivo
-          );
-
-        setPagoParaAnular(
-          null
+        setEliminandoPago(
+          true
         );
 
-        setMotivoAnulacion(
-          ""
+        const respuesta =
+          await eliminarPago(
+            pagoParaEliminar._id
+          );
+
+        setPagoParaEliminar(
+          null
         );
 
         setPagoDetalle(
@@ -710,141 +678,27 @@ export default function Pagos() {
 
         mostrarNotificacion(
           respuesta?.message ||
-            "Pago anulado correctamente."
+            "Pago eliminado correctamente.",
+          "success"
         );
       } catch (error) {
         console.error(
-          "Error anulando pago:",
+          "Error eliminando pago:",
           error
         );
 
         mostrarNotificacion(
           error?.response?.data
             ?.message ||
-            "No fue posible anular el pago.",
+            "No fue posible eliminar el pago.",
           "error"
         );
       } finally {
-        setAnulando(false);
+        setEliminandoPago(
+          false
+        );
       }
     };
-
-  /* =======================================================
-     ID DE VENTA
-  ======================================================= */
-
-  const obtenerVentaId = (pago) => {
-    return (
-      pago?.venta?._id ||
-      pago?.venta ||
-      ""
-    );
-  };
-
-  /* =======================================================
-     PUEDE REVERTIR
-
-     Únicamente cuando ese anulado es el único
-     registro existente de esa venta.
-  ======================================================= */
-
-  const puedeRevertirPago = (pago) => {
-    if (pago.estado !== "Anulado") {
-      return false;
-    }
-
-    const ventaId = obtenerVentaId(pago);
-
-    const pagosVenta = pagos.filter(
-      (item) => obtenerVentaId(item) === ventaId
-    );
-
-    return pagosVenta.length === 1;
-  };
-
-  /* =======================================================
-     PUEDE ELIMINAR
-
-     Pago anulado + ya existe otro pago aplicado
-     para esa misma venta.
-  ======================================================= */
-
-  const puedeEliminarPago = (pago) => {
-    if (pago.estado !== "Anulado") {
-      return false;
-    }
-
-    const ventaId = obtenerVentaId(pago);
-
-    return pagos.some(
-      (item) =>
-        item._id !== pago._id &&
-        obtenerVentaId(item) === ventaId &&
-        item.estado === "Aplicado"
-    );
-  };
-
-  /* =======================================================
-     REVERTIR
-  ======================================================= */
-
-  const handleRevertirPago = async (pago) => {
-    const confirmar = window.confirm(
-      `¿Desea revertir la anulación de ${pago.codigo}? El pago volverá a aplicarse a la cartera actual.`
-    );
-
-    if (!confirmar) {
-      return;
-    }
-
-    try {
-      const respuesta = await revertirPago(pago._id);
-
-      await cargarTodo();
-
-      mostrarNotificacion(
-        respuesta?.message || "Pago revertido correctamente."
-      );
-    } catch (error) {
-      console.error("Error revirtiendo pago:", error);
-
-      mostrarNotificacion(
-        error?.response?.data?.message || "No fue posible revertir el pago.",
-        "error"
-      );
-    }
-  };
-
-  /* =======================================================
-     ELIMINAR ANULADO
-  ======================================================= */
-
-  const handleEliminarPago = async (pago) => {
-    const confirmar = window.confirm(
-      `¿Eliminar definitivamente ${pago.codigo}? Este registro anulado desaparecerá del historial.`
-    );
-
-    if (!confirmar) {
-      return;
-    }
-
-    try {
-      const respuesta = await eliminarPago(pago._id);
-
-      await cargarTodo();
-
-      mostrarNotificacion(
-        respuesta?.message || "Pago eliminado correctamente."
-      );
-    } catch (error) {
-      console.error("Error eliminando pago:", error);
-
-      mostrarNotificacion(
-        error?.response?.data?.message || "No fue posible eliminar el pago.",
-        "error"
-      );
-    }
-  };
 
   /* =======================================================
      RENDER
@@ -858,6 +712,7 @@ export default function Pagos() {
       ================================================= */}
 
       <div className="pagos-header">
+
         <div>
           <span className="pagos-kicker">
             Cartera
@@ -876,6 +731,7 @@ export default function Pagos() {
         </div>
 
         <div className="pagos-header-actions">
+
           <button
             type="button"
             className="pagos-refresh-button"
@@ -907,10 +763,13 @@ export default function Pagos() {
               )
             }
           >
-            <Plus size={18} />
+            <Plus
+              size={18}
+            />
 
             Nuevo pago
           </button>
+
         </div>
       </div>
 
@@ -929,7 +788,7 @@ export default function Pagos() {
 
           <div>
             <span>
-              Pagos aplicados
+              Total pagos
             </span>
 
             <strong>
@@ -987,7 +846,7 @@ export default function Pagos() {
 
           <div>
             <span>
-              Transferencias
+              Transferencias + PSE
             </span>
 
             <strong>
@@ -1003,27 +862,6 @@ export default function Pagos() {
           </div>
         </article>
 
-        <article className="pagos-stat anulados">
-          <div className="pagos-stat-icon">
-            <Ban size={20} />
-          </div>
-
-          <div>
-            <span>
-              Anulados
-            </span>
-
-            <strong>
-              {
-                resumen.anulados
-              }
-            </strong>
-
-            <small>
-              Solo historial
-            </small>
-          </div>
-        </article>
       </div>
 
       {/* =================================================
@@ -1031,6 +869,7 @@ export default function Pagos() {
       ================================================= */}
 
       <div className="pagos-method-summary">
+
         <div>
           <span>
             Transferencia
@@ -1078,6 +917,7 @@ export default function Pagos() {
             )}
           </strong>
         </div>
+
       </div>
 
       {/* =================================================
@@ -1091,8 +931,12 @@ export default function Pagos() {
         ============================================= */}
 
         <div className="pagos-toolbar">
+
           <div className="pagos-search">
-            <Search size={18} />
+
+            <Search
+              size={18}
+            />
 
             <input
               type="text"
@@ -1106,6 +950,7 @@ export default function Pagos() {
               }
               placeholder="Buscar pago, cliente, documento, venta o lote..."
             />
+
           </div>
 
           <button
@@ -1117,6 +962,7 @@ export default function Pagos() {
           >
             Limpiar filtros
           </button>
+
         </div>
 
         {/* =============================================
@@ -1126,35 +972,7 @@ export default function Pagos() {
         <div className="pagos-filters">
 
           <div className="pagos-filter-field">
-            <label>
-              Estado
-            </label>
 
-            <select
-              value={
-                filtroEstado
-              }
-              onChange={(e) =>
-                setFiltroEstado(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Todos
-              </option>
-
-              <option value="Aplicado">
-                Aplicado
-              </option>
-
-              <option value="Anulado">
-                Anulado
-              </option>
-            </select>
-          </div>
-
-          <div className="pagos-filter-field">
             <label>
               Método
             </label>
@@ -1193,9 +1011,11 @@ export default function Pagos() {
                 Otro
               </option>
             </select>
+
           </div>
 
           <div className="pagos-filter-field">
+
             <label>
               Desde
             </label>
@@ -1211,9 +1031,11 @@ export default function Pagos() {
                 )
               }
             />
+
           </div>
 
           <div className="pagos-filter-field">
+
             <label>
               Hasta
             </label>
@@ -1229,7 +1051,9 @@ export default function Pagos() {
                 )
               }
             />
+
           </div>
+
         </div>
 
         {/* =================================================
@@ -1237,28 +1061,55 @@ export default function Pagos() {
         ================================================= */}
 
         <div className="pagos-table-wrapper">
+
           <table className="pagos-table">
 
             <thead>
               <tr>
-                <th>Pago</th>
-                <th>Fecha</th>
-                <th>Cliente</th>
-                <th>Venta</th>
-                <th>Método</th>
-                <th>Referencia</th>
-                <th>Valor</th>
-                <th>Aplicación</th>
-                <th>Estado</th>
-                <th>Acciones</th>
+                <th>
+                  Pago
+                </th>
+
+                <th>
+                  Fecha
+                </th>
+
+                <th>
+                  Cliente
+                </th>
+
+                <th>
+                  Venta
+                </th>
+
+                <th>
+                  Método
+                </th>
+
+                <th>
+                  Referencia
+                </th>
+
+                <th>
+                  Valor
+                </th>
+
+                <th>
+                  Aplicación
+                </th>
+
+                <th>
+                  Acciones
+                </th>
               </tr>
             </thead>
 
             <tbody>
+
               {cargando ? (
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="9"
                     className="pagos-empty"
                   >
                     <RefreshCw
@@ -1275,7 +1126,7 @@ export default function Pagos() {
                 0 ? (
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="9"
                     className="pagos-empty"
                   >
                     <WalletCards
@@ -1309,12 +1160,6 @@ export default function Pagos() {
                         key={
                           pago._id
                         }
-                        className={
-                          pago.estado ===
-                          "Anulado"
-                            ? "pago-row-anulado"
-                            : ""
-                        }
                       >
 
                         {/* PAGO */}
@@ -1330,6 +1175,7 @@ export default function Pagos() {
 
                         <td>
                           <div className="pago-date-cell">
+
                             <CalendarDays
                               size={15}
                             />
@@ -1337,6 +1183,7 @@ export default function Pagos() {
                             {formatearFecha(
                               pago.fechaPago
                             )}
+
                           </div>
                         </td>
 
@@ -1344,6 +1191,7 @@ export default function Pagos() {
 
                         <td>
                           <div className="pago-client-cell">
+
                             <UserRound
                               size={16}
                             />
@@ -1360,6 +1208,7 @@ export default function Pagos() {
                                   "Sin documento"}
                               </span>
                             </div>
+
                           </div>
                         </td>
 
@@ -1367,6 +1216,7 @@ export default function Pagos() {
 
                         <td>
                           <div className="pago-sale-cell">
+
                             <strong>
                               {venta?.codigo ||
                                 "—"}
@@ -1376,6 +1226,7 @@ export default function Pagos() {
                               {lote?.codigo ||
                                 "Sin lote"}
                             </span>
+
                           </div>
                         </td>
 
@@ -1411,7 +1262,8 @@ export default function Pagos() {
                         <td>
                           <span className="pago-aplications">
                             {pago.aplicaciones
-                              ?.length || 0}{" "}
+                              ?.length ||
+                              0}{" "}
                             cuota
                             {(pago.aplicaciones
                               ?.length ||
@@ -1421,89 +1273,50 @@ export default function Pagos() {
                           </span>
                         </td>
 
-                        {/* ESTADO */}
-
-                        <td>
-                          <span
-                            className={`pago-status pago-status-${String(
-                              pago.estado
-                            ).toLowerCase()}`}
-                          >
-                            {
-                              pago.estado
-                            }
-                          </span>
-                        </td>
-
                         {/* ACCIONES */}
 
                         <td>
                           <div className="pagos-actions">
-
-                            {/* VER */}
 
                             <button
                               type="button"
                               className="view"
                               title="Ver detalle"
                               onClick={() =>
-                                abrirDetalle(pago)
+                                abrirDetalle(
+                                  pago
+                                )
                               }
                             >
-                              <Eye size={16} />
+                              <Eye
+                                size={16}
+                              />
                             </button>
 
-                            {/* ANULAR */}
+                            <button
+                              type="button"
+                              className="delete"
+                              title="Eliminar pago"
+                              onClick={() =>
+                                abrirEliminarPago(
+                                  pago
+                                )
+                              }
+                            >
+                              <Trash2
+                                size={16}
+                              />
+                            </button>
 
-                            {pago.estado === "Aplicado" && (
-                              <button
-                                type="button"
-                                className="cancel"
-                                title="Anular pago"
-                                onClick={() =>
-                                  abrirAnulacion(pago)
-                                }
-                              >
-                                <Ban size={16} />
-                              </button>
-                            )}
-
-                            {/* REVERTIR */}
-
-                            {puedeRevertirPago(pago) && (
-                              <button
-                                type="button"
-                                className="revert"
-                                title="Revertir anulación"
-                                onClick={() =>
-                                  handleRevertirPago(pago)
-                                }
-                              >
-                                <RotateCcw size={16} />
-                              </button>
-                            )}
-
-                            {/* ELIMINAR */}
-
-                            {puedeEliminarPago(pago) && (
-                              <button
-                                type="button"
-                                className="delete"
-                                title="Eliminar pago anulado"
-                                onClick={() =>
-                                  handleEliminarPago(pago)
-                                }
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            )}
                           </div>
                         </td>
+
                       </tr>
                     );
                   }
                 )
               )}
+
             </tbody>
           </table>
         </div>
@@ -1513,6 +1326,7 @@ export default function Pagos() {
         ================================================= */}
 
         <div className="pagos-table-footer">
+
           <span>
             Mostrando{" "}
             <strong>
@@ -1522,16 +1336,20 @@ export default function Pagos() {
             </strong>{" "}
             de{" "}
             <strong>
-              {pagos.length}
+              {
+                pagos.length
+              }
             </strong>{" "}
             pagos
           </span>
 
           <div className="pagos-pagination">
+
             <button
               type="button"
               disabled={
-                paginaActual === 1
+                paginaActual ===
+                1
               }
               onClick={() =>
                 setPaginaActual(
@@ -1549,11 +1367,15 @@ export default function Pagos() {
             <span>
               Página{" "}
               <strong>
-                {paginaActual}
+                {
+                  paginaActual
+                }
               </strong>{" "}
               de{" "}
               <strong>
-                {totalPaginas}
+                {
+                  totalPaginas
+                }
               </strong>
             </span>
 
@@ -1575,6 +1397,7 @@ export default function Pagos() {
             >
               Siguiente
             </button>
+
           </div>
         </div>
       </div>
@@ -1602,11 +1425,23 @@ export default function Pagos() {
       ================================================= */}
 
       {pagoDetalle && (
-        <div className="pagos-modal-overlay">
+        <div
+          className="pagos-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target ===
+              e.currentTarget
+            ) {
+              cerrarDetalle();
+            }
+          }}
+        >
           <div className="pagos-modal pago-detail-modal">
 
             <div className="pagos-modal-header">
+
               <div className="pagos-modal-title">
+
                 <div className="pagos-modal-icon">
                   <ReceiptText
                     size={21}
@@ -1619,9 +1454,12 @@ export default function Pagos() {
                   </span>
 
                   <h2>
-                    {pagoDetalle.codigo}
+                    {
+                      pagoDetalle.codigo
+                    }
                   </h2>
                 </div>
+
               </div>
 
               <button
@@ -1631,13 +1469,17 @@ export default function Pagos() {
                   cerrarDetalle
                 }
               >
-                <X size={20} />
+                <X
+                  size={20}
+                />
               </button>
+
             </div>
 
             <div className="pagos-modal-body">
 
               <div className="pago-detail-summary">
+
                 <div>
                   <span>
                     Cliente
@@ -1708,9 +1550,11 @@ export default function Pagos() {
                       "—"}
                   </strong>
                 </div>
+
               </div>
 
               <div className="pago-detail-section">
+
                 <h3>
                   Distribución del pago
                 </h3>
@@ -1718,6 +1562,7 @@ export default function Pagos() {
                 {pagoDetalle.aplicaciones
                   ?.length > 0 ? (
                   <div className="pago-detail-applications">
+
                     {pagoDetalle.aplicaciones.map(
                       (
                         aplicacion,
@@ -1734,6 +1579,7 @@ export default function Pagos() {
                               `${pagoDetalle._id}-${index}`
                             }
                           >
+
                             <div>
                               <span>
                                 Cuota
@@ -1772,20 +1618,24 @@ export default function Pagos() {
                                 )}
                               </strong>
                             </div>
+
                           </div>
                         );
                       }
                     )}
+
                   </div>
                 ) : (
                   <span>
                     Sin aplicaciones registradas.
                   </span>
                 )}
+
               </div>
 
               {pagoDetalle.observaciones && (
                 <div className="pago-detail-note">
+
                   <span>
                     Observaciones
                   </span>
@@ -1795,37 +1645,14 @@ export default function Pagos() {
                       pagoDetalle.observaciones
                     }
                   </p>
+
                 </div>
               )}
 
-              {pagoDetalle.estado ===
-                "Anulado" && (
-                <div className="pago-detail-cancelled">
-                  <AlertTriangle
-                    size={20}
-                  />
-
-                  <div>
-                    <strong>
-                      Pago anulado
-                    </strong>
-
-                    <span>
-                      {pagoDetalle.motivoAnulacion ||
-                        "Sin motivo registrado"}
-                    </span>
-
-                    <small>
-                      {formatearFecha(
-                        pagoDetalle.fechaAnulacion
-                      )}
-                    </small>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="pagos-modal-footer">
+
               <button
                 type="button"
                 className="pagos-btn-secondary"
@@ -1836,105 +1663,126 @@ export default function Pagos() {
                 Cerrar
               </button>
 
-              {pagoDetalle.estado !==
-                "Anulado" && (
-                <button
-                  type="button"
-                  className="pagos-btn-danger"
-                  onClick={() => {
-                    const pago =
-                      pagoDetalle;
+              <button
+                type="button"
+                className="pagos-btn-danger"
+                onClick={() => {
+                  const pago =
+                    pagoDetalle;
 
-                    cerrarDetalle();
+                  cerrarDetalle();
 
-                    abrirAnulacion(
-                      pago
-                    );
-                  }}
-                >
-                  <Ban
-                    size={16}
-                  />
+                  abrirEliminarPago(
+                    pago
+                  );
+                }}
+              >
+                <Trash2
+                  size={16}
+                />
 
-                  Anular pago
-                </button>
-              )}
+                Eliminar pago
+              </button>
+
             </div>
+
           </div>
         </div>
       )}
 
       {/* =================================================
-          MODAL ANULACIÓN
+          MODAL ELIMINAR PAGO
       ================================================= */}
 
-      {pagoParaAnular && (
-        <div className="pagos-modal-overlay">
-          <div className="pagos-modal pago-cancel-modal">
+      {pagoParaEliminar && (
+        <div
+          className="pagos-modal-overlay"
+          onMouseDown={(e) => {
+            if (
+              e.target ===
+              e.currentTarget
+            ) {
+              cerrarEliminarPago();
+            }
+          }}
+        >
+          <div className="pagos-modal pago-delete-modal">
+
+            {/* CABECERA */}
 
             <div className="pagos-modal-header">
+
               <div className="pagos-modal-title">
-                <div className="pago-cancel-icon">
-                  <AlertTriangle
+
+                <div className="pago-delete-icon">
+                  <Trash2
                     size={21}
                   />
                 </div>
 
                 <div>
                   <span className="pagos-modal-kicker">
-                    Corrección
+                    Eliminar registro
                   </span>
 
                   <h2>
-                    Anular pago
+                    Eliminar pago
                   </h2>
                 </div>
+
               </div>
 
               <button
                 type="button"
                 className="pagos-modal-close"
                 onClick={
-                  cerrarAnulacion
+                  cerrarEliminarPago
                 }
                 disabled={
-                  anulando
+                  eliminandoPago
                 }
               >
-                <X size={20} />
+                <X
+                  size={20}
+                />
               </button>
+
             </div>
+
+            {/* CUERPO */}
 
             <div className="pagos-modal-body">
 
-              <div className="pago-cancel-warning">
-                <AlertTriangle
+              <div className="pago-delete-warning">
+
+                <Trash2
                   size={21}
                 />
 
                 <div>
                   <strong>
-                    Esta acción recalculará la cartera
+                    ¿Desea eliminar este pago?
                   </strong>
 
                   <span>
-                    El pago quedará como Anulado y
-                    las cuotas afectadas volverán a
-                    calcular su valor pagado y saldo.
+                    Esta acción eliminará definitivamente
+                    el registro y recalculará la cartera
+                    de la venta.
                   </span>
                 </div>
+
               </div>
 
-              <div className="pago-cancel-info">
+              <div className="pago-delete-info">
+
                 <div>
                   <span>
                     Pago
                   </span>
 
                   <strong>
-                    {
-                      pagoParaAnular.codigo
-                    }
+                    {pagoParaEliminar.codigo ||
+                      "—"}
                   </strong>
                 </div>
 
@@ -1945,7 +1793,7 @@ export default function Pagos() {
 
                   <strong>
                     {obtenerNombreCliente(
-                      pagoParaAnular.cliente
+                      pagoParaEliminar.cliente
                     )}
                   </strong>
                 </div>
@@ -1957,50 +1805,51 @@ export default function Pagos() {
 
                   <strong>
                     {formatearDinero(
-                      pagoParaAnular.valorPago
+                      pagoParaEliminar.valorPago
                     )}
                   </strong>
                 </div>
+
               </div>
 
-              <div className="pagos-field pago-field-full pago-cancel-reason">
-                <label>
-                  Motivo de anulación *
-                </label>
+              <div className="pago-delete-after">
 
-                <textarea
-                  value={
-                    motivoAnulacion
-                  }
-                  onChange={(e) =>
-                    setMotivoAnulacion(
-                      e.target.value
-                    )
-                  }
-                  rows="4"
-                  maxLength={500}
-                  placeholder="Ej. El pago fue registrado dos veces por error."
-                  disabled={
-                    anulando
-                  }
-                />
+                <strong>
+                  Al eliminar:
+                </strong>
 
-                <small>
-                  Este motivo quedará guardado
-                  permanentemente en el historial.
-                </small>
+                <span>
+                  • El pago desaparecerá definitivamente.
+                </span>
+
+                <span>
+                  • Se recalcularán las cuotas afectadas.
+                </span>
+
+                <span>
+                  • El valor del pago volverá al saldo pendiente.
+                </span>
+
+                <span>
+                  • La venta volverá a Activa si nuevamente queda saldo.
+                </span>
+
               </div>
+
             </div>
 
+            {/* BOTONES */}
+
             <div className="pagos-modal-footer">
+
               <button
                 type="button"
                 className="pagos-btn-secondary"
                 onClick={
-                  cerrarAnulacion
+                  cerrarEliminarPago
                 }
                 disabled={
-                  anulando
+                  eliminandoPago
                 }
               >
                 Cancelar
@@ -2010,21 +1859,23 @@ export default function Pagos() {
                 type="button"
                 className="pagos-btn-danger"
                 onClick={
-                  confirmarAnulacion
+                  confirmarEliminarPago
                 }
                 disabled={
-                  anulando
+                  eliminandoPago
                 }
               >
-                <Ban
+                <Trash2
                   size={16}
                 />
 
-                {anulando
-                  ? "Anulando..."
-                  : "Anular pago"}
+                {eliminandoPago
+                  ? "Eliminando..."
+                  : "Eliminar pago"}
               </button>
+
             </div>
+
           </div>
         </div>
       )}
@@ -2047,6 +1898,7 @@ export default function Pagos() {
           cerrarNotificacion
         }
       />
+
     </section>
   );
 }

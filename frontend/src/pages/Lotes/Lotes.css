@@ -1930,6 +1930,7 @@
     flex-direction: column;
   }
 }
+
 /* =========================================================
    ÁREA TOTAL DE LA MANZANA
 ========================================================= */
@@ -2017,19 +2018,20 @@
   font-size: 12px;
   font-weight: 900;
 }
+
 /* =========================================================
-   ANULACIÓN DE VENTA DESDE LOTES
+   ELIMINAR VENTA PARA EDITAR LOTE VENDIDO
 ========================================================= */
 
-.anulacion-lote-modal {
+.eliminar-venta-lote-modal {
   width: min(620px, 100%);
 }
 
 /* =========================================================
-   ICONO DE ALERTA
+   ICONO
 ========================================================= */
 
-.anulacion-lote-icon {
+.eliminar-venta-lote-icon {
   display: grid;
   place-items: center;
 
@@ -2040,16 +2042,16 @@
 
   border-radius: 12px;
 
-  background: #fff1e8;
+  background: #fff0ee;
 
-  color: #b96d2f;
+  color: #b54842;
 }
 
 /* =========================================================
-   ADVERTENCIA
+   ADVERTENCIA PRINCIPAL
 ========================================================= */
 
-.anulacion-lote-warning {
+.eliminar-venta-lote-warning {
   display: flex;
   align-items: flex-start;
 
@@ -2057,29 +2059,35 @@
 
   padding: 13px 14px;
 
-  border: 1px solid #efd3bd;
+  border: 1px solid #efceca;
   border-radius: 12px;
 
-  background: #fff7f0;
+  background: #fff4f2;
 
-  color: #a65d25;
+  color: #a94d47;
 }
 
-.anulacion-lote-warning > div {
+.eliminar-venta-lote-warning > svg {
+  flex: 0 0 auto;
+
+  margin-top: 1px;
+}
+
+.eliminar-venta-lote-warning > div {
   display: flex;
   flex-direction: column;
 
   gap: 4px;
 }
 
-.anulacion-lote-warning strong {
-  color: #8d4f20;
+.eliminar-venta-lote-warning strong {
+  color: #93443f;
 
   font-size: 12px;
 }
 
-.anulacion-lote-warning span {
-  color: #7d695a;
+.eliminar-venta-lote-warning span {
+  color: #795e5a;
 
   font-size: 10px;
   line-height: 1.45;
@@ -2089,7 +2097,7 @@
    DATOS DE LA VENTA
 ========================================================= */
 
-.anulacion-lote-info {
+.eliminar-venta-lote-info {
   display: grid;
 
   grid-template-columns:
@@ -2100,11 +2108,13 @@
   margin-top: 14px;
 }
 
-.anulacion-lote-info > div {
+.eliminar-venta-lote-info > div {
   display: flex;
   flex-direction: column;
 
   gap: 4px;
+
+  min-width: 0;
 
   padding: 11px 12px;
 
@@ -2114,7 +2124,7 @@
   background: #faf8f2;
 }
 
-.anulacion-lote-info span {
+.eliminar-venta-lote-info span {
   color: #8b918d;
 
   font-size: 8px;
@@ -2124,7 +2134,7 @@
   text-transform: uppercase;
 }
 
-.anulacion-lote-info strong {
+.eliminar-venta-lote-info strong {
   overflow: hidden;
 
   color: #173f2e;
@@ -2136,54 +2146,89 @@
 }
 
 /* =========================================================
-   MOTIVO
-========================================================= */
-
-.anulacion-lote-motivo {
-  margin-top: 15px;
-}
-
-.anulacion-lote-motivo textarea {
-  min-height: 105px;
-}
-
-/* =========================================================
    QUÉ OCURRIRÁ
 ========================================================= */
 
-.anulacion-lote-after {
+.eliminar-venta-lote-after {
   display: flex;
   flex-direction: column;
 
-  gap: 4px;
+  gap: 5px;
 
-  margin-top: 13px;
-  padding: 11px 13px;
+  margin-top: 14px;
+  padding: 12px 13px;
 
   border: 1px solid #d4e0d8;
   border-radius: 10px;
 
   background: #f1f6f3;
-}
 
-.anulacion-lote-after strong {
-  color: #1f6848;
-
-  font-size: 11px;
-}
-
-.anulacion-lote-after span {
   color: #68746c;
 
   font-size: 10px;
   line-height: 1.45;
 }
 
+.eliminar-venta-lote-after strong {
+  margin-bottom: 2px;
+
+  color: #1f6848;
+
+  font-size: 11px;
+}
+
 /* =========================================================
-   BOTÓN ANULAR Y EDITAR
+   ADVERTENCIA DE PAGOS
 ========================================================= */
 
-.anulacion-lote-button {
+.eliminar-venta-lote-payments {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 10px;
+
+  margin-top: 12px;
+  padding: 11px 13px;
+
+  border: 1px solid #ead3a8;
+  border-radius: 10px;
+
+  background: #fff8e9;
+
+  color: #916a27;
+}
+
+.eliminar-venta-lote-payments > svg {
+  flex: 0 0 auto;
+
+  margin-top: 1px;
+}
+
+.eliminar-venta-lote-payments > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.eliminar-venta-lote-payments strong {
+  color: #7e5a20;
+
+  font-size: 10px;
+}
+
+.eliminar-venta-lote-payments span {
+  color: #756751;
+
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   BOTÓN ELIMINAR VENTA Y EDITAR LOTE
+========================================================= */
+
+.eliminar-venta-lote-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -2194,10 +2239,10 @@
 
   padding: 0 16px;
 
-  border: none;
+  border: 1px solid #b54842;
   border-radius: 10px;
 
-  background: #b45d32;
+  background: #b54842;
 
   color: #ffffff;
 
@@ -2208,31 +2253,398 @@
 
   transition:
     background 0.18s ease,
+    border-color 0.18s ease,
     transform 0.18s ease;
 }
 
-.anulacion-lote-button:hover:not(:disabled) {
+.eliminar-venta-lote-button:hover:not(:disabled) {
   transform: translateY(-1px);
 
-  background: #994b25;
+  border-color: #973b36;
+
+  background: #973b36;
 }
 
-.anulacion-lote-button:disabled {
+.eliminar-venta-lote-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* =========================================================
+   RESPONSIVE ELIMINAR VENTA
+========================================================= */
+
+@media (max-width: 650px) {
+  .eliminar-venta-lote-info {
+    grid-template-columns:
+      1fr;
+  }
+
+  .eliminar-venta-lote-button {
+    width: 100%;
+  }
+}
+/* =========================================================
+   TIPO DE LOTE
+   REGULAR / IRREGULAR
+========================================================= */
+
+.lote-tipo-section {
+  margin-top: 18px;
+}
+
+.lote-tipo-options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 11px;
+}
+
+.lote-tipo-option {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  min-width: 0;
+  min-height: 82px;
+
+  padding: 13px 14px;
+
+  border: 1px solid #dfd8cb;
+  border-radius: 13px;
+
+  background: #fcfaf5;
+
+  color: #59645d;
+
+  text-align: left;
+
+  cursor: pointer;
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.lote-tipo-option:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #c8d6cd;
+
+  background: #f7faf8;
+}
+
+.lote-tipo-option.active {
+  border-color: #1f6848;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f4faf6 0%,
+      #edf6f0 100%
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+.lote-tipo-option.irregular.active {
+  border-color: #b98532;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fffaf0 0%,
+      #fbf3e4 100%
+    );
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 133, 50, 0.08);
+}
+
+.lote-tipo-option:disabled {
   opacity: 0.55;
 
   cursor: not-allowed;
 }
 
+.lote-tipo-option-icon {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex: 0 0 42px;
+
+  border-radius: 11px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+}
+
+.lote-tipo-option.active
+.lote-tipo-option-icon {
+  background: #173f2e;
+
+  color: #e9c986;
+}
+
+.lote-tipo-option.irregular.active
+.lote-tipo-option-icon {
+  background: #b98532;
+
+  color: #ffffff;
+}
+
+.lote-tipo-option > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.lote-tipo-option strong {
+  color: #173f2e;
+
+  font-size: 12px;
+}
+
+.lote-tipo-option span {
+  color: #7d857f;
+
+  font-size: 10px;
+  line-height: 1.4;
+}
+
 /* =========================================================
-   RESPONSIVE
+   ÁREA MANUAL DEL LOTE IRREGULAR
 ========================================================= */
 
-@media (max-width: 650px) {
-  .anulacion-lote-info {
-    grid-template-columns: 1fr;
-  }
+.lote-irregular-area {
+  margin-top: 15px;
+  padding: 15px;
 
-  .anulacion-lote-button {
-    width: 100%;
-  }
+  border: 1px solid #dfc793;
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fffaf0 0%,
+      #fdf7ea 100%
+    );
+}
+
+.lote-irregular-area-header {
+  display: flex;
+  align-items: center;
+
+  gap: 11px;
+
+  margin-bottom: 13px;
+}
+
+.lote-irregular-area-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  border-radius: 11px;
+
+  background: #b98532;
+
+  color: #ffffff;
+}
+
+.lote-irregular-area-header > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.lote-irregular-area-header span {
+  color: #a47831;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.lote-irregular-area-header strong {
+  color: #173f2e;
+
+  font-size: 14px;
+}
+
+.lote-irregular-area-header small {
+  color: #81796b;
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   CAMPO ÁREA IRREGULAR
+========================================================= */
+
+.lote-irregular-area-control {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  min-height: 46px;
+
+  border: 1px solid #d7c08f;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.lote-irregular-area-control:focus-within {
+  border-color: #b98532;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 133, 50, 0.09);
+}
+
+.lote-irregular-area-control input {
+  flex: 1;
+
+  width: 100%;
+  min-width: 0;
+  min-height: 44px;
+
+  padding: 0 13px;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #173f2e;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.lote-irregular-area-control > span {
+  display: grid;
+  place-items: center;
+
+  min-width: 58px;
+  min-height: 46px;
+
+  padding: 0 10px;
+
+  border-left: 1px solid #e4d2aa;
+
+  background: #f7eedc;
+
+  color: #9a712d;
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.lote-irregular-area-preview {
+  margin-top: 8px;
+
+  color: #716858;
+
+  font-size: 10px;
+}
+
+.lote-irregular-area-preview strong {
+  color: #8b6527;
+}
+
+/* =========================================================
+   MEDIDAS DE REFERENCIA DEL IRREGULAR
+========================================================= */
+
+.lote-irregular-reference {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 9px;
+
+  margin-bottom: 11px;
+  padding: 10px 12px;
+
+  border: 1px solid #e2d6bd;
+  border-radius: 10px;
+
+  background: #faf7f0;
+
+  color: #b98532;
+}
+
+.lote-irregular-reference > svg {
+  flex: 0 0 auto;
+
+  margin-top: 1px;
+}
+
+.lote-irregular-reference > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+.lote-irregular-reference strong {
+  color: #765824;
+
+  font-size: 10px;
+}
+
+.lote-irregular-reference span {
+  color: #7f7b70;
+
+  font-size: 9px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   PREVISUALIZACIÓN DEL ÁREA IRREGULAR
+========================================================= */
+
+.lote-area-preview-irregular {
+  border-color: #dfc793;
+
+  background: #fff8e9;
+}
+
+.lote-area-preview-irregular
+.lote-area-icon {
+  background: #b98532;
+
+  color: #ffffff;
 }

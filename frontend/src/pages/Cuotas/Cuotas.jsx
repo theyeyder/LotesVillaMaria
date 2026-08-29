@@ -5,15 +5,15 @@ import {
 } from "react";
 
 import {
+  AlertTriangle,
   CalendarClock,
   CheckCircle2,
   Clock3,
+  LandPlot,
   RefreshCw,
   Search,
   UserRound,
   WalletCards,
-  AlertTriangle,
-  LandPlot,
 } from "lucide-react";
 
 import "./Cuotas.css";
@@ -105,16 +105,22 @@ const obtenerNombreCliente = (
 };
 
 /* =========================================================
-   ESTADO VACÍO DEL RESUMEN
+   ESTADO INICIAL DEL RESUMEN
+
+   Estados válidos:
+   - Pendiente
+   - Parcial
+   - Pagada
+   - Vencida
 ========================================================= */
 
 const resumenInicial = {
   totalCuotas: 0,
+
   pendientes: 0,
   parciales: 0,
   pagadas: 0,
   vencidas: 0,
-  anuladas: 0,
 
   valorProgramado: 0,
   valorPagado: 0,
@@ -189,7 +195,8 @@ export default function Cuotas() {
     setPaginaActual,
   ] = useState(1);
 
-  const CUOTAS_POR_PAGINA = 10;
+  const CUOTAS_POR_PAGINA =
+    10;
 
   /* =======================================================
      TOAST
@@ -220,7 +227,9 @@ export default function Cuotas() {
       setNotificacion(
         (prev) => ({
           ...prev,
-          visible: false,
+
+          visible:
+            false,
         })
       );
     };
@@ -236,7 +245,9 @@ export default function Cuotas() {
           await obtenerCuotas();
 
         setCuotas(
-          Array.isArray(datos)
+          Array.isArray(
+            datos
+          )
             ? datos
             : []
         );
@@ -267,6 +278,7 @@ export default function Cuotas() {
 
         setResumen({
           ...resumenInicial,
+
           ...(datos || {}),
         });
       } catch (error) {
@@ -291,14 +303,18 @@ export default function Cuotas() {
   const cargarTodo =
     async () => {
       try {
-        setCargando(true);
+        setCargando(
+          true
+        );
 
         await Promise.all([
           cargarCuotas(),
           cargarResumen(),
         ]);
       } finally {
-        setCargando(false);
+        setCargando(
+          false
+        );
       }
     };
 
@@ -337,7 +353,10 @@ export default function Cuotas() {
       return Array.from(
         mapa.values()
       ).sort(
-        (a, b) =>
+        (
+          a,
+          b
+        ) =>
           obtenerNombreCliente(
             a
           ).localeCompare(
@@ -347,7 +366,9 @@ export default function Cuotas() {
             "es"
           )
       );
-    }, [cuotas]);
+    }, [
+      cuotas,
+    ]);
 
   /* =======================================================
      FILTRAR CUOTAS
@@ -402,7 +423,9 @@ export default function Cuotas() {
              FECHA INICIAL
           ===================== */
 
-          if (fechaInicio) {
+          if (
+            fechaInicio
+          ) {
             const vencimiento =
               new Date(
                 cuota.fechaVencimiento
@@ -425,7 +448,9 @@ export default function Cuotas() {
              FECHA FINAL
           ===================== */
 
-          if (fechaFinal) {
+          if (
+            fechaFinal
+          ) {
             const vencimiento =
               new Date(
                 cuota.fechaVencimiento
@@ -448,7 +473,9 @@ export default function Cuotas() {
              BÚSQUEDA
           ===================== */
 
-          if (!texto) {
+          if (
+            !texto
+          ) {
             return true;
           }
 
@@ -479,7 +506,8 @@ export default function Cuotas() {
               (item) =>
                 item !==
                   undefined &&
-                item !== null
+                item !==
+                  null
             )
             .join(" ")
             .toLowerCase();
@@ -512,7 +540,10 @@ export default function Cuotas() {
     );
 
   const indiceInicial =
-    (paginaActual - 1) *
+    (
+      paginaActual -
+      1
+    ) *
     CUOTAS_POR_PAGINA;
 
   const cuotasPaginadas =
@@ -523,7 +554,9 @@ export default function Cuotas() {
     );
 
   useEffect(() => {
-    setPaginaActual(1);
+    setPaginaActual(
+      1
+    );
   }, [
     busqueda,
     filtroEstado,
@@ -552,12 +585,29 @@ export default function Cuotas() {
 
   const limpiarFiltros =
     () => {
-      setBusqueda("");
-      setFiltroEstado("");
-      setFiltroCliente("");
-      setFechaInicio("");
-      setFechaFinal("");
-      setPaginaActual(1);
+      setBusqueda(
+        ""
+      );
+
+      setFiltroEstado(
+        ""
+      );
+
+      setFiltroCliente(
+        ""
+      );
+
+      setFechaInicio(
+        ""
+      );
+
+      setFechaFinal(
+        ""
+      );
+
+      setPaginaActual(
+        1
+      );
     };
 
   /* =======================================================
@@ -572,6 +622,7 @@ export default function Cuotas() {
       ================================================= */}
 
       <div className="cuotas-header">
+
         <div>
           <span className="cuotas-kicker">
             Cartera
@@ -596,7 +647,9 @@ export default function Cuotas() {
           onClick={
             cargarTodo
           }
-          disabled={cargando}
+          disabled={
+            cargando
+          }
         >
           <RefreshCw
             size={18}
@@ -609,6 +662,7 @@ export default function Cuotas() {
 
           Actualizar
         </button>
+
       </div>
 
       {/* =================================================
@@ -724,6 +778,7 @@ export default function Cuotas() {
             </strong>
           </div>
         </article>
+
       </div>
 
       {/* =================================================
@@ -731,6 +786,7 @@ export default function Cuotas() {
       ================================================= */}
 
       <div className="cuotas-financial-summary">
+
         <div>
           <span>
             Valor programado
@@ -773,23 +829,12 @@ export default function Cuotas() {
           </span>
 
           <strong>
-            {resumen.parciales}
+            {
+              resumen.parciales
+            }
           </strong>
         </div>
 
-        <div className="cuotas-summary-history">
-          <span>
-            Anuladas
-          </span>
-
-          <strong>
-            {resumen.anuladas}
-          </strong>
-
-          <small>
-            Solo historial
-          </small>
-        </div>
       </div>
 
       {/* =================================================
@@ -803,12 +848,18 @@ export default function Cuotas() {
         ============================================= */}
 
         <div className="cuotas-toolbar">
+
           <div className="cuotas-search">
-            <Search size={18} />
+
+            <Search
+              size={18}
+            />
 
             <input
               type="text"
-              value={busqueda}
+              value={
+                busqueda
+              }
               onChange={(e) =>
                 setBusqueda(
                   e.target.value
@@ -816,6 +867,7 @@ export default function Cuotas() {
               }
               placeholder="Buscar cliente, venta, lote, manzana o cuota..."
             />
+
           </div>
 
           <button
@@ -827,6 +879,7 @@ export default function Cuotas() {
           >
             Limpiar filtros
           </button>
+
         </div>
 
         {/* =============================================
@@ -838,6 +891,7 @@ export default function Cuotas() {
           {/* CLIENTE */}
 
           <div className="cuotas-filter-field">
+
             <label>
               Cliente
             </label>
@@ -876,12 +930,15 @@ export default function Cuotas() {
                   </option>
                 )
               )}
+
             </select>
+
           </div>
 
           {/* ESTADO */}
 
           <div className="cuotas-filter-field">
+
             <label>
               Estado
             </label>
@@ -916,15 +973,14 @@ export default function Cuotas() {
                 Vencida
               </option>
 
-              <option value="Anulada">
-                Anulada
-              </option>
             </select>
+
           </div>
 
           {/* DESDE */}
 
           <div className="cuotas-filter-field">
+
             <label>
               Vence desde
             </label>
@@ -940,11 +996,13 @@ export default function Cuotas() {
                 )
               }
             />
+
           </div>
 
           {/* HASTA */}
 
           <div className="cuotas-filter-field">
+
             <label>
               Vence hasta
             </label>
@@ -960,7 +1018,9 @@ export default function Cuotas() {
                 )
               }
             />
+
           </div>
+
         </div>
 
         {/* =================================================
@@ -968,23 +1028,51 @@ export default function Cuotas() {
         ================================================= */}
 
         <div className="cuotas-table-wrapper">
+
           <table className="cuotas-table">
 
             <thead>
               <tr>
-                <th>Cliente</th>
-                <th>Venta</th>
-                <th>Lote</th>
-                <th>Cuota</th>
-                <th>Vencimiento</th>
-                <th>Valor cuota</th>
-                <th>Pagado</th>
-                <th>Saldo</th>
-                <th>Estado</th>
+                <th>
+                  Cliente
+                </th>
+
+                <th>
+                  Venta
+                </th>
+
+                <th>
+                  Lote
+                </th>
+
+                <th>
+                  Cuota
+                </th>
+
+                <th>
+                  Vencimiento
+                </th>
+
+                <th>
+                  Valor cuota
+                </th>
+
+                <th>
+                  Pagado
+                </th>
+
+                <th>
+                  Saldo
+                </th>
+
+                <th>
+                  Estado
+                </th>
               </tr>
             </thead>
 
             <tbody>
+
               {cargando ? (
                 <tr>
                   <td
@@ -1043,18 +1131,13 @@ export default function Cuotas() {
                         key={
                           cuota._id
                         }
-                        className={
-                          cuota.estado ===
-                          "Anulada"
-                            ? "cuota-row-anulada"
-                            : ""
-                        }
                       >
 
                         {/* CLIENTE */}
 
                         <td>
                           <div className="cuota-client-cell">
+
                             <UserRound
                               size={16}
                             />
@@ -1071,6 +1154,7 @@ export default function Cuotas() {
                                   "Sin documento"}
                               </span>
                             </div>
+
                           </div>
                         </td>
 
@@ -1087,6 +1171,7 @@ export default function Cuotas() {
 
                         <td>
                           <div className="cuota-lote-cell">
+
                             <LandPlot
                               size={15}
                             />
@@ -1102,6 +1187,7 @@ export default function Cuotas() {
                                   "Sin manzana"}
                               </span>
                             </div>
+
                           </div>
                         </td>
 
@@ -1109,6 +1195,7 @@ export default function Cuotas() {
 
                         <td>
                           <div className="cuota-number">
+
                             <span>
                               Cuota
                             </span>
@@ -1130,6 +1217,7 @@ export default function Cuotas() {
                                   )}`
                                 : ""}
                             </strong>
+
                           </div>
                         </td>
 
@@ -1137,6 +1225,7 @@ export default function Cuotas() {
 
                         <td>
                           <div className="cuota-date">
+
                             <CalendarClock
                               size={15}
                             />
@@ -1146,6 +1235,7 @@ export default function Cuotas() {
                                 cuota.fechaVencimiento
                               )}
                             </span>
+
                           </div>
                         </td>
 
@@ -1176,7 +1266,8 @@ export default function Cuotas() {
                             className={`cuota-balance ${
                               Number(
                                 cuota.saldoPendiente
-                              ) === 0
+                              ) ===
+                              0
                                 ? "cuota-balance-zero"
                                 : ""
                             }`}
@@ -1200,13 +1291,16 @@ export default function Cuotas() {
                             }
                           </span>
                         </td>
+
                       </tr>
                     );
                   }
                 )
               )}
+
             </tbody>
           </table>
+
         </div>
 
         {/* =================================================
@@ -1214,6 +1308,7 @@ export default function Cuotas() {
         ================================================= */}
 
         <div className="cuotas-table-footer">
+
           <span>
             Mostrando{" "}
             <strong>
@@ -1223,16 +1318,20 @@ export default function Cuotas() {
             </strong>{" "}
             de{" "}
             <strong>
-              {cuotas.length}
+              {
+                cuotas.length
+              }
             </strong>{" "}
             cuotas
           </span>
 
           <div className="cuotas-pagination">
+
             <button
               type="button"
               disabled={
-                paginaActual === 1
+                paginaActual ===
+                1
               }
               onClick={() =>
                 setPaginaActual(
@@ -1250,11 +1349,15 @@ export default function Cuotas() {
             <span>
               Página{" "}
               <strong>
-                {paginaActual}
+                {
+                  paginaActual
+                }
               </strong>{" "}
               de{" "}
               <strong>
-                {totalPaginas}
+                {
+                  totalPaginas
+                }
               </strong>
             </span>
 
@@ -1276,8 +1379,11 @@ export default function Cuotas() {
             >
               Siguiente
             </button>
+
           </div>
+
         </div>
+
       </div>
 
       {/* =================================================
@@ -1298,6 +1404,7 @@ export default function Cuotas() {
           cerrarNotificacion
         }
       />
+
     </section>
   );
 }
