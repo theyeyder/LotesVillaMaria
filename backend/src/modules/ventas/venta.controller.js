@@ -472,7 +472,7 @@ const crearCuotasAutomaticas =
       );
 
     /* =====================================================
-       GENERAR CONSECUTIVOS DE LAS CUOTAS
+       GENERAR CONSECUTIVOS CT
     ===================================================== */
 
     const codigosCuotas =

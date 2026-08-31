@@ -3,6 +3,11 @@ import mongoose from "mongoose";
 import Cuota from "./cuota.model.js";
 import Venta from "../ventas/venta.model.js";
 
+import {
+  asignarCodigosCuotasFaltantes,
+  generarCodigosCuotas,
+} from "../consecutivos/consecutivo.service.js";
+
 /* =========================================================
    INICIO DEL DÍA EN UTC
 ========================================================= */
@@ -324,6 +329,16 @@ export const obtenerCuotas =
     res
   ) => {
     try {
+      /* =========================
+         COMPLETAR CÓDIGOS ANTIGUOS
+      ========================= */
+
+      await asignarCodigosCuotasFaltantes();
+
+      /* =========================
+         ACTUALIZAR VENCIDAS
+      ========================= */
+
       await actualizarCuotasVencidas();
 
       const {
@@ -1004,6 +1019,15 @@ export const generarCuotasVenta =
         );
 
       /* =========================
+         GENERAR CONSECUTIVOS
+      ========================= */
+
+      const codigosCuotas =
+        await generarCodigosCuotas(
+          cantidadCuotas
+        );
+
+      /* =========================
          CREAR DOCUMENTOS
       ========================= */
 
@@ -1025,6 +1049,9 @@ export const generarCuotasVenta =
           );
 
         documentos.push({
+          codigo:
+            codigosCuotas[i],
+
           venta:
             venta._id,
 

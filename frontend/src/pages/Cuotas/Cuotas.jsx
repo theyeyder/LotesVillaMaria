@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Clock3,
   LandPlot,
+  Printer,
   RefreshCw,
   Search,
   UserRound,
@@ -105,6 +106,38 @@ const obtenerNombreCliente = (
 };
 
 /* =========================================================
+   ESCAPAR HTML PARA IMPRESIÓN
+========================================================= */
+
+const escaparHTML = (
+  valor
+) => {
+  return String(
+    valor ?? ""
+  )
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+};
+
+/* =========================================================
    ESTADO INICIAL DEL RESUMEN
 
    Estados válidos:
@@ -162,16 +195,6 @@ export default function Cuotas() {
   ======================================================= */
 
   const [
-    busqueda,
-    setBusqueda,
-  ] = useState("");
-
-  const [
-    filtroEstado,
-    setFiltroEstado,
-  ] = useState("");
-
-  const [
     filtroCliente,
     setFiltroCliente,
   ] = useState("");
@@ -185,16 +208,6 @@ export default function Cuotas() {
     mostrarResultadosClientes,
     setMostrarResultadosClientes,
   ] = useState(false);
-
-  const [
-    fechaInicio,
-    setFechaInicio,
-  ] = useState("");
-
-  const [
-    fechaFinal,
-    setFechaFinal,
-  ] = useState("");
 
   /* =======================================================
      PAGINACIÓN
@@ -567,159 +580,27 @@ export default function Cuotas() {
     };
 
   /* =======================================================
-     FILTRAR CUOTAS
+     FILTRAR CUOTAS ÚNICAMENTE POR CLIENTE
   ======================================================= */
 
   const cuotasFiltradas =
     useMemo(() => {
-      const texto =
-        busqueda
-          .trim()
-          .toLowerCase();
+      if (
+        !filtroCliente
+      ) {
+        return cuotas;
+      }
 
       return cuotas.filter(
-        (cuota) => {
-          const venta =
-            cuota.venta;
-
-          const cliente =
-            venta?.cliente;
-
-          const lote =
-            venta?.lote;
-
-          const manzana =
-            lote?.manzana;
-
-          /* =====================
-             ESTADO
-          ===================== */
-
-          if (
-            filtroEstado &&
-            cuota.estado !==
-              filtroEstado
-          ) {
-            return false;
-          }
-
-          /* =====================
-             CLIENTE
-          ===================== */
-
-          if (
-            filtroCliente &&
-            cliente?._id !==
-              filtroCliente
-          ) {
-            return false;
-          }
-
-          /* =====================
-             FECHA INICIAL
-          ===================== */
-
-          if (
-            fechaInicio
-          ) {
-            const vencimiento =
-              new Date(
-                cuota.fechaVencimiento
-              );
-
-            const inicio =
-              new Date(
-                `${fechaInicio}T00:00:00Z`
-              );
-
-            if (
-              vencimiento <
-              inicio
-            ) {
-              return false;
-            }
-          }
-
-          /* =====================
-             FECHA FINAL
-          ===================== */
-
-          if (
-            fechaFinal
-          ) {
-            const vencimiento =
-              new Date(
-                cuota.fechaVencimiento
-              );
-
-            const final =
-              new Date(
-                `${fechaFinal}T23:59:59Z`
-              );
-
-            if (
-              vencimiento >
-              final
-            ) {
-              return false;
-            }
-          }
-
-          /* =====================
-             BÚSQUEDA
-          ===================== */
-
-          if (
-            !texto
-          ) {
-            return true;
-          }
-
-          const contenido = [
-            venta?.codigo,
-
-            obtenerNombreCliente(
-              cliente
-            ),
-
-            cliente?.documento,
-
-            lote?.codigo,
-
-            lote?.numeroLote,
-
-            manzana?.codigo,
-
-            manzana?.nombre,
-
-            `cuota ${cuota.numeroCuota}`,
-
-            cuota.numeroCuota,
-
-            cuota.estado,
-          ]
-            .filter(
-              (item) =>
-                item !==
-                  undefined &&
-                item !==
-                  null
-            )
-            .join(" ")
-            .toLowerCase();
-
-          return contenido.includes(
-            texto
-          );
-        }
+        (cuota) =>
+          cuota.venta
+            ?.cliente
+            ?._id ===
+          filtroCliente
       );
     }, [
       cuotas,
-      busqueda,
-      filtroEstado,
       filtroCliente,
-      fechaInicio,
-      fechaFinal,
     ]);
 
   /* =======================================================
@@ -754,11 +635,7 @@ export default function Cuotas() {
       1
     );
   }, [
-    busqueda,
-    filtroEstado,
     filtroCliente,
-    fechaInicio,
-    fechaFinal,
   ]);
 
   useEffect(() => {
@@ -781,14 +658,6 @@ export default function Cuotas() {
 
   const limpiarFiltros =
     () => {
-      setBusqueda(
-        ""
-      );
-
-      setFiltroEstado(
-        ""
-      );
-
       setFiltroCliente(
         ""
       );
@@ -801,16 +670,972 @@ export default function Cuotas() {
         false
       );
 
-      setFechaInicio(
-        ""
-      );
-
-      setFechaFinal(
-        ""
-      );
-
       setPaginaActual(
         1
+      );
+    };
+
+  /* =======================================================
+     VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1200,height=800"
+        );
+
+      if (
+        !ventana
+      ) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión.",
+          "error"
+        );
+
+        return;
+      }
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+        <html lang="es">
+          <head>
+            <meta charset="UTF-8" />
+            <title>${escaparHTML(
+              titulo
+            )}</title>
+
+            <style>
+              * {
+                box-sizing: border-box;
+              }
+
+              body {
+                margin: 0;
+                padding: 30px;
+
+                font-family:
+                  Arial,
+                  Helvetica,
+                  sans-serif;
+
+                color: #23342b;
+                background: #ffffff;
+              }
+
+              .print-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+
+                margin-bottom: 22px;
+              }
+
+              .print-actions button {
+                padding: 9px 16px;
+
+                border: 1px solid #cfc7b7;
+                border-radius: 8px;
+
+                background: #ffffff;
+
+                font-weight: 700;
+
+                cursor: pointer;
+              }
+
+              .print-actions .primary {
+                border-color: #1f6848;
+
+                background: #1f6848;
+
+                color: #ffffff;
+              }
+
+              .report-header {
+                margin-bottom: 24px;
+
+                text-align: center;
+              }
+
+              .report-header h1 {
+                margin: 0 0 5px;
+
+                color: #173f2e;
+
+                font-size: 23px;
+              }
+
+              .report-header h2 {
+                margin: 0;
+
+                color: #8c672b;
+
+                font-size: 15px;
+              }
+
+              .report-header p {
+                margin: 7px 0 0;
+
+                color: #777;
+
+                font-size: 11px;
+              }
+
+              .cliente-section {
+                margin-bottom: 30px;
+
+                page-break-inside: avoid;
+              }
+
+              .cliente-header {
+                display: flex;
+                justify-content: space-between;
+                gap: 15px;
+
+                padding: 12px 14px;
+
+                border: 1px solid #d9d2c5;
+                border-radius: 9px 9px 0 0;
+
+                background: #f7f2e8;
+              }
+
+              .cliente-header strong {
+                color: #173f2e;
+
+                font-size: 14px;
+              }
+
+              .cliente-header span {
+                color: #777;
+
+                font-size: 10px;
+              }
+
+              table {
+                width: 100%;
+
+                border-collapse: collapse;
+              }
+
+              th {
+                padding: 8px 7px;
+
+                border: 1px solid #d8d2c7;
+
+                background: #f1eee7;
+
+                color: #4f5b54;
+
+                font-size: 9px;
+                text-align: left;
+              }
+
+              td {
+                padding: 8px 7px;
+
+                border: 1px solid #e2ddd4;
+
+                font-size: 9px;
+              }
+
+              .money {
+                text-align: right;
+                white-space: nowrap;
+              }
+
+              .cliente-totales {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(
+                    3,
+                    minmax(0, 1fr)
+                  );
+
+                gap: 8px;
+
+                padding: 10px 12px;
+
+                border:
+                  1px solid
+                  #d9d2c5;
+
+                border-top: none;
+
+                background:
+                  #fcfaf5;
+              }
+
+              .cliente-totales div {
+                display: flex;
+                flex-direction: column;
+
+                gap: 3px;
+              }
+
+              .cliente-totales span {
+                color: #777;
+
+                font-size: 8px;
+
+                text-transform: uppercase;
+              }
+
+              .cliente-totales strong {
+                color: #173f2e;
+
+                font-size: 11px;
+              }
+
+              .general-summary {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(
+                    4,
+                    minmax(0, 1fr)
+                  );
+
+                gap: 10px;
+
+                margin-bottom: 22px;
+              }
+
+              .general-summary div {
+                padding: 10px;
+
+                border: 1px solid #ddd7cb;
+                border-radius: 8px;
+
+                background: #faf8f3;
+              }
+
+              .general-summary span {
+                display: block;
+
+                margin-bottom: 4px;
+
+                color: #777;
+
+                font-size: 8px;
+
+                text-transform: uppercase;
+              }
+
+              .general-summary strong {
+                color: #173f2e;
+
+                font-size: 12px;
+              }
+
+              @media print {
+                @page {
+                  size: A4 landscape;
+                  margin: 10mm;
+                }
+
+                body {
+                  padding: 0;
+                }
+
+                .print-actions {
+                  display: none;
+                }
+
+                .cliente-section {
+                  page-break-inside:
+                    avoid;
+                }
+              }
+            </style>
+          </head>
+
+          <body>
+
+            <div class="print-actions">
+              <button
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                class="primary"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+            </div>
+
+            ${contenido}
+
+          </body>
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     CREAR BLOQUE DE UN CLIENTE
+  ======================================================= */
+
+  const construirReporteCliente =
+    (
+      cliente,
+      cuotasCliente
+    ) => {
+      const cuotasOrdenadas =
+        [...cuotasCliente].sort(
+          (
+            a,
+            b
+          ) => {
+            const fechaA =
+              new Date(
+                a.fechaVencimiento
+              ).getTime();
+
+            const fechaB =
+              new Date(
+                b.fechaVencimiento
+              ).getTime();
+
+            return (
+              fechaA -
+                fechaB ||
+              Number(
+                a.numeroCuota
+              ) -
+                Number(
+                  b.numeroCuota
+                )
+            );
+          }
+        );
+
+      const totalProgramado =
+        cuotasOrdenadas.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.valorCuota ||
+                0
+            ),
+          0
+        );
+
+      const totalPagado =
+        cuotasOrdenadas.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.valorPagado ||
+                0
+            ),
+          0
+        );
+
+      const saldoPendiente =
+        cuotasOrdenadas.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.saldoPendiente ||
+                0
+            ),
+          0
+        );
+
+      const filas =
+        cuotasOrdenadas
+          .map(
+            (cuota) => {
+              const venta =
+                cuota.venta;
+
+              const lote =
+                venta?.lote;
+
+              const manzana =
+                lote?.manzana;
+
+              return `
+                <tr>
+                  <td>
+                    <strong>
+                      ${escaparHTML(
+                        cuota.codigo ||
+                          "—"
+                      )}
+                    </strong>
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      venta?.codigo ||
+                        "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      lote?.codigo ||
+                        "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      manzana?.nombre ||
+                        manzana?.codigo ||
+                        "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      `Cuota ${
+                        cuota.numeroCuota ||
+                        0
+                      } de ${
+                        venta?.numeroCuotas ||
+                        "—"
+                      }`
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      formatearFecha(
+                        cuota.fechaVencimiento
+                      )
+                    )}
+                  </td>
+
+                  <td class="money">
+                    ${escaparHTML(
+                      formatearDinero(
+                        cuota.valorCuota
+                      )
+                    )}
+                  </td>
+
+                  <td class="money">
+                    ${escaparHTML(
+                      formatearDinero(
+                        cuota.valorPagado
+                      )
+                    )}
+                  </td>
+
+                  <td class="money">
+                    ${escaparHTML(
+                      formatearDinero(
+                        cuota.saldoPendiente
+                      )
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      cuota.estado ||
+                        "—"
+                    )}
+                  </td>
+                </tr>
+              `;
+            }
+          )
+          .join("");
+
+      return `
+        <section class="cliente-section">
+
+          <div class="cliente-header">
+
+            <div>
+              <strong>
+                ${escaparHTML(
+                  obtenerNombreCliente(
+                    cliente
+                  )
+                )}
+              </strong>
+
+              <br />
+
+              <span>
+                Documento:
+                ${escaparHTML(
+                  cliente?.documento ||
+                    "Sin documento"
+                )}
+              </span>
+            </div>
+
+            <span>
+              ${cuotasOrdenadas.length}
+              cuota(s)
+            </span>
+
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Venta</th>
+                <th>Lote</th>
+                <th>Manzana</th>
+                <th>Cuota</th>
+                <th>Vencimiento</th>
+                <th>Valor</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${filas}
+            </tbody>
+          </table>
+
+          <div class="cliente-totales">
+
+            <div>
+              <span>
+                Valor programado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalProgramado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Total pagado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalPagado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Saldo pendiente
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    saldoPendiente
+                  )
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+        </section>
+      `;
+    };
+
+  /* =======================================================
+     IMPRESIÓN GENERAL
+
+     REGLAS:
+
+     - Si hay cliente seleccionado:
+       imprime únicamente todas las cuotas de ese cliente.
+
+     - Si NO hay cliente seleccionado:
+       imprime todos los clientes con todas sus cuotas.
+
+     - No depende de la página actual.
+  ======================================================= */
+
+  const imprimirTodasLasCuotas =
+    () => {
+      /* =====================================================
+         DEFINIR QUÉ CUOTAS SE VAN A IMPRIMIR
+      ===================================================== */
+
+      const cuotasParaImprimir =
+        filtroCliente
+          ? cuotas.filter(
+              (cuota) =>
+                cuota.venta
+                  ?.cliente
+                  ?._id ===
+                filtroCliente
+            )
+          : cuotas;
+
+      /* =====================================================
+         VALIDAR
+      ===================================================== */
+
+      if (
+        cuotasParaImprimir.length ===
+        0
+      ) {
+        mostrarNotificacion(
+          filtroCliente
+            ? "El cliente seleccionado no tiene cuotas para imprimir."
+            : "No existen cuotas para imprimir.",
+          "error"
+        );
+
+        return;
+      }
+
+      /* =====================================================
+         AGRUPAR POR CLIENTE
+      ===================================================== */
+
+      const grupos =
+        new Map();
+
+      cuotasParaImprimir.forEach(
+        (cuota) => {
+          const cliente =
+            cuota.venta?.cliente;
+
+          const clave =
+            cliente?._id ||
+            "sin-cliente";
+
+          if (
+            !grupos.has(
+              clave
+            )
+          ) {
+            grupos.set(
+              clave,
+              {
+                cliente,
+                cuotas: [],
+              }
+            );
+          }
+
+          grupos
+            .get(
+              clave
+            )
+            .cuotas.push(
+              cuota
+            );
+        }
+      );
+
+      /* =====================================================
+         ORDENAR CLIENTES
+      ===================================================== */
+
+      const clientesAgrupados =
+        Array.from(
+          grupos.values()
+        ).sort(
+          (
+            a,
+            b
+          ) =>
+            obtenerNombreCliente(
+              a.cliente
+            ).localeCompare(
+              obtenerNombreCliente(
+                b.cliente
+              ),
+              "es"
+            )
+        );
+
+      /* =====================================================
+         CONSTRUIR BLOQUES
+      ===================================================== */
+
+      const contenidoClientes =
+        clientesAgrupados
+          .map(
+            ({
+              cliente,
+              cuotas:
+                cuotasCliente,
+            }) =>
+              construirReporteCliente(
+                cliente,
+                cuotasCliente
+              )
+          )
+          .join("");
+
+      /* =====================================================
+         TOTALES DEL REPORTE
+      ===================================================== */
+
+      const totalProgramado =
+        cuotasParaImprimir.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.valorCuota ||
+                0
+            ),
+          0
+        );
+
+      const totalPagado =
+        cuotasParaImprimir.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.valorPagado ||
+                0
+            ),
+          0
+        );
+
+      const saldoPendiente =
+        cuotasParaImprimir.reduce(
+          (
+            total,
+            cuota
+          ) =>
+            total +
+            Number(
+              cuota.saldoPendiente ||
+                0
+            ),
+          0
+        );
+
+      /* =====================================================
+         TÍTULO DEL REPORTE
+      ===================================================== */
+
+      const tituloReporte =
+        filtroCliente &&
+        clienteSeleccionado
+          ? `Cuotas - ${obtenerNombreCliente(
+              clienteSeleccionado
+            )}`
+          : "Reporte general de cuotas";
+
+      const subtituloReporte =
+        filtroCliente &&
+        clienteSeleccionado
+          ? `ESTADO DE CUOTAS - ${obtenerNombreCliente(
+              clienteSeleccionado
+            ).toUpperCase()}`
+          : "REPORTE GENERAL DE CUOTAS";
+
+      /* =====================================================
+         ABRIR IMPRESIÓN
+      ===================================================== */
+
+      abrirVentanaImpresion(
+        tituloReporte,
+        `
+          <div class="report-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              ${escaparHTML(
+                subtituloReporte
+              )}
+            </h2>
+
+            <p>
+              ${
+                filtroCliente &&
+                clienteSeleccionado
+                  ? `Documento: ${escaparHTML(
+                      clienteSeleccionado.documento ||
+                        "Sin documento"
+                    )}`
+                  : "Cuotas agrupadas por cliente"
+              }
+            </p>
+
+          </div>
+
+          <div class="general-summary">
+
+            <div>
+              <span>
+                Clientes
+              </span>
+
+              <strong>
+                ${clientesAgrupados.length}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Total cuotas
+              </span>
+
+              <strong>
+                ${cuotasParaImprimir.length}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Total pagado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalPagado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Saldo pendiente
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    saldoPendiente
+                  )
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <div
+            style="
+              margin-bottom: 20px;
+              font-size: 10px;
+              color: #777;
+            "
+          >
+            Valor total programado:
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  totalProgramado
+                )
+              )}
+            </strong>
+          </div>
+
+          ${contenidoClientes}
+        `
+      );
+    };
+
+  /* =======================================================
+     IMPRIMIR UN SOLO CLIENTE CON TODAS SUS CUOTAS
+  ======================================================= */
+
+  const imprimirCuotasCliente =
+    (
+      cliente
+    ) => {
+      if (
+        !cliente?._id
+      ) {
+        mostrarNotificacion(
+          "No fue posible identificar el cliente.",
+          "error"
+        );
+
+        return;
+      }
+
+      const cuotasCliente =
+        cuotas.filter(
+          (cuota) =>
+            cuota.venta
+              ?.cliente
+              ?._id ===
+            cliente._id
+        );
+
+      if (
+        cuotasCliente.length ===
+        0
+      ) {
+        mostrarNotificacion(
+          "El cliente no tiene cuotas para imprimir.",
+          "error"
+        );
+
+        return;
+      }
+
+      abrirVentanaImpresion(
+        `Cuotas - ${obtenerNombreCliente(
+          cliente
+        )}`,
+        `
+          <div class="report-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              ESTADO DE CUOTAS DEL CLIENTE
+            </h2>
+
+          </div>
+
+          ${construirReporteCliente(
+            cliente,
+            cuotasCliente
+          )}
+        `
       );
     };
 
@@ -845,27 +1670,50 @@ export default function Cuotas() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="cuotas-refresh-button"
-          onClick={
-            cargarTodo
-          }
-          disabled={
-            cargando
-          }
-        >
-          <RefreshCw
-            size={18}
-            className={
-              cargando
-                ? "cuotas-spin"
-                : ""
-            }
-          />
+        <div className="cuotas-header-actions">
 
-          Actualizar
-        </button>
+          <button
+            type="button"
+            className="cuotas-print-button"
+            onClick={
+              imprimirTodasLasCuotas
+            }
+            disabled={
+              cargando ||
+              cuotas.length ===
+                0
+            }
+          >
+            <Printer
+              size={18}
+            />
+
+            Imprimir cuotas
+          </button>
+
+          <button
+            type="button"
+            className="cuotas-refresh-button"
+            onClick={
+              cargarTodo
+            }
+            disabled={
+              cargando
+            }
+          >
+            <RefreshCw
+              size={18}
+              className={
+                cargando
+                  ? "cuotas-spin"
+                  : ""
+              }
+            />
+
+            Actualizar
+          </button>
+
+        </div>
 
       </div>
 
@@ -1046,45 +1894,6 @@ export default function Cuotas() {
       ================================================= */}
 
       <div className="cuotas-panel">
-
-        {/* =============================================
-            BÚSQUEDA
-        ============================================= */}
-
-        <div className="cuotas-toolbar">
-
-          <div className="cuotas-search">
-
-            <Search
-              size={18}
-            />
-
-            <input
-              type="text"
-              value={
-                busqueda
-              }
-              onChange={(e) =>
-                setBusqueda(
-                  e.target.value
-                )
-              }
-              placeholder="Buscar cliente, venta, lote, manzana o cuota..."
-            />
-
-          </div>
-
-          <button
-            type="button"
-            className="cuotas-clear-button"
-            onClick={
-              limpiarFiltros
-            }
-          >
-            Limpiar filtros
-          </button>
-
-        </div>
 
         {/* =============================================
             FILTROS
@@ -1269,92 +2078,6 @@ export default function Cuotas() {
 
           </div>
 
-          {/* ESTADO */}
-
-          <div className="cuotas-filter-field">
-
-            <label>
-              Estado
-            </label>
-
-            <select
-              value={
-                filtroEstado
-              }
-              onChange={(e) =>
-                setFiltroEstado(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Todos
-              </option>
-
-              <option value="Pendiente">
-                Pendiente
-              </option>
-
-              <option value="Parcial">
-                Parcial
-              </option>
-
-              <option value="Pagada">
-                Pagada
-              </option>
-
-              <option value="Vencida">
-                Vencida
-              </option>
-
-            </select>
-
-          </div>
-
-          {/* DESDE */}
-
-          <div className="cuotas-filter-field">
-
-            <label>
-              Vence desde
-            </label>
-
-            <input
-              type="date"
-              value={
-                fechaInicio
-              }
-              onChange={(e) =>
-                setFechaInicio(
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
-          {/* HASTA */}
-
-          <div className="cuotas-filter-field">
-
-            <label>
-              Vence hasta
-            </label>
-
-            <input
-              type="date"
-              value={
-                fechaFinal
-              }
-              onChange={(e) =>
-                setFechaFinal(
-                  e.target.value
-                )
-              }
-            />
-
-          </div>
-
         </div>
 
         {/* =================================================
@@ -1369,6 +2092,10 @@ export default function Cuotas() {
               <tr>
                 <th>
                   Cliente
+                </th>
+
+                <th>
+                  Código
                 </th>
 
                 <th>
@@ -1402,6 +2129,10 @@ export default function Cuotas() {
                 <th>
                   Estado
                 </th>
+
+                <th>
+                  Acciones
+                </th>
               </tr>
             </thead>
 
@@ -1410,7 +2141,7 @@ export default function Cuotas() {
               {cargando ? (
                 <tr>
                   <td
-                    colSpan="9"
+                    colSpan="11"
                     className="cuotas-empty"
                   >
                     <RefreshCw
@@ -1427,7 +2158,7 @@ export default function Cuotas() {
                 0 ? (
                 <tr>
                   <td
-                    colSpan="9"
+                    colSpan="11"
                     className="cuotas-empty"
                   >
                     <WalletCards
@@ -1490,6 +2221,15 @@ export default function Cuotas() {
                             </div>
 
                           </div>
+                        </td>
+
+                        {/* CÓDIGO DE CUOTA */}
+
+                        <td>
+                          <strong className="cuota-code">
+                            {cuota.codigo ||
+                              "—"}
+                          </strong>
                         </td>
 
                         {/* VENTA */}
@@ -1624,6 +2364,31 @@ export default function Cuotas() {
                               cuota.estado
                             }
                           </span>
+                        </td>
+
+                        {/* ACCIONES */}
+
+                        <td>
+                          <div className="cuotas-actions">
+
+                            <button
+                              type="button"
+                              className="print"
+                              title={`Imprimir todas las cuotas de ${obtenerNombreCliente(
+                                cliente
+                              )}`}
+                              onClick={() =>
+                                imprimirCuotasCliente(
+                                  cliente
+                                )
+                              }
+                            >
+                              <Printer
+                                size={16}
+                              />
+                            </button>
+
+                          </div>
                         </td>
 
                       </tr>

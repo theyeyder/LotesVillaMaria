@@ -3,6 +3,24 @@ import mongoose from "mongoose";
 const cuotaSchema = new mongoose.Schema(
   {
     /* =====================================================
+       CÓDIGO ÚNICO DE LA CUOTA
+
+       CT-0001
+       CT-0002
+       CT-0003...
+
+       No reemplaza numeroCuota.
+    ===================================================== */
+
+    codigo: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      uppercase: true,
+    },
+
+    /* =====================================================
        VENTA A LA QUE PERTENECE
     ===================================================== */
 
