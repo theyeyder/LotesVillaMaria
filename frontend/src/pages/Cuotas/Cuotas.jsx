@@ -177,6 +177,16 @@ export default function Cuotas() {
   ] = useState("");
 
   const [
+    busquedaCliente,
+    setBusquedaCliente,
+  ] = useState("");
+
+  const [
+    mostrarResultadosClientes,
+    setMostrarResultadosClientes,
+  ] = useState(false);
+
+  const [
     fechaInicio,
     setFechaInicio,
   ] = useState("");
@@ -369,6 +379,192 @@ export default function Cuotas() {
     }, [
       cuotas,
     ]);
+
+  /* =======================================================
+     CLIENTE SELECCIONADO EN EL FILTRO
+  ======================================================= */
+
+  const clienteSeleccionado =
+    useMemo(() => {
+      if (
+        !filtroCliente
+      ) {
+        return null;
+      }
+
+      return (
+        clientes.find(
+          (cliente) =>
+            cliente._id ===
+            filtroCliente
+        ) || null
+      );
+    }, [
+      clientes,
+      filtroCliente,
+    ]);
+
+  /* =======================================================
+     BUSCAR CLIENTES
+
+     Busca por:
+     - Nombre
+     - Apellido
+     - Documento
+     - Teléfono
+     - Correo
+
+     Máximo 10 resultados.
+  ======================================================= */
+
+  const clientesFiltradosBusqueda =
+    useMemo(() => {
+      const texto =
+        busquedaCliente
+          .trim()
+          .toLowerCase();
+
+      /*
+        No mostramos todos los clientes
+        cuando el buscador está vacío.
+      */
+
+      if (
+        !texto
+      ) {
+        return [];
+      }
+
+      return clientes
+        .filter(
+          (cliente) => {
+            const nombre =
+              obtenerNombreCliente(
+                cliente
+              ).toLowerCase();
+
+            const documento =
+              String(
+                cliente.documento ||
+                  ""
+              ).toLowerCase();
+
+            const telefono =
+              String(
+                cliente.telefono ||
+                  ""
+              ).toLowerCase();
+
+            const correo =
+              String(
+                cliente.correo ||
+                  ""
+              ).toLowerCase();
+
+            return (
+              nombre.includes(
+                texto
+              ) ||
+              documento.includes(
+                texto
+              ) ||
+              telefono.includes(
+                texto
+              ) ||
+              correo.includes(
+                texto
+              )
+            );
+          }
+        )
+        .slice(
+          0,
+          10
+        );
+    }, [
+      clientes,
+      busquedaCliente,
+    ]);
+
+  /* =======================================================
+     ESCRIBIR EN BUSCADOR DE CLIENTE
+  ======================================================= */
+
+  const handleBuscarCliente =
+    (e) => {
+      const value =
+        e.target.value;
+
+      setBusquedaCliente(
+        value
+      );
+
+      setMostrarResultadosClientes(
+        true
+      );
+
+      /*
+        Si había un cliente seleccionado
+        y comenzamos una búsqueda nueva,
+        quitamos el filtro anterior.
+      */
+
+      if (
+        filtroCliente
+      ) {
+        setFiltroCliente(
+          ""
+        );
+      }
+    };
+
+  /* =======================================================
+     SELECCIONAR CLIENTE
+  ======================================================= */
+
+  const seleccionarCliente =
+    (cliente) => {
+      setFiltroCliente(
+        cliente._id
+      );
+
+      setBusquedaCliente(
+        obtenerNombreCliente(
+          cliente
+        )
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+
+      setPaginaActual(
+        1
+      );
+    };
+
+  /* =======================================================
+     LIMPIAR CLIENTE
+  ======================================================= */
+
+  const limpiarCliente =
+    () => {
+      setFiltroCliente(
+        ""
+      );
+
+      setBusquedaCliente(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
+      );
+
+      setPaginaActual(
+        1
+      );
+    };
 
   /* =======================================================
      FILTRAR CUOTAS
@@ -595,6 +791,14 @@ export default function Cuotas() {
 
       setFiltroCliente(
         ""
+      );
+
+      setBusquedaCliente(
+        ""
+      );
+
+      setMostrarResultadosClientes(
+        false
       );
 
       setFechaInicio(
@@ -890,48 +1094,178 @@ export default function Cuotas() {
 
           {/* CLIENTE */}
 
-          <div className="cuotas-filter-field">
+          <div className="cuotas-filter-field cuotas-client-filter">
 
             <label>
               Cliente
             </label>
 
-            <select
-              value={
-                filtroCliente
-              }
-              onChange={(e) =>
-                setFiltroCliente(
-                  e.target.value
-                )
-              }
-            >
-              <option value="">
-                Todos los clientes
-              </option>
+            {clienteSeleccionado ? (
+              /* =================================
+                 CLIENTE SELECCIONADO
+              ================================= */
 
-              {clientes.map(
-                (cliente) => (
-                  <option
-                    key={
-                      cliente._id
-                    }
-                    value={
-                      cliente._id
-                    }
-                  >
+              <div className="cuotas-client-selected">
+
+                <div>
+
+                  <span>
+                    Cliente seleccionado
+                  </span>
+
+                  <strong>
                     {obtenerNombreCliente(
-                      cliente
+                      clienteSeleccionado
                     )}
+                  </strong>
 
-                    {cliente.documento
-                      ? ` - ${cliente.documento}`
-                      : ""}
-                  </option>
-                )
-              )}
+                  {clienteSeleccionado.documento && (
+                    <small>
+                      Documento:{" "}
+                      {
+                        clienteSeleccionado.documento
+                      }
+                    </small>
+                  )}
 
-            </select>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={
+                    limpiarCliente
+                  }
+                >
+                  Cambiar
+                </button>
+
+              </div>
+            ) : (
+              <>
+                {/* ===============================
+                    BUSCADOR
+                =============================== */}
+
+                <div className="cuotas-client-search">
+
+                  <Search
+                    size={16}
+                  />
+
+                  <input
+                    type="text"
+                    value={
+                      busquedaCliente
+                    }
+                    onChange={
+                      handleBuscarCliente
+                    }
+                    onFocus={() =>
+                      setMostrarResultadosClientes(
+                        true
+                      )
+                    }
+                    placeholder="Nombre, documento o teléfono..."
+                    autoComplete="off"
+                  />
+
+                  {busquedaCliente && (
+                    <button
+                      type="button"
+                      className="cuotas-client-clear"
+                      onClick={
+                        limpiarCliente
+                      }
+                      aria-label="Limpiar cliente"
+                    >
+                      ×
+                    </button>
+                  )}
+
+                </div>
+
+                {/* ===============================
+                    RESULTADOS
+                =============================== */}
+
+                {mostrarResultadosClientes &&
+                  busquedaCliente.trim() && (
+                    <div className="cuotas-client-results">
+
+                      {clientesFiltradosBusqueda.length >
+                      0 ? (
+                        clientesFiltradosBusqueda.map(
+                          (cliente) => (
+                            <button
+                              key={
+                                cliente._id
+                              }
+                              type="button"
+                              className="cuotas-client-result"
+                              onClick={() =>
+                                seleccionarCliente(
+                                  cliente
+                                )
+                              }
+                            >
+
+                              <div className="cuotas-client-avatar">
+
+                                {obtenerNombreCliente(
+                                  cliente
+                                )
+                                  .charAt(
+                                    0
+                                  )
+                                  .toUpperCase()}
+
+                              </div>
+
+                              <div className="cuotas-client-result-info">
+
+                                <strong>
+                                  {obtenerNombreCliente(
+                                    cliente
+                                  )}
+                                </strong>
+
+                                <span>
+                                  {cliente.documento
+                                    ? `Documento: ${cliente.documento}`
+                                    : "Sin documento"}
+
+                                  {cliente.telefono
+                                    ? ` · Tel: ${cliente.telefono}`
+                                    : ""}
+                                </span>
+
+                              </div>
+
+                              <span className="cuotas-client-select-text">
+                                Seleccionar
+                              </span>
+
+                            </button>
+                          )
+                        )
+                      ) : (
+                        <div className="cuotas-client-empty">
+                          No se encontraron clientes.
+                        </div>
+                      )}
+
+                    </div>
+                  )}
+
+                {!busquedaCliente.trim() && (
+                  <small className="cuotas-client-help">
+                    Escriba nombre, apellido,
+                    documento o teléfono.
+                  </small>
+                )}
+
+              </>
+            )}
 
           </div>
 

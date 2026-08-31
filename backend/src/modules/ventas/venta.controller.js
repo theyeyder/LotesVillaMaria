@@ -6,6 +6,11 @@ import Lote from "../lotes/lote.model.js";
 import Cuota from "../cuotas/cuota.model.js";
 import Pago from "../pagos/pago.model.js";
 
+import {
+  generarCodigoVenta,
+  generarCodigosCuotas,
+} from "../consecutivos/consecutivo.service.js";
+
 /* =========================================================
    CALCULAR FINANCIACIÓN
 ========================================================= */
@@ -466,6 +471,15 @@ const crearCuotasAutomaticas =
         numeroCuotas
       );
 
+    /* =====================================================
+       GENERAR CONSECUTIVOS DE LAS CUOTAS
+    ===================================================== */
+
+    const codigosCuotas =
+      await generarCodigosCuotas(
+        numeroCuotas
+      );
+
     const cuotas =
       [];
 
@@ -486,6 +500,9 @@ const crearCuotasAutomaticas =
         );
 
       cuotas.push({
+        codigo:
+          codigosCuotas[i],
+
         venta:
           venta._id,
 
@@ -851,11 +868,20 @@ export const crearVenta =
       }
 
       /* =========================
+         GENERAR CONSECUTIVO
+      ========================= */
+
+      const codigo =
+        await generarCodigoVenta();
+
+      /* =========================
          CREAR VENTA
       ========================= */
 
       const venta =
         await Venta.create({
+          codigo,
+
           cliente,
           lote,
 
@@ -934,8 +960,8 @@ export const crearVenta =
         message:
           venta.formaPago ===
           "Financiado"
-            ? `Venta creada correctamente. Se generaron ${cuotasGeneradas.length} cuotas.`
-            : "Venta de contado creada correctamente.",
+            ? `Venta ${venta.codigo} creada correctamente. Se generaron ${cuotasGeneradas.length} cuotas.`
+            : `Venta ${venta.codigo} de contado creada correctamente.`,
 
         venta:
           ventaCompleta,

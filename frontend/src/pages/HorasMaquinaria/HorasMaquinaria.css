@@ -848,6 +848,346 @@
   cursor: not-allowed;
 }
 
+/* =========================================================
+   INPUT CON ICONO
+========================================================= */
+
+.horas-input-with-icon {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-height: 40px;
+
+  padding: 0 10px;
+
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #1f6848;
+}
+
+.horas-input-with-icon:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.09);
+}
+
+.horas-input-with-icon input {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 38px;
+
+  padding: 0;
+
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none;
+
+  background: transparent;
+
+  box-shadow: none !important;
+}
+
+/* =========================================================
+   VALOR DE LA HORA
+========================================================= */
+
+.horas-money-input {
+  display: flex;
+  align-items: center;
+
+  overflow: hidden;
+
+  min-height: 42px;
+
+  border: 1px solid #dcd5c8;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.horas-money-input:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.09);
+}
+
+.horas-money-input > span {
+  display: grid;
+  place-items: center;
+
+  width: 44px;
+  min-width: 44px;
+  min-height: 42px;
+
+  border-right: 1px solid #e2dacd;
+
+  background: #f5f1e8;
+
+  color: #a1742e;
+
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.horas-money-input input {
+  flex: 1;
+
+  min-width: 0;
+  min-height: 40px;
+
+  padding: 0 12px;
+
+  border: none !important;
+  border-radius: 0 !important;
+  outline: none;
+
+  background: transparent;
+
+  box-shadow: none !important;
+
+  color: #173f2e;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.horas-money-help {
+  color: #8b918d;
+
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   AVISO CAMBIO DE NOMBRE DEL OPERARIO
+========================================================= */
+
+.horas-operario-change-warning {
+  display: flex;
+  align-items: flex-start;
+
+  gap: 11px;
+
+  margin-top: 15px;
+  padding: 12px 14px;
+
+  border: 1px solid #e0c997;
+  border-radius: 11px;
+
+  background: #fff8e9;
+
+  color: #956d2b;
+}
+
+.horas-operario-change-warning > svg {
+  flex: 0 0 auto;
+
+  margin-top: 2px;
+}
+
+.horas-operario-change-warning > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+}
+
+.horas-operario-change-warning strong {
+  color: #7d5b22;
+
+  font-size: 11px;
+}
+
+.horas-operario-change-warning span {
+  color: #746955;
+
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.horas-operario-change-warning b {
+  color: #173f2e;
+}
+
+/* =========================================================
+   RESUMEN HORAS Y PAGO
+========================================================= */
+
+.horas-payment-summary {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 16px;
+}
+
+.horas-payment-card {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  min-width: 0;
+  min-height: 92px;
+
+  padding: 13px;
+
+  border: 1px solid #ded8cc;
+  border-radius: 12px;
+
+  background: #faf8f2;
+}
+
+.horas-payment-icon {
+  display: grid;
+  place-items: center;
+
+  width: 40px;
+  height: 40px;
+
+  flex: 0 0 40px;
+
+  border-radius: 11px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+}
+
+.horas-payment-card > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+
+  min-width: 0;
+}
+
+.horas-payment-card span {
+  color: #7d857f;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.horas-payment-card strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 16px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.horas-payment-card small {
+  color: #89908b;
+
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+/* =========================================================
+   HORAS REALIZADAS
+========================================================= */
+
+.horas-payment-hours {
+  border-color: #c9ddd0;
+
+  background: #f1f7f3;
+}
+
+.horas-payment-hours
+.horas-payment-icon {
+  background: #173f2e;
+
+  color: #e9c986;
+}
+
+/* =========================================================
+   VALOR TOTAL A PAGAR
+========================================================= */
+
+.horas-payment-total {
+  border-color: #dbc18b;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fff9ed 0%,
+      #faf0dc 100%
+    );
+}
+
+.horas-payment-total
+.horas-payment-icon {
+  background: #b98532;
+
+  color: #ffffff;
+}
+
+.horas-payment-total strong {
+  color: #8b6527;
+
+  font-size: 19px;
+}
+
+/* =========================================================
+   DETALLE DEL CÁLCULO
+========================================================= */
+
+.horas-payment-calculation {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 9px;
+  padding: 10px 12px;
+
+  border: 1px dashed #d8c7a3;
+  border-radius: 10px;
+
+  background: #fcfaf5;
+
+  color: #737c76;
+
+  font-size: 10px;
+}
+
+.horas-payment-calculation strong {
+  color: #173f2e;
+}
+
+.horas-payment-calculation b {
+  color: #9a712d;
+
+  font-size: 12px;
+}
+
 /* =========================
    ANIMACIONES
 ========================= */
@@ -1228,6 +1568,18 @@
 
   .horas-turno-night-help {
     grid-column: auto;
+  }
+
+  .horas-payment-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .horas-payment-card {
+    min-height: 82px;
+  }
+
+  .horas-payment-calculation {
+    justify-content: flex-start;
   }
 }
 

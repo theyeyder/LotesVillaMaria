@@ -407,6 +407,34 @@
 .manzana-card-actions button.delete:hover {
   background: #fde8e8;
 }
+/* BOTÓN IMPRIMIR MANZANA */
+
+.manzana-card-actions button.print {
+  border-color: #ddc997;
+  background: #fff8e9;
+  color: #9a712d;
+}
+
+.manzana-card-actions button.print:hover {
+  border-color: #cda95e;
+  background: #f8edd8;
+  color: #805a20;
+}
+
+
+/* BOTÓN IMPRIMIR LOTE */
+
+.lotes-actions button.print {
+  border: 1px solid #ddc997;
+  background: #fff8e9;
+  color: #9a712d;
+}
+
+.lotes-actions button.print:hover {
+  border-color: #cda95e;
+  background: #f8edd8;
+  color: #805a20;
+}
 
 /* =========================================================
    VACÍO DE MANZANAS

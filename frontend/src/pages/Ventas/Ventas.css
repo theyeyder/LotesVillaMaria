@@ -2103,3 +2103,79 @@
 
   cursor: pointer;
 }
+/* =========================================================
+   BOTÓN SUPERIOR IMPRIMIR VENTAS
+========================================================= */
+
+.ventas-print-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 43px;
+
+  padding: 0 15px;
+
+  border: 1px solid #d8c28f;
+  border-radius: 11px;
+
+  background: #fff8e9;
+
+  color: #916a27;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.ventas-print-button:hover {
+  transform: translateY(-1px);
+
+  border-color: #cda95e;
+
+  background: #f8edd8;
+
+  color: #7d5921;
+}
+
+
+/* =========================================================
+   BOTÓN IMPRIMIR EN ACCIONES
+========================================================= */
+
+.ventas-actions button.print {
+  border: 1px solid #ddc997;
+
+  background: #fff8e9;
+
+  color: #9a712d;
+}
+
+.ventas-actions button.print:hover:not(:disabled) {
+  border-color: #cda95e;
+
+  background: #f8edd8;
+
+  color: #805a20;
+}
+
+
+/* =========================================================
+   RESPONSIVE BOTÓN IMPRIMIR
+========================================================= */
+
+@media (max-width: 760px) {
+
+  .ventas-print-button {
+    width: 100%;
+  }
+
+}

@@ -45,6 +45,17 @@ const formatearMinutos = (minutos = 0) => {
   return `${horas} h ${resto} min`;
 };
 
+const formatearDinero = (valor = 0) => {
+  return new Intl.NumberFormat(
+    "es-CO",
+    {
+      style: "currency",
+      currency: "COP",
+      maximumFractionDigits: 0,
+    }
+  ).format(Number(valor) || 0);
+};
+
 const formatearFecha = (fecha) => {
   if (!fecha) {
     return "";
@@ -124,15 +135,22 @@ export default function HorasMaquinaria() {
   const [resumen, setResumen] = useState({
     dia: {
       totalMinutos: 0,
+      valorPagar: 0,
     },
+
     semana: {
       totalMinutos: 0,
+      valorPagar: 0,
     },
+
     mes: {
       totalMinutos: 0,
+      valorPagar: 0,
     },
+
     anio: {
       totalMinutos: 0,
+      valorPagar: 0,
     },
   });
 
@@ -140,10 +158,19 @@ export default function HorasMaquinaria() {
 
   const [totalOperarios, setTotalOperarios] = useState({
     dia: 0,
+    valorDia: 0,
+
     semana: 0,
+    valorSemana: 0,
+
     mes: 0,
+    valorMes: 0,
+
     anio: 0,
+    valorAnio: 0,
+
     total: 0,
+    valorTotal: 0,
   });
 
   const [cargando, setCargando] = useState(true);
@@ -237,19 +264,35 @@ export default function HorasMaquinaria() {
 
       setResumen({
         dia: {
-          totalMinutos: datos?.dia?.totalMinutos || 0,
+          totalMinutos:
+            datos?.dia?.totalMinutos || 0,
+
+          valorPagar:
+            datos?.dia?.valorPagar || 0,
         },
 
         semana: {
-          totalMinutos: datos?.semana?.totalMinutos || 0,
+          totalMinutos:
+            datos?.semana?.totalMinutos || 0,
+
+          valorPagar:
+            datos?.semana?.valorPagar || 0,
         },
 
         mes: {
-          totalMinutos: datos?.mes?.totalMinutos || 0,
+          totalMinutos:
+            datos?.mes?.totalMinutos || 0,
+
+          valorPagar:
+            datos?.mes?.valorPagar || 0,
         },
 
         anio: {
-          totalMinutos: datos?.anio?.totalMinutos || 0,
+          totalMinutos:
+            datos?.anio?.totalMinutos || 0,
+
+          valorPagar:
+            datos?.anio?.valorPagar || 0,
         },
       });
     } catch (error) {
@@ -280,10 +323,19 @@ export default function HorasMaquinaria() {
       setTotalOperarios(
         datos?.totalGeneral || {
           dia: 0,
+          valorDia: 0,
+
           semana: 0,
+          valorSemana: 0,
+
           mes: 0,
+          valorMes: 0,
+
           anio: 0,
+          valorAnio: 0,
+
           total: 0,
+          valorTotal: 0,
         }
       );
     } catch (error) {
@@ -727,6 +779,7 @@ export default function HorasMaquinaria() {
               <th>Mes</th>
               <th>Año</th>
               <th>Total trabajado</th>
+              <th>Total a pagar</th>
             </tr>
           </thead>
 
@@ -745,6 +798,10 @@ export default function HorasMaquinaria() {
 
                 <td>
                   <strong>{formatearMinutos(operario.total)}</strong>
+                </td>
+
+                <td>
+                  <strong>{formatearDinero(operario.valorTotal)}</strong>
                 </td>
               </tr>
             ))}
@@ -773,6 +830,10 @@ export default function HorasMaquinaria() {
               <td>
                 <strong>{formatearMinutos(totalOperarios.total)}</strong>
               </td>
+
+              <td>
+                <strong>{formatearDinero(totalOperarios.valorTotal)}</strong>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -793,7 +854,9 @@ export default function HorasMaquinaria() {
               <th>Mañana</th>
               <th>Tarde</th>
               <th>Noche</th>
-              <th>Total</th>
+              <th>Horas realizadas</th>
+              <th>Valor hora</th>
+              <th>Valor a pagar</th>
               <th>Observación</th>
             </tr>
           </thead>
@@ -833,11 +896,48 @@ export default function HorasMaquinaria() {
                   );
                 })}
 
+                {/* HORAS REALIZADAS */}
+
                 <td>
-                  <span className="print-total-horas">{formatearMinutos(registro.totalMinutos)}</span>
+                  <span className="print-total-horas">
+                    {formatearMinutos(
+                      registro.totalMinutos
+                    )}
+                  </span>
                 </td>
 
-                <td>{registro.observaciones || "—"}</td>
+                {/* VALOR HORA */}
+
+                <td>
+                  {Number(
+                    registro.valorHora
+                  ) > 0
+                    ? formatearDinero(
+                        registro.valorHora
+                      )
+                    : "—"}
+                </td>
+
+                {/* VALOR A PAGAR */}
+
+                <td>
+                  <strong>
+                    {Number(
+                      registro.valorPagar
+                    ) > 0
+                      ? formatearDinero(
+                          registro.valorPagar
+                        )
+                      : "—"}
+                  </strong>
+                </td>
+
+                {/* OBSERVACIÓN */}
+
+                <td>
+                  {registro.observaciones ||
+                    "—"}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -887,7 +987,9 @@ export default function HorasMaquinaria() {
                 <th>Mañana</th>
                 <th>Tarde</th>
                 <th>Noche</th>
-                <th>Total</th>
+                <th>Horas realizadas</th>
+                <th>Valor hora</th>
+                <th>Valor a pagar</th>
                 <th>Observaciones</th>
                 <th className="horas-actions-title">Acciones</th>
               </tr>
@@ -896,7 +998,7 @@ export default function HorasMaquinaria() {
             <tbody>
               {cargando ? (
                 <tr>
-                  <td colSpan="9" className="horas-empty">
+                  <td colSpan="11" className="horas-empty">
                     <RefreshCw size={24} className="horas-spin" />
 
                     <span>Cargando registros...</span>
@@ -904,7 +1006,7 @@ export default function HorasMaquinaria() {
                 </tr>
               ) : registrosPaginados.length === 0 ? (
                 <tr>
-                  <td colSpan="9" className="horas-empty">
+                  <td colSpan="11" className="horas-empty">
                     <Clock3 size={32} />
 
                     <strong>No hay horas registradas</strong>
@@ -954,15 +1056,63 @@ export default function HorasMaquinaria() {
                       );
                     })}
 
+                    {/* HORAS REALIZADAS */}
+
                     <td>
-                      <span className="horas-total">{formatearMinutos(registro.totalMinutos)}</span>
+                      <span className="horas-total">
+                        {formatearMinutos(
+                          registro.totalMinutos
+                        )}
+                      </span>
                     </td>
+
+                    {/* VALOR HORA */}
+
+                    <td>
+                      {Number(
+                        registro.valorHora
+                      ) > 0 ? (
+                        <strong className="horas-valor-hora">
+                          {formatearDinero(
+                            registro.valorHora
+                          )}
+                        </strong>
+                      ) : (
+                        <span className="horas-muted">
+                          —
+                        </span>
+                      )}
+                    </td>
+
+                    {/* VALOR A PAGAR */}
+
+                    <td>
+                      {Number(
+                        registro.valorPagar
+                      ) > 0 ? (
+                        <strong className="horas-valor-pagar">
+                          {formatearDinero(
+                            registro.valorPagar
+                          )}
+                        </strong>
+                      ) : (
+                        <span className="horas-muted">
+                          —
+                        </span>
+                      )}
+                    </td>
+
+                    {/* OBSERVACIONES */}
 
                     <td>
                       {registro.observaciones ? (
-                        <span className="horas-observacion">{registro.observaciones}</span>
+                        <span className="horas-observacion">
+                          {registro.observaciones}
+                        </span>
                       ) : (
-                        <span className="horas-muted">Sin observación</span>
+                        <span className="horas-muted">
+                          Sin observación
+                        </span>
                       )}
                     </td>
 

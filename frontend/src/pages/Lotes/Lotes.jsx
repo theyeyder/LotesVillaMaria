@@ -11,6 +11,7 @@ import {
   Edit3,
   LandPlot,
   Plus,
+  Printer,
   RefreshCw,
   Search,
   Trash2,
@@ -74,6 +75,66 @@ const formatearArea = (
       maximumFractionDigits: 2,
     }
   );
+};
+
+/* =========================================================
+   FORMATEAR MEDIDAS
+========================================================= */
+
+const formatearMedida = (
+  metros = 0,
+  centimetros = 0
+) => {
+  const m =
+    Number(metros) || 0;
+
+  const cm =
+    Number(centimetros) || 0;
+
+  if (
+    m === 0 &&
+    cm === 0
+  ) {
+    return "—";
+  }
+
+  if (
+    cm === 0
+  ) {
+    return `${m} m`;
+  }
+
+  return `${m} m ${cm} cm`;
+};
+
+/* =========================================================
+   ESCAPAR TEXTO PARA IMPRESIÓN
+========================================================= */
+
+const escaparHTML = (
+  valor = ""
+) => {
+  return String(valor)
+    .replace(
+      /&/g,
+      "&amp;"
+    )
+    .replace(
+      /</g,
+      "&lt;"
+    )
+    .replace(
+      />/g,
+      "&gt;"
+    )
+    .replace(
+      /"/g,
+      "&quot;"
+    )
+    .replace(
+      /'/g,
+      "&#039;"
+    );
 };
 
 /* =========================================================
@@ -530,6 +591,1043 @@ export default function Lotes() {
           );
         }
       ).length;
+    };
+
+  /* =======================================================
+     ABRIR VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1150,height=850"
+        );
+
+      if (
+        !ventana
+      ) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión. Permita las ventanas emergentes.",
+          "error"
+        );
+
+        return;
+      }
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="es">
+          <head>
+            <meta charset="UTF-8" />
+
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
+
+            <title>
+              ${escaparHTML(titulo)}
+            </title>
+
+            <style>
+              * {
+                box-sizing: border-box;
+              }
+
+              body {
+                margin: 0;
+                padding: 28px;
+
+                background: #f1eee6;
+
+                color: #27352e;
+
+                font-family:
+                  Arial,
+                  Helvetica,
+                  sans-serif;
+              }
+
+              .acciones {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+
+                max-width: 1100px;
+
+                margin: 0 auto 15px;
+              }
+
+              .acciones button {
+                min-height: 40px;
+
+                padding: 0 17px;
+
+                border-radius: 9px;
+
+                font-size: 12px;
+                font-weight: 800;
+
+                cursor: pointer;
+              }
+
+              .cerrar {
+                border: 1px solid #d4d0c7;
+
+                background: #ffffff;
+
+                color: #59635d;
+              }
+
+              .imprimir {
+                border: 1px solid #173f2e;
+
+                background: #173f2e;
+
+                color: #ffffff;
+              }
+
+              .reporte {
+                width: 100%;
+                max-width: 1100px;
+
+                margin: 0 auto;
+
+                padding: 32px;
+
+                border: 1px solid #ded9d0;
+                border-radius: 14px;
+
+                background: #ffffff;
+
+                box-shadow:
+                  0 10px 30px
+                  rgba(23, 63, 46, 0.08);
+              }
+
+              .reporte-header {
+                margin-bottom: 24px;
+                padding-bottom: 16px;
+
+                border-bottom: 3px solid #173f2e;
+
+                text-align: center;
+              }
+
+              .reporte-header h1 {
+                margin: 0;
+
+                color: #173f2e;
+
+                font-size: 25px;
+                font-weight: 900;
+              }
+
+              .reporte-header h2 {
+                margin: 5px 0 0;
+
+                color: #9a712d;
+
+                font-size: 15px;
+              }
+
+              .datos {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(4, minmax(0, 1fr));
+
+                gap: 9px;
+
+                margin-bottom: 22px;
+              }
+
+              .dato {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+
+                padding: 10px 11px;
+
+                border: 1px solid #dfd9ce;
+                border-radius: 9px;
+
+                background: #faf8f3;
+              }
+
+              .dato span {
+                color: #828a85;
+
+                font-size: 9px;
+                font-weight: 800;
+
+                text-transform: uppercase;
+              }
+
+              .dato strong {
+                color: #173f2e;
+
+                font-size: 12px;
+              }
+
+              h3 {
+                margin: 0 0 10px;
+
+                padding-left: 9px;
+
+                border-left: 4px solid #c99a4b;
+
+                color: #173f2e;
+
+                font-size: 14px;
+              }
+
+              table {
+                width: 100%;
+
+                border-collapse: collapse;
+
+                margin-top: 10px;
+              }
+
+              th {
+                padding: 9px 7px;
+
+                border: 1px solid #d8d8d8;
+
+                background: #173f2e;
+
+                color: #ffffff;
+
+                font-size: 9px;
+                font-weight: 900;
+
+                text-align: center;
+
+                text-transform: uppercase;
+              }
+
+              td {
+                padding: 9px 7px;
+
+                border: 1px solid #dedede;
+
+                color: #3a463f;
+
+                font-size: 10px;
+
+                text-align: center;
+
+                vertical-align: middle;
+              }
+
+              tbody tr:nth-child(even) {
+                background: #faf8f3;
+              }
+
+              td:first-child {
+                text-align: left;
+              }
+
+              .estado {
+                font-weight: 900;
+              }
+
+              .valor {
+                color: #8b6527;
+
+                font-weight: 900;
+
+                white-space: nowrap;
+              }
+
+              .area {
+                color: #173f2e;
+
+                font-weight: 900;
+
+                white-space: nowrap;
+              }
+
+              .observacion {
+                max-width: 190px;
+
+                text-align: left;
+              }
+
+              .lote-unico {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(2, minmax(0, 1fr));
+
+                gap: 10px;
+              }
+
+              .lote-unico .dato {
+                min-height: 65px;
+              }
+
+              .nota-irregular {
+                grid-column: 1 / -1;
+
+                padding: 11px 13px;
+
+                border: 1px solid #ddc796;
+                border-radius: 9px;
+
+                background: #fff8e9;
+
+                color: #76664c;
+
+                font-size: 10px;
+                line-height: 1.45;
+              }
+
+              @media print {
+                @page {
+                  size: A4 landscape;
+                  margin: 10mm;
+                }
+
+                body {
+                  padding: 0;
+
+                  background: #ffffff;
+                }
+
+                .acciones {
+                  display: none;
+                }
+
+                .reporte {
+                  max-width: none;
+
+                  padding: 0;
+
+                  border: none;
+                  border-radius: 0;
+
+                  box-shadow: none;
+                }
+
+                .reporte-header {
+                  border-bottom:
+                    2px solid #000000;
+                }
+
+                .reporte-header h1,
+                .reporte-header h2,
+                .dato strong,
+                h3,
+                td {
+                  color: #000000;
+                }
+
+                th {
+                  border: 1px solid #777;
+
+                  background: #eeeeee !important;
+
+                  color: #000000;
+
+                  -webkit-print-color-adjust: exact;
+                  print-color-adjust: exact;
+                }
+
+                td {
+                  border: 1px solid #999;
+                }
+
+                tr {
+                  break-inside: avoid;
+                  page-break-inside: avoid;
+                }
+              }
+
+              @media (max-width: 700px) {
+                .datos,
+                .lote-unico {
+                  grid-template-columns: 1fr;
+                }
+
+                .reporte {
+                  padding: 20px;
+                }
+              }
+            </style>
+          </head>
+
+          <body>
+
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="cerrar"
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="imprimir"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+
+            </div>
+
+            <main class="reporte">
+
+              ${contenido}
+
+            </main>
+
+          </body>
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     IMPRIMIR MANZANA COMPLETA
+
+     Incluye TODOS los lotes de esa manzana.
+     No depende del filtro de pantalla.
+  ======================================================= */
+
+  const imprimirManzana =
+    (
+      manzana,
+      event
+    ) => {
+      event?.stopPropagation();
+
+      const lotesDeLaManzana =
+        lotes.filter(
+          (
+            lote
+          ) => {
+            const idManzana =
+              lote.manzana?._id ||
+              lote.manzana;
+
+            return (
+              idManzana ===
+              manzana._id
+            );
+          }
+        );
+
+      const areaTotal =
+        lotesDeLaManzana.reduce(
+          (
+            total,
+            lote
+          ) =>
+            total +
+            (
+              Number(
+                lote.areaM2
+              ) || 0
+            ),
+          0
+        );
+
+      const valorTotal =
+        lotesDeLaManzana.reduce(
+          (
+            total,
+            lote
+          ) =>
+            total +
+            (
+              Number(
+                lote.valorLote
+              ) || 0
+            ),
+          0
+        );
+
+      const disponibles =
+        lotesDeLaManzana.filter(
+          (
+            lote
+          ) =>
+            lote.estado ===
+            "Disponible"
+        ).length;
+
+      const vendidos =
+        lotesDeLaManzana.filter(
+          (
+            lote
+          ) =>
+            lote.estado ===
+            "Vendido"
+        ).length;
+
+      const filas =
+        lotesDeLaManzana.length >
+        0
+          ? lotesDeLaManzana
+              .map(
+                (
+                  lote
+                ) => {
+                  const tipo =
+                    lote.tipoLote ||
+                    (
+                      (
+                        Number(
+                          lote.frenteMetros
+                        ) || 0
+                      ) >
+                        0 &&
+                      (
+                        Number(
+                          lote.fondoMetros
+                        ) || 0
+                      ) >
+                        0
+                        ? "Regular"
+                        : "Irregular"
+                    );
+
+                  return `
+                    <tr>
+                      <td>
+                        <strong>
+                          ${escaparHTML(
+                            lote.codigo ||
+                            ""
+                          )}
+                        </strong>
+
+                        <br />
+
+                        Lote ${escaparHTML(
+                          lote.numeroLote ||
+                          ""
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHTML(
+                          tipo
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHTML(
+                          formatearMedida(
+                            lote.frenteMetros,
+                            lote.frenteCentimetros
+                          )
+                        )}
+                      </td>
+
+                      <td>
+                        ${escaparHTML(
+                          formatearMedida(
+                            lote.fondoMetros,
+                            lote.fondoCentimetros
+                          )
+                        )}
+                      </td>
+
+                      <td class="area">
+                        ${escaparHTML(
+                          formatearArea(
+                            lote.areaM2
+                          )
+                        )} m²
+                      </td>
+
+                      <td class="valor">
+                        ${escaparHTML(
+                          formatearDinero(
+                            lote.valorLote
+                          )
+                        )}
+                      </td>
+
+                      <td class="estado">
+                        ${escaparHTML(
+                          lote.estado ||
+                          "—"
+                        )}
+                      </td>
+
+                      <td class="observacion">
+                        ${escaparHTML(
+                          lote.observaciones ||
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  `;
+                }
+              )
+              .join("")
+          : `
+              <tr>
+                <td
+                  colspan="8"
+                  style="text-align:center;padding:25px;"
+                >
+                  Esta manzana todavía no tiene lotes registrados.
+                </td>
+              </tr>
+            `;
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Reporte de manzana y lotes
+          </h2>
+
+        </div>
+
+        <div class="datos">
+
+          <div class="dato">
+            <span>
+              Código
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Manzana
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana.nombre ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Estado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana.estado ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Total lotes
+            </span>
+
+            <strong>
+              ${lotesDeLaManzana.length}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Disponibles
+            </span>
+
+            <strong>
+              ${disponibles}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Vendidos
+            </span>
+
+            <strong>
+              ${vendidos}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Área total lotes
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearArea(
+                  areaTotal
+                )
+              )} m²
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Valor total
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  valorTotal
+                )
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+        ${
+          manzana.descripcion
+            ? `
+                <div
+                  class="dato"
+                  style="margin-bottom:20px;"
+                >
+                  <span>
+                    Descripción
+                  </span>
+
+                  <strong>
+                    ${escaparHTML(
+                      manzana.descripcion
+                    )}
+                  </strong>
+                </div>
+              `
+            : ""
+        }
+
+        <h3>
+          Lotes de la manzana
+        </h3>
+
+        <table>
+
+          <thead>
+            <tr>
+              <th>
+                Lote
+              </th>
+
+              <th>
+                Tipo
+              </th>
+
+              <th>
+                Frente
+              </th>
+
+              <th>
+                Fondo
+              </th>
+
+              <th>
+                Área
+              </th>
+
+              <th>
+                Valor
+              </th>
+
+              <th>
+                Estado
+              </th>
+
+              <th>
+                Observación
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+            ${filas}
+          </tbody>
+
+        </table>
+      `;
+
+      abrirVentanaImpresion(
+        `Manzana ${manzana.nombre}`,
+        contenido
+      );
+    };
+
+  /* =======================================================
+     IMPRIMIR UN SOLO LOTE
+  ======================================================= */
+
+  const imprimirLote =
+    (
+      lote
+    ) => {
+      const manzana =
+        manzanas.find(
+          (
+            item
+          ) =>
+            item._id ===
+            (
+              lote.manzana?._id ||
+              lote.manzana
+            )
+        ) ||
+        lote.manzana ||
+        manzanaActual;
+
+      const tipo =
+        lote.tipoLote ||
+        (
+          (
+            Number(
+              lote.frenteMetros
+            ) || 0
+          ) >
+            0 &&
+          (
+            Number(
+              lote.fondoMetros
+            ) || 0
+          ) >
+            0
+            ? "Regular"
+            : "Irregular"
+        );
+
+      const frente =
+        formatearMedida(
+          lote.frenteMetros,
+          lote.frenteCentimetros
+        );
+
+      const fondo =
+        formatearMedida(
+          lote.fondoMetros,
+          lote.fondoCentimetros
+        );
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Ficha individual del lote
+          </h2>
+
+        </div>
+
+        <h3>
+          Información del lote
+        </h3>
+
+        <div class="lote-unico">
+
+          <div class="dato">
+            <span>
+              Código
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                lote.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Número de lote
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                lote.numeroLote ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Manzana
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana?.nombre ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Código manzana
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana?.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Tipo de lote
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                tipo
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Estado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                lote.estado ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Frente
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                frente
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Fondo
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                fondo
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Área total
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearArea(
+                  lote.areaM2
+                )
+              )} m²
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Valor general
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  lote.valorLote
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Observaciones
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                lote.observaciones ||
+                "Sin observaciones"
+              )}
+            </strong>
+          </div>
+
+          ${
+            tipo ===
+            "Irregular"
+              ? `
+                  <div class="nota-irregular">
+                    <strong>
+                      Lote irregular:
+                    </strong>
+
+                    este lote se registra y se vende por su
+                    área total de
+                    ${escaparHTML(
+                      formatearArea(
+                        lote.areaM2
+                      )
+                    )} m².
+                    Las medidas de frente y fondo, cuando
+                    existen, son únicamente de referencia.
+                  </div>
+                `
+              : ""
+          }
+
+        </div>
+      `;
+
+      abrirVentanaImpresion(
+        `Lote ${lote.codigo}`,
+        contenido
+      );
     };
 
   /* =======================================================
@@ -1295,11 +2393,11 @@ export default function Lotes() {
                   key={
                     manzana._id
                   }
-                  className={`manzana-card ${
+                  className={`manzana-card ${(
                     activa
                       ? "manzana-card-active"
                       : ""
-                  }`}
+                  )}`}
                   onClick={() =>
                     setManzanaSeleccionada(
                       manzana._id
@@ -1316,12 +2414,12 @@ export default function Lotes() {
                     </div>
 
                     <span
-                      className={`manzana-status ${
+                      className={`manzana-status ${(
                         manzana.estado ===
                         "Activa"
                           ? "activa"
                           : "inactiva"
-                      }`}
+                      )}`}
                     >
                       {
                         manzana.estado
@@ -1365,6 +2463,22 @@ export default function Lotes() {
                     </div>
 
                     <div className="manzana-card-actions">
+
+                      <button
+                        type="button"
+                        className="print"
+                        title="Imprimir manzana y sus lotes"
+                        onClick={(event) =>
+                          imprimirManzana(
+                            manzana,
+                            event
+                          )
+                        }
+                      >
+                        <Printer
+                          size={15}
+                        />
+                      </button>
 
                       <button
                         type="button"
@@ -1810,6 +2924,21 @@ export default function Lotes() {
 
                           <td>
                             <div className="lotes-actions">
+
+                              <button
+                                type="button"
+                                className="print"
+                                title={`Imprimir únicamente ${lote.codigo}`}
+                                onClick={() =>
+                                  imprimirLote(
+                                    lote
+                                  )
+                                }
+                              >
+                                <Printer
+                                  size={16}
+                                />
+                              </button>
 
                               <button
                                 type="button"

@@ -7,66 +7,152 @@ import Maquinaria from "../maquinaria/maquinaria.model.js";
    FUNCIONES AUXILIARES
 ========================================================= */
 
-const convertirHoraAMinutos = (hora) => {
-  if (!hora || !hora.includes(":")) {
-    throw new Error("Formato de hora inválido");
+/* =========================================================
+   ESCAPAR REGEX
+========================================================= */
+
+const escaparRegex = (
+  texto = ""
+) => {
+  return texto.replace(
+    /[.*+?^${}()|[\]\\]/g,
+    "\\$&"
+  );
+};
+
+/* =========================================================
+   NORMALIZAR NOMBRE DEL OPERARIO
+========================================================= */
+
+const normalizarOperario = (
+  operario = ""
+) => {
+  return String(
+    operario
+  )
+    .trim()
+    .replace(
+      /\s+/g,
+      " "
+    );
+};
+
+/* =========================================================
+   CONVERTIR HORA A MINUTOS
+========================================================= */
+
+const convertirHoraAMinutos = (
+  hora
+) => {
+  if (
+    !hora ||
+    !hora.includes(":")
+  ) {
+    throw new Error(
+      "Formato de hora inválido"
+    );
   }
 
-  const [horas, minutos] = hora.split(":").map(Number);
+  const [
+    horas,
+    minutos,
+  ] = hora
+    .split(":")
+    .map(Number);
 
   if (
-    Number.isNaN(horas) ||
-    Number.isNaN(minutos) ||
+    Number.isNaN(
+      horas
+    ) ||
+    Number.isNaN(
+      minutos
+    ) ||
     horas < 0 ||
     horas > 23 ||
     minutos < 0 ||
     minutos > 59
   ) {
-    throw new Error("Formato de hora inválido");
+    throw new Error(
+      "Formato de hora inválido"
+    );
   }
 
-  return horas * 60 + minutos;
+  return (
+    horas * 60 +
+    minutos
+  );
 };
+
+/* =========================================================
+   CALCULAR MINUTOS DEL TURNO
+========================================================= */
 
 const calcularMinutosTurno = (
   horaInicio,
   horaFinal,
   periodo
 ) => {
-  const inicio = convertirHoraAMinutos(horaInicio);
-  let final = convertirHoraAMinutos(horaFinal);
+  const inicio =
+    convertirHoraAMinutos(
+      horaInicio
+    );
+
+  let final =
+    convertirHoraAMinutos(
+      horaFinal
+    );
 
   /*
-    Para el turno Noche permitimos cruzar medianoche.
+    NOCHE:
+
+    Permitimos cruzar medianoche.
 
     Ejemplo:
     19:00 → 02:00
-
-    02:00 pertenece al día siguiente.
   */
-  if (periodo === "Noche" && final <= inicio) {
-    final += 24 * 60;
+
+  if (
+    periodo ===
+      "Noche" &&
+    final <= inicio
+  ) {
+    final +=
+      24 * 60;
   }
 
   /*
-    Para mañana y tarde la hora final
-    debe ser mayor que la hora inicial.
+    MAÑANA Y TARDE:
+
+    La final debe ser mayor
+    que la inicial.
   */
-  if (periodo !== "Noche" && final <= inicio) {
+
+  if (
+    periodo !==
+      "Noche" &&
+    final <= inicio
+  ) {
     throw new Error(
       `En el turno ${periodo}, la hora final debe ser mayor que la hora de inicio`
     );
   }
 
-  const total = final - inicio;
+  const total =
+    final -
+    inicio;
 
-  if (total <= 0) {
+  if (
+    total <= 0
+  ) {
     throw new Error(
       `El horario del turno ${periodo} no es válido`
     );
   }
 
-  if (total > 24 * 60) {
+  if (
+    total >
+    24 * 60
+  ) {
     throw new Error(
       `El turno ${periodo} no puede superar 24 horas`
     );
@@ -75,7 +161,13 @@ const calcularMinutosTurno = (
   return total;
 };
 
-const procesarTurnos = (turnos = []) => {
+/* =========================================================
+   PROCESAR TURNOS
+========================================================= */
+
+const procesarTurnos = (
+  turnos = []
+) => {
   const periodosPermitidos = [
     "Mañana",
     "Tarde",
@@ -83,64 +175,103 @@ const procesarTurnos = (turnos = []) => {
   ];
 
   const turnosProcesados =
-    periodosPermitidos.map((periodo) => {
-      const turnoRecibido =
-        turnos.find(
-          (turno) =>
-            turno.periodo === periodo
-        ) || {};
+    periodosPermitidos.map(
+      (
+        periodo
+      ) => {
+        const turnoRecibido =
+          turnos.find(
+            (
+              turno
+            ) =>
+              turno.periodo ===
+              periodo
+          ) || {};
 
-      const activo =
-        Boolean(turnoRecibido.activo);
+        const activo =
+          Boolean(
+            turnoRecibido.activo
+          );
 
-      /*
-        Si el turno está apagado,
-        no necesitamos horas.
-      */
-      if (!activo) {
+        /* =========================
+           TURNO DESACTIVADO
+        ========================= */
+
+        if (
+          !activo
+        ) {
+          return {
+            periodo,
+
+            activo:
+              false,
+
+            horaInicio:
+              "",
+
+            horaFinal:
+              "",
+
+            totalMinutos:
+              0,
+          };
+        }
+
+        /* =========================
+           TURNO ACTIVO
+        ========================= */
+
+        const horaInicio =
+          turnoRecibido.horaInicio ||
+          "";
+
+        const horaFinal =
+          turnoRecibido.horaFinal ||
+          "";
+
+        if (
+          !horaInicio ||
+          !horaFinal
+        ) {
+          throw new Error(
+            `Debe registrar hora de inicio y hora final para el turno ${periodo}`
+          );
+        }
+
+        const totalMinutos =
+          calcularMinutosTurno(
+            horaInicio,
+            horaFinal,
+            periodo
+          );
+
         return {
           periodo,
-          activo: false,
-          horaInicio: "",
-          horaFinal: "",
-          totalMinutos: 0,
+
+          activo:
+            true,
+
+          horaInicio,
+
+          horaFinal,
+
+          totalMinutos,
         };
       }
-
-      const horaInicio =
-        turnoRecibido.horaInicio || "";
-
-      const horaFinal =
-        turnoRecibido.horaFinal || "";
-
-      if (!horaInicio || !horaFinal) {
-        throw new Error(
-          `Debe registrar hora de inicio y hora final para el turno ${periodo}`
-        );
-      }
-
-      const totalMinutos =
-        calcularMinutosTurno(
-          horaInicio,
-          horaFinal,
-          periodo
-        );
-
-      return {
-        periodo,
-        activo: true,
-        horaInicio,
-        horaFinal,
-        totalMinutos,
-      };
-    });
+    );
 
   const turnosActivos =
     turnosProcesados.filter(
-      (turno) => turno.activo
+      (
+        turno
+      ) =>
+        turno.activo
     );
 
-  if (turnosActivos.length === 0) {
+  if (
+    turnosActivos.length ===
+    0
+  ) {
     throw new Error(
       "Debe activar al menos un turno: mañana, tarde o noche"
     );
@@ -148,25 +279,115 @@ const procesarTurnos = (turnos = []) => {
 
   const totalMinutos =
     turnosProcesados.reduce(
-      (total, turno) =>
-        total + turno.totalMinutos,
+      (
+        total,
+        turno
+      ) =>
+        total +
+        turno.totalMinutos,
       0
     );
 
   return {
     turnosProcesados,
+
     totalMinutos,
   };
 };
 
-const convertirFecha = (fecha) => {
+/* =========================================================
+   VALIDAR VALOR DE LA HORA
+========================================================= */
+
+const validarValorHora = (
+  valorHora
+) => {
+  const valor =
+    Number(
+      valorHora
+    );
+
+  if (
+    !Number.isFinite(
+      valor
+    ) ||
+    valor <= 0
+  ) {
+    return {
+      valido:
+        false,
+
+      message:
+        "El valor de la hora debe ser mayor que cero",
+    };
+  }
+
+  return {
+    valido:
+      true,
+
+    valorHora:
+      valor,
+  };
+};
+
+/* =========================================================
+   CALCULAR VALOR A PAGAR
+
+   Los minutos también se pagan.
+
+   Ejemplo:
+
+   135 minutos
+   ÷ 60
+   = 2.25 horas
+
+   2.25 × $40.000
+   = $90.000
+========================================================= */
+
+const calcularValorPagar = (
+  totalMinutos,
+  valorHora
+) => {
+  const minutos =
+    Number(
+      totalMinutos
+    ) || 0;
+
+  const valor =
+    Number(
+      valorHora
+    ) || 0;
+
+  return Math.round(
+    (
+      minutos /
+      60
+    ) *
+      valor
+  );
+};
+
+/* =========================================================
+   FECHAS
+========================================================= */
+
+const convertirFecha = (
+  fecha
+) => {
   return new Date(
     `${fecha}T00:00:00.000Z`
   );
 };
 
-const inicioDiaUTC = (fecha) => {
-  const date = new Date(fecha);
+const inicioDiaUTC = (
+  fecha
+) => {
+  const date =
+    new Date(
+      fecha
+    );
 
   return new Date(
     Date.UTC(
@@ -177,18 +398,31 @@ const inicioDiaUTC = (fecha) => {
   );
 };
 
-const finDiaUTC = (fecha) => {
-  const inicio = inicioDiaUTC(fecha);
+const finDiaUTC = (
+  fecha
+) => {
+  const inicio =
+    inicioDiaUTC(
+      fecha
+    );
 
   return new Date(
     inicio.getTime() +
-      24 * 60 * 60 * 1000 -
+      24 *
+        60 *
+        60 *
+        1000 -
       1
   );
 };
 
-const obtenerInicioSemana = (fecha) => {
-  const date = inicioDiaUTC(fecha);
+const obtenerInicioSemana = (
+  fecha
+) => {
+  const date =
+    inicioDiaUTC(
+      fecha
+    );
 
   const diaSemana =
     date.getUTCDay();
@@ -196,7 +430,8 @@ const obtenerInicioSemana = (fecha) => {
   const diferencia =
     diaSemana === 0
       ? -6
-      : 1 - diaSemana;
+      : 1 -
+        diaSemana;
 
   date.setUTCDate(
     date.getUTCDate() +
@@ -206,19 +441,32 @@ const obtenerInicioSemana = (fecha) => {
   return date;
 };
 
-const obtenerFinSemana = (fecha) => {
+const obtenerFinSemana = (
+  fecha
+) => {
   const inicio =
-    obtenerInicioSemana(fecha);
+    obtenerInicioSemana(
+      fecha
+    );
 
   return new Date(
     inicio.getTime() +
-      7 * 24 * 60 * 60 * 1000 -
+      7 *
+        24 *
+        60 *
+        60 *
+        1000 -
       1
   );
 };
 
-const obtenerInicioMes = (fecha) => {
-  const date = new Date(fecha);
+const obtenerInicioMes = (
+  fecha
+) => {
+  const date =
+    new Date(
+      fecha
+    );
 
   return new Date(
     Date.UTC(
@@ -229,20 +477,31 @@ const obtenerInicioMes = (fecha) => {
   );
 };
 
-const obtenerFinMes = (fecha) => {
-  const date = new Date(fecha);
+const obtenerFinMes = (
+  fecha
+) => {
+  const date =
+    new Date(
+      fecha
+    );
 
   return new Date(
     Date.UTC(
       date.getUTCFullYear(),
-      date.getUTCMonth() + 1,
+      date.getUTCMonth() +
+        1,
       1
     ) - 1
   );
 };
 
-const obtenerInicioAnio = (fecha) => {
-  const date = new Date(fecha);
+const obtenerInicioAnio = (
+  fecha
+) => {
+  const date =
+    new Date(
+      fecha
+    );
 
   return new Date(
     Date.UTC(
@@ -253,37 +512,64 @@ const obtenerInicioAnio = (fecha) => {
   );
 };
 
-const obtenerFinAnio = (fecha) => {
-  const date = new Date(fecha);
+const obtenerFinAnio = (
+  fecha
+) => {
+  const date =
+    new Date(
+      fecha
+    );
 
   return new Date(
     Date.UTC(
-      date.getUTCFullYear() + 1,
+      date.getUTCFullYear() +
+        1,
       0,
       1
     ) - 1
   );
 };
 
-const sumarMinutos = async ({
+/* =========================================================
+   SUMAR MINUTOS Y DINERO
+
+   Se utiliza para:
+   - Día
+   - Semana
+   - Mes
+   - Año
+========================================================= */
+
+const sumarResumen = async ({
   maquinaria,
   fechaInicio,
   fechaFinal,
 }) => {
   const filtro = {
     fecha: {
-      $gte: fechaInicio,
-      $lte: fechaFinal,
+      $gte:
+        fechaInicio,
+
+      $lte:
+        fechaFinal,
     },
   };
 
-  if (maquinaria) {
+  if (
+    maquinaria
+  ) {
     if (
       !mongoose.Types.ObjectId.isValid(
         maquinaria
       )
     ) {
-      return 0;
+      return {
+        totalMinutos:
+          0,
+
+        valorPagar:
+          0,
+      };
     }
 
     filtro.maquinaria =
@@ -295,22 +581,60 @@ const sumarMinutos = async ({
   const resultado =
     await HoraMaquinaria.aggregate([
       {
-        $match: filtro,
+        $match:
+          filtro,
       },
+
       {
         $group: {
-          _id: null,
+          _id:
+            null,
 
           totalMinutos: {
-            $sum: "$totalMinutos",
+            $sum:
+              "$totalMinutos",
+          },
+
+          valorPagar: {
+            $sum: {
+              $ifNull: [
+                "$valorPagar",
+                0,
+              ],
+            },
           },
         },
       },
     ]);
 
-  return resultado.length
-    ? resultado[0].totalMinutos
-    : 0;
+  if (
+    resultado.length ===
+    0
+  ) {
+    return {
+      totalMinutos:
+        0,
+
+      valorPagar:
+        0,
+    };
+  }
+
+  return {
+    totalMinutos:
+      Number(
+        resultado[0]
+          .totalMinutos ||
+          0
+      ),
+
+    valorPagar:
+      Number(
+        resultado[0]
+          .valorPagar ||
+          0
+      ),
+  };
 };
 
 /* =========================================================
@@ -318,7 +642,10 @@ const sumarMinutos = async ({
 ========================================================= */
 
 export const obtenerHorasMaquinaria =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const {
         maquinaria = "",
@@ -329,33 +656,69 @@ export const obtenerHorasMaquinaria =
 
       const filtro = {};
 
-      if (maquinaria) {
+      /* =========================
+         MAQUINARIA
+      ========================= */
+
+      if (
+        maquinaria
+      ) {
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            maquinaria
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "La máquina seleccionada no es válida",
+          });
+        }
+
         filtro.maquinaria =
           maquinaria;
       }
 
-      if (operario.trim()) {
+      /* =========================
+         OPERARIO
+      ========================= */
+
+      if (
+        operario.trim()
+      ) {
         filtro.operario = {
           $regex:
             operario.trim(),
-          $options: "i",
+
+          $options:
+            "i",
         };
       }
+
+      /* =========================
+         FECHAS
+      ========================= */
 
       if (
         fechaInicio ||
         fechaFinal
       ) {
-        filtro.fecha = {};
+        filtro.fecha =
+          {};
 
-        if (fechaInicio) {
+        if (
+          fechaInicio
+        ) {
           filtro.fecha.$gte =
             convertirFecha(
               fechaInicio
             );
         }
 
-        if (fechaFinal) {
+        if (
+          fechaFinal
+        ) {
           filtro.fecha.$lte =
             finDiaUTC(
               convertirFecha(
@@ -374,11 +737,16 @@ export const obtenerHorasMaquinaria =
             "nombre codigo tipo placa marca modelo"
           )
           .sort({
-            fecha: -1,
-            createdAt: -1,
+            fecha:
+              -1,
+
+            createdAt:
+              -1,
           });
 
-      res.status(200).json(
+      res.status(
+        200
+      ).json(
         registros
       );
     } catch (error) {
@@ -387,7 +755,9 @@ export const obtenerHorasMaquinaria =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener las horas trabajadas",
       });
@@ -395,28 +765,54 @@ export const obtenerHorasMaquinaria =
   };
 
 /* =========================================================
-   OBTENER REGISTRO
+   OBTENER REGISTRO POR ID
 ========================================================= */
 
 export const obtenerHoraMaquinariaPorId =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
+      const {
+        id,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          id
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El identificador del registro no es válido",
+        });
+      }
+
       const registro =
         await HoraMaquinaria.findById(
-          req.params.id
+          id
         ).populate(
           "maquinaria",
           "nombre codigo tipo placa marca modelo"
         );
 
-      if (!registro) {
-        return res.status(404).json({
+      if (
+        !registro
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "Registro de horas no encontrado",
         });
       }
 
-      res.status(200).json(
+      res.status(
+        200
+      ).json(
         registro
       );
     } catch (error) {
@@ -425,7 +821,9 @@ export const obtenerHoraMaquinariaPorId =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al obtener el registro",
       });
@@ -437,44 +835,118 @@ export const obtenerHoraMaquinariaPorId =
 ========================================================= */
 
 export const crearHoraMaquinaria =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const {
         maquinaria,
         operario,
         fecha,
         turnos,
+        valorHora,
         observaciones,
       } = req.body;
 
-      if (!maquinaria) {
-        return res.status(400).json({
+      /* =========================
+         MAQUINARIA
+      ========================= */
+
+      if (
+        !maquinaria
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "La máquina es obligatoria",
         });
       }
 
-      if (!operario?.trim()) {
-        return res.status(400).json({
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          maquinaria
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "La máquina seleccionada no es válida",
+        });
+      }
+
+      /* =========================
+         OPERARIO
+      ========================= */
+
+      const nombreOperario =
+        normalizarOperario(
+          operario
+        );
+
+      if (
+        !nombreOperario
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "El operario es obligatorio",
         });
       }
 
-      if (!fecha) {
-        return res.status(400).json({
+      /* =========================
+         FECHA
+      ========================= */
+
+      if (
+        !fecha
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "La fecha es obligatoria",
         });
       }
+
+      /* =========================
+         VALOR DE LA HORA
+      ========================= */
+
+      const validacionValor =
+        validarValorHora(
+          valorHora
+        );
+
+      if (
+        !validacionValor.valido
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            validacionValor.message,
+        });
+      }
+
+      /* =========================
+         MAQUINARIA EXISTENTE
+      ========================= */
 
       const maquinaExiste =
         await Maquinaria.findById(
           maquinaria
         );
 
-      if (!maquinaExiste) {
-        return res.status(404).json({
+      if (
+        !maquinaExiste
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "La máquina seleccionada no existe",
         });
@@ -484,11 +956,17 @@ export const crearHoraMaquinaria =
         maquinaExiste.estado !==
         "Activa"
       ) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             "La máquina seleccionada no está activa",
         });
       }
+
+      /* =========================
+         TURNOS
+      ========================= */
 
       let resultadoTurnos;
 
@@ -498,24 +976,27 @@ export const crearHoraMaquinaria =
             turnos
           );
       } catch (error) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             error.message,
         });
       }
 
-      /*
-        Como ahora un registro contiene
-        todos los turnos del día, evitamos
-        registrar dos veces el mismo
-        operario + máquina + fecha.
-      */
+      /* =========================
+         EVITAR DUPLICADOS
+      ========================= */
 
       const inicioFecha =
-        convertirFecha(fecha);
+        convertirFecha(
+          fecha
+        );
 
       const finFecha =
-        finDiaUTC(inicioFecha);
+        finDiaUTC(
+          inicioFecha
+        );
 
       const registroExistente =
         await HoraMaquinaria.findOne({
@@ -523,31 +1004,54 @@ export const crearHoraMaquinaria =
 
           operario: {
             $regex:
-              `^${operario.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-            $options: "i",
+              `^${escaparRegex(
+                nombreOperario
+              )}$`,
+
+            $options:
+              "i",
           },
 
           fecha: {
-            $gte: inicioFecha,
-            $lte: finFecha,
+            $gte:
+              inicioFecha,
+
+            $lte:
+              finFecha,
           },
         });
 
-      if (registroExistente) {
-        return res.status(409).json({
+      if (
+        registroExistente
+      ) {
+        return res.status(
+          409
+        ).json({
           message:
             "Este operario ya tiene un registro para esta máquina en la fecha seleccionada. Edite el registro existente para agregar o modificar turnos.",
         });
       }
+
+      /* =========================
+         VALOR A PAGAR
+      ========================= */
+
+      const valorPagar =
+        calcularValorPagar(
+          resultadoTurnos.totalMinutos,
+          validacionValor.valorHora
+        );
+
+      /* =========================
+         CREAR
+      ========================= */
 
       const nuevoRegistro =
         await HoraMaquinaria.create({
           maquinaria,
 
           operario:
-            operario
-              .trim()
-              .replace(/\s+/g, " "),
+            nombreOperario,
 
           fecha:
             convertirFecha(
@@ -560,9 +1064,16 @@ export const crearHoraMaquinaria =
           totalMinutos:
             resultadoTurnos.totalMinutos,
 
+          valorHora:
+            validacionValor.valorHora,
+
+          valorPagar,
+
           observaciones:
-            observaciones?.trim() ||
-            "",
+            String(
+              observaciones ||
+                ""
+            ).trim(),
         });
 
       const registroCompleto =
@@ -573,7 +1084,9 @@ export const crearHoraMaquinaria =
           "nombre codigo tipo placa marca modelo"
         );
 
-      res.status(201).json({
+      res.status(
+        201
+      ).json({
         message:
           "Horas de maquinaria registradas correctamente",
 
@@ -586,7 +1099,27 @@ export const crearHoraMaquinaria =
         error
       );
 
-      res.status(500).json({
+      if (
+        error.name ===
+        "ValidationError"
+      ) {
+        const mensaje =
+          Object.values(
+            error.errors
+          )[0]?.message;
+
+        return res.status(
+          400
+        ).json({
+          message:
+            mensaje ||
+            "Los datos del registro no son válidos",
+        });
+      }
+
+      res.status(
+        500
+      ).json({
         message:
           "Error al registrar las horas trabajadas",
       });
@@ -595,19 +1128,43 @@ export const crearHoraMaquinaria =
 
 /* =========================================================
    ACTUALIZAR REGISTRO
+
+   IMPORTANTE:
+
+   Si cambia el nombre del operario,
+   TODOS sus registros históricos cambian
+   al nuevo nombre.
 ========================================================= */
 
 export const actualizarHoraMaquinaria =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
-      const { id } =
-        req.params;
+      const {
+        id,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          id
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El identificador del registro no es válido",
+        });
+      }
 
       const {
         maquinaria,
         operario,
         fecha,
         turnos,
+        valorHora,
         observaciones,
       } = req.body;
 
@@ -616,45 +1173,132 @@ export const actualizarHoraMaquinaria =
           id
         );
 
-      if (!registro) {
-        return res.status(404).json({
+      if (
+        !registro
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "Registro de horas no encontrado",
         });
       }
 
-      if (!maquinaria) {
-        return res.status(400).json({
+      /* =========================
+         GUARDAR NOMBRE ANTERIOR
+      ========================= */
+
+      const nombreAnterior =
+        normalizarOperario(
+          registro.operario
+        );
+
+      const nombreNuevo =
+        normalizarOperario(
+          operario
+        );
+
+      /* =========================
+         MAQUINARIA
+      ========================= */
+
+      if (
+        !maquinaria
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "La máquina es obligatoria",
         });
       }
 
-      if (!operario?.trim()) {
-        return res.status(400).json({
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          maquinaria
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "La máquina seleccionada no es válida",
+        });
+      }
+
+      /* =========================
+         OPERARIO
+      ========================= */
+
+      if (
+        !nombreNuevo
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "El operario es obligatorio",
         });
       }
 
-      if (!fecha) {
-        return res.status(400).json({
+      /* =========================
+         FECHA
+      ========================= */
+
+      if (
+        !fecha
+      ) {
+        return res.status(
+          400
+        ).json({
           message:
             "La fecha es obligatoria",
         });
       }
+
+      /* =========================
+         VALOR DE LA HORA
+      ========================= */
+
+      const validacionValor =
+        validarValorHora(
+          valorHora
+        );
+
+      if (
+        !validacionValor.valido
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            validacionValor.message,
+        });
+      }
+
+      /* =========================
+         MAQUINARIA EXISTENTE
+      ========================= */
 
       const maquinaExiste =
         await Maquinaria.findById(
           maquinaria
         );
 
-      if (!maquinaExiste) {
-        return res.status(404).json({
+      if (
+        !maquinaExiste
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "La máquina seleccionada no existe",
         });
       }
+
+      /* =========================
+         TURNOS
+      ========================= */
 
       let resultadoTurnos;
 
@@ -664,55 +1308,91 @@ export const actualizarHoraMaquinaria =
             turnos
           );
       } catch (error) {
-        return res.status(400).json({
+        return res.status(
+          400
+        ).json({
           message:
             error.message,
         });
       }
 
+      /* =========================
+         EVITAR DUPLICADO
+      ========================= */
+
       const inicioFecha =
-        convertirFecha(fecha);
+        convertirFecha(
+          fecha
+        );
 
       const finFecha =
-        finDiaUTC(inicioFecha);
+        finDiaUTC(
+          inicioFecha
+        );
 
       const duplicado =
         await HoraMaquinaria.findOne({
           _id: {
-            $ne: id,
+            $ne:
+              id,
           },
 
           maquinaria,
 
           operario: {
             $regex:
-              `^${operario.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-            $options: "i",
+              `^${escaparRegex(
+                nombreNuevo
+              )}$`,
+
+            $options:
+              "i",
           },
 
           fecha: {
-            $gte: inicioFecha,
-            $lte: finFecha,
+            $gte:
+              inicioFecha,
+
+            $lte:
+              finFecha,
           },
         });
 
-      if (duplicado) {
-        return res.status(409).json({
+      if (
+        duplicado
+      ) {
+        return res.status(
+          409
+        ).json({
           message:
             "Ya existe otro registro para este operario, máquina y fecha.",
         });
       }
 
+      /* =========================
+         CALCULAR VALOR
+      ========================= */
+
+      const valorPagar =
+        calcularValorPagar(
+          resultadoTurnos.totalMinutos,
+          validacionValor.valorHora
+        );
+
+      /* =========================
+         ACTUALIZAR ESTE REGISTRO
+      ========================= */
+
       registro.maquinaria =
         maquinaria;
 
       registro.operario =
-        operario
-          .trim()
-          .replace(/\s+/g, " ");
+        nombreNuevo;
 
       registro.fecha =
-        convertirFecha(fecha);
+        convertirFecha(
+          fecha
+        );
 
       registro.turnos =
         resultadoTurnos.turnosProcesados;
@@ -720,11 +1400,81 @@ export const actualizarHoraMaquinaria =
       registro.totalMinutos =
         resultadoTurnos.totalMinutos;
 
+      registro.valorHora =
+        validacionValor.valorHora;
+
+      registro.valorPagar =
+        valorPagar;
+
       registro.observaciones =
-        observaciones?.trim() ||
-        "";
+        String(
+          observaciones ||
+            ""
+        ).trim();
 
       await registro.save();
+
+      /* =====================================================
+         CAMBIO GLOBAL DEL NOMBRE DEL OPERARIO
+
+         Ejemplo:
+
+         Antes:
+         JUAN PEREZ
+
+         Nuevo:
+         JUAN CARLOS PEREZ
+
+         Todos los registros que tengan exactamente
+         "JUAN PEREZ" pasan al nuevo nombre.
+      ===================================================== */
+
+      let registrosRenombrados =
+        0;
+
+      if (
+        nombreAnterior.toLocaleLowerCase(
+          "es"
+        ) !==
+        nombreNuevo.toLocaleLowerCase(
+          "es"
+        )
+      ) {
+        const resultadoCambio =
+          await HoraMaquinaria.updateMany(
+            {
+              _id: {
+                $ne:
+                  registro._id,
+              },
+
+              operario: {
+                $regex:
+                  `^${escaparRegex(
+                    nombreAnterior
+                  )}$`,
+
+                $options:
+                  "i",
+              },
+            },
+
+            {
+              $set: {
+                operario:
+                  nombreNuevo,
+              },
+            }
+          );
+
+        registrosRenombrados =
+          resultadoCambio.modifiedCount ||
+          0;
+      }
+
+      /* =========================
+         RESPUESTA
+      ========================= */
 
       const registroCompleto =
         await HoraMaquinaria.findById(
@@ -734,12 +1484,19 @@ export const actualizarHoraMaquinaria =
           "nombre codigo tipo placa marca modelo"
         );
 
-      res.status(200).json({
+      res.status(
+        200
+      ).json({
         message:
-          "Registro de horas actualizado correctamente",
+          registrosRenombrados >
+          0
+            ? `Registro actualizado correctamente. El nombre del operario también se actualizó en ${registrosRenombrados} registros anteriores.`
+            : "Registro de horas actualizado correctamente",
 
         registro:
           registroCompleto,
+
+        registrosRenombrados,
       });
     } catch (error) {
       console.error(
@@ -747,7 +1504,27 @@ export const actualizarHoraMaquinaria =
         error
       );
 
-      res.status(500).json({
+      if (
+        error.name ===
+        "ValidationError"
+      ) {
+        const mensaje =
+          Object.values(
+            error.errors
+          )[0]?.message;
+
+        return res.status(
+          400
+        ).json({
+          message:
+            mensaje ||
+            "Los datos del registro no son válidos",
+        });
+      }
+
+      res.status(
+        500
+      ).json({
         message:
           "Error al actualizar las horas trabajadas",
       });
@@ -759,25 +1536,52 @@ export const actualizarHoraMaquinaria =
 ========================================================= */
 
 export const eliminarHoraMaquinaria =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
+      const {
+        id,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          id
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El identificador del registro no es válido",
+        });
+      }
+
       const registro =
         await HoraMaquinaria.findById(
-          req.params.id
+          id
         );
 
-      if (!registro) {
-        return res.status(404).json({
+      if (
+        !registro
+      ) {
+        return res.status(
+          404
+        ).json({
           message:
             "Registro de horas no encontrado",
         });
       }
 
-      await HoraMaquinaria.findByIdAndDelete(
-        req.params.id
-      );
+      await HoraMaquinaria.deleteOne({
+        _id:
+          registro._id,
+      });
 
-      res.status(200).json({
+      res.status(
+        200
+      ).json({
         message:
           "Registro de horas eliminado correctamente",
       });
@@ -787,7 +1591,9 @@ export const eliminarHoraMaquinaria =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al eliminar el registro de horas",
       });
@@ -796,10 +1602,18 @@ export const eliminarHoraMaquinaria =
 
 /* =========================================================
    RESUMEN DÍA / SEMANA / MES / AÑO
+
+   Ahora incluye:
+
+   - totalMinutos
+   - valorPagar
 ========================================================= */
 
 export const obtenerResumenHoras =
-  async (req, res) => {
+  async (
+    req,
+    res
+  ) => {
     try {
       const {
         maquinaria = "",
@@ -854,56 +1668,72 @@ export const obtenerResumenHoras =
         );
 
       const [
-        totalDia,
-        totalSemana,
-        totalMes,
-        totalAnio,
+        resumenDia,
+        resumenSemana,
+        resumenMes,
+        resumenAnio,
       ] = await Promise.all([
-        sumarMinutos({
+        sumarResumen({
           maquinaria,
+
           fechaInicio:
             inicioDia,
+
           fechaFinal:
             finDia,
         }),
 
-        sumarMinutos({
+        sumarResumen({
           maquinaria,
+
           fechaInicio:
             inicioSemana,
+
           fechaFinal:
             finSemana,
         }),
 
-        sumarMinutos({
+        sumarResumen({
           maquinaria,
+
           fechaInicio:
             inicioMes,
+
           fechaFinal:
             finMes,
         }),
 
-        sumarMinutos({
+        sumarResumen({
           maquinaria,
+
           fechaInicio:
             inicioAnio,
+
           fechaFinal:
             finAnio,
         }),
       ]);
 
-      res.status(200).json({
+      res.status(
+        200
+      ).json({
         fechaReferencia:
           fechaBase,
 
         dia: {
           totalMinutos:
-            totalDia,
+            resumenDia.totalMinutos,
+
+          valorPagar:
+            resumenDia.valorPagar,
         },
 
         semana: {
           totalMinutos:
-            totalSemana,
+            resumenSemana.totalMinutos,
+
+          valorPagar:
+            resumenSemana.valorPagar,
 
           desde:
             inicioSemana,
@@ -914,12 +1744,18 @@ export const obtenerResumenHoras =
 
         mes: {
           totalMinutos:
-            totalMes,
+            resumenMes.totalMinutos,
+
+          valorPagar:
+            resumenMes.valorPagar,
         },
 
         anio: {
           totalMinutos:
-            totalAnio,
+            resumenAnio.totalMinutos,
+
+          valorPagar:
+            resumenAnio.valorPagar,
         },
       });
     } catch (error) {
@@ -928,280 +1764,588 @@ export const obtenerResumenHoras =
         error
       );
 
-      res.status(500).json({
+      res.status(
+        500
+      ).json({
         message:
           "Error al calcular el resumen de horas",
       });
     }
   };
-  export const obtenerResumenOperarios = async (
-  req,
-  res
-) => {
-  try {
-    const {
-      maquinaria = "",
-      fecha = "",
-    } = req.query;
 
-    const fechaBase = fecha
-      ? convertirFecha(fecha)
-      : new Date();
+/* =========================================================
+   RESUMEN POR OPERARIOS
 
-    const inicioDia =
-      inicioDiaUTC(fechaBase);
+   Ahora incluye:
+   - Minutos
+   - Valores a pagar
+========================================================= */
 
-    const finDia =
-      finDiaUTC(fechaBase);
+export const obtenerResumenOperarios =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        maquinaria = "",
+        fecha = "",
+      } = req.query;
 
-    const inicioSemana =
-      obtenerInicioSemana(fechaBase);
+      const fechaBase =
+        fecha
+          ? convertirFecha(
+              fecha
+            )
+          : new Date();
 
-    const finSemana =
-      obtenerFinSemana(fechaBase);
+      const inicioDia =
+        inicioDiaUTC(
+          fechaBase
+        );
 
-    const inicioMes =
-      obtenerInicioMes(fechaBase);
+      const finDia =
+        finDiaUTC(
+          fechaBase
+        );
 
-    const finMes =
-      obtenerFinMes(fechaBase);
+      const inicioSemana =
+        obtenerInicioSemana(
+          fechaBase
+        );
 
-    const inicioAnio =
-      obtenerInicioAnio(fechaBase);
+      const finSemana =
+        obtenerFinSemana(
+          fechaBase
+        );
 
-    const finAnio =
-      obtenerFinAnio(fechaBase);
+      const inicioMes =
+        obtenerInicioMes(
+          fechaBase
+        );
 
-    const filtro = {};
+      const finMes =
+        obtenerFinMes(
+          fechaBase
+        );
 
-    if (maquinaria) {
+      const inicioAnio =
+        obtenerInicioAnio(
+          fechaBase
+        );
+
+      const finAnio =
+        obtenerFinAnio(
+          fechaBase
+        );
+
+      const filtro = {};
+
       if (
-        !mongoose.Types.ObjectId.isValid(
-          maquinaria
-        )
+        maquinaria
       ) {
-        return res.status(400).json({
-          message:
-            "El identificador de la máquina no es válido",
-        });
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            maquinaria
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "El identificador de la máquina no es válido",
+          });
+        }
+
+        filtro.maquinaria =
+          new mongoose.Types.ObjectId(
+            maquinaria
+          );
       }
 
-      filtro.maquinaria =
-        new mongoose.Types.ObjectId(
-          maquinaria
-        );
-    }
+      const operarios =
+        await HoraMaquinaria.aggregate([
+          {
+            $match:
+              filtro,
+          },
 
-    const operarios =
-      await HoraMaquinaria.aggregate([
-        {
-          $match: filtro,
-        },
+          {
+            $group: {
+              _id: {
+                $toUpper: {
+                  $trim: {
+                    input:
+                      "$operario",
+                  },
+                },
+              },
 
-        {
-          $group: {
-            _id: {
-              $toUpper: {
-                $trim: {
-                  input: "$operario",
+              operario: {
+                $first:
+                  "$operario",
+              },
+
+              /* =====================
+                 MINUTOS DÍA
+              ===================== */
+
+              dia: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioDia,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finDia,
+                          ],
+                        },
+                      ],
+                    },
+
+                    "$totalMinutos",
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 DINERO DÍA
+              ===================== */
+
+              valorDia: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioDia,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finDia,
+                          ],
+                        },
+                      ],
+                    },
+
+                    {
+                      $ifNull: [
+                        "$valorPagar",
+                        0,
+                      ],
+                    },
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 MINUTOS SEMANA
+              ===================== */
+
+              semana: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioSemana,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finSemana,
+                          ],
+                        },
+                      ],
+                    },
+
+                    "$totalMinutos",
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 DINERO SEMANA
+              ===================== */
+
+              valorSemana: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioSemana,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finSemana,
+                          ],
+                        },
+                      ],
+                    },
+
+                    {
+                      $ifNull: [
+                        "$valorPagar",
+                        0,
+                      ],
+                    },
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 MINUTOS MES
+              ===================== */
+
+              mes: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioMes,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finMes,
+                          ],
+                        },
+                      ],
+                    },
+
+                    "$totalMinutos",
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 DINERO MES
+              ===================== */
+
+              valorMes: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioMes,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finMes,
+                          ],
+                        },
+                      ],
+                    },
+
+                    {
+                      $ifNull: [
+                        "$valorPagar",
+                        0,
+                      ],
+                    },
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 MINUTOS AÑO
+              ===================== */
+
+              anio: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioAnio,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finAnio,
+                          ],
+                        },
+                      ],
+                    },
+
+                    "$totalMinutos",
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 DINERO AÑO
+              ===================== */
+
+              valorAnio: {
+                $sum: {
+                  $cond: [
+                    {
+                      $and: [
+                        {
+                          $gte: [
+                            "$fecha",
+                            inicioAnio,
+                          ],
+                        },
+
+                        {
+                          $lte: [
+                            "$fecha",
+                            finAnio,
+                          ],
+                        },
+                      ],
+                    },
+
+                    {
+                      $ifNull: [
+                        "$valorPagar",
+                        0,
+                      ],
+                    },
+
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 TOTAL HISTÓRICO
+              ===================== */
+
+              total: {
+                $sum:
+                  "$totalMinutos",
+              },
+
+              valorTotal: {
+                $sum: {
+                  $ifNull: [
+                    "$valorPagar",
+                    0,
+                  ],
                 },
               },
             },
+          },
 
-            operario: {
-              $first: "$operario",
-            },
-
-            dia: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      {
-                        $gte: [
-                          "$fecha",
-                          inicioDia,
-                        ],
-                      },
-                      {
-                        $lte: [
-                          "$fecha",
-                          finDia,
-                        ],
-                      },
-                    ],
-                  },
-                  "$totalMinutos",
-                  0,
-                ],
-              },
-            },
-
-            semana: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      {
-                        $gte: [
-                          "$fecha",
-                          inicioSemana,
-                        ],
-                      },
-                      {
-                        $lte: [
-                          "$fecha",
-                          finSemana,
-                        ],
-                      },
-                    ],
-                  },
-                  "$totalMinutos",
-                  0,
-                ],
-              },
-            },
-
-            mes: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      {
-                        $gte: [
-                          "$fecha",
-                          inicioMes,
-                        ],
-                      },
-                      {
-                        $lte: [
-                          "$fecha",
-                          finMes,
-                        ],
-                      },
-                    ],
-                  },
-                  "$totalMinutos",
-                  0,
-                ],
-              },
-            },
-
-            anio: {
-              $sum: {
-                $cond: [
-                  {
-                    $and: [
-                      {
-                        $gte: [
-                          "$fecha",
-                          inicioAnio,
-                        ],
-                      },
-                      {
-                        $lte: [
-                          "$fecha",
-                          finAnio,
-                        ],
-                      },
-                    ],
-                  },
-                  "$totalMinutos",
-                  0,
-                ],
-              },
-            },
-
-            /*
-              Total histórico trabajado
-              por el operario.
-            */
-            total: {
-              $sum: "$totalMinutos",
+          {
+            $sort: {
+              operario:
+                1,
             },
           },
-        },
+        ]);
 
-        {
-          $sort: {
-            operario: 1,
-          },
-        },
-      ]);
+      const resumenOperarios =
+        operarios.map(
+          (
+            operario
+          ) => ({
+            operario:
+              operario.operario,
 
-    const resumenOperarios =
-      operarios.map(
-        (operario) => ({
-          operario:
-            operario.operario,
+            dia:
+              operario.dia ||
+              0,
 
-          dia:
-            operario.dia || 0,
+            valorDia:
+              operario.valorDia ||
+              0,
 
-          semana:
-            operario.semana || 0,
+            semana:
+              operario.semana ||
+              0,
 
-          mes:
-            operario.mes || 0,
+            valorSemana:
+              operario.valorSemana ||
+              0,
 
-          anio:
-            operario.anio || 0,
+            mes:
+              operario.mes ||
+              0,
 
-          total:
-            operario.total || 0,
-        })
+            valorMes:
+              operario.valorMes ||
+              0,
+
+            anio:
+              operario.anio ||
+              0,
+
+            valorAnio:
+              operario.valorAnio ||
+              0,
+
+            total:
+              operario.total ||
+              0,
+
+            valorTotal:
+              operario.valorTotal ||
+              0,
+          })
+        );
+
+      /* =========================
+         TOTAL GENERAL
+      ========================= */
+
+      const totalGeneral =
+        resumenOperarios.reduce(
+          (
+            acumulado,
+            operario
+          ) => ({
+            dia:
+              acumulado.dia +
+              operario.dia,
+
+            valorDia:
+              acumulado.valorDia +
+              operario.valorDia,
+
+            semana:
+              acumulado.semana +
+              operario.semana,
+
+            valorSemana:
+              acumulado.valorSemana +
+              operario.valorSemana,
+
+            mes:
+              acumulado.mes +
+              operario.mes,
+
+            valorMes:
+              acumulado.valorMes +
+              operario.valorMes,
+
+            anio:
+              acumulado.anio +
+              operario.anio,
+
+            valorAnio:
+              acumulado.valorAnio +
+              operario.valorAnio,
+
+            total:
+              acumulado.total +
+              operario.total,
+
+            valorTotal:
+              acumulado.valorTotal +
+              operario.valorTotal,
+          }),
+
+          {
+            dia:
+              0,
+
+            valorDia:
+              0,
+
+            semana:
+              0,
+
+            valorSemana:
+              0,
+
+            mes:
+              0,
+
+            valorMes:
+              0,
+
+            anio:
+              0,
+
+            valorAnio:
+              0,
+
+            total:
+              0,
+
+            valorTotal:
+              0,
+          }
+        );
+
+      res.status(
+        200
+      ).json({
+        fechaReferencia:
+          fechaBase,
+
+        operarios:
+          resumenOperarios,
+
+        totalGeneral,
+      });
+    } catch (error) {
+      console.error(
+        "Error calculando resumen por operario:",
+        error
       );
 
-    const totalGeneral =
-      resumenOperarios.reduce(
-        (acumulado, operario) => ({
-          dia:
-            acumulado.dia +
-            operario.dia,
-
-          semana:
-            acumulado.semana +
-            operario.semana,
-
-          mes:
-            acumulado.mes +
-            operario.mes,
-
-          anio:
-            acumulado.anio +
-            operario.anio,
-
-          total:
-            acumulado.total +
-            operario.total,
-        }),
-        {
-          dia: 0,
-          semana: 0,
-          mes: 0,
-          anio: 0,
-          total: 0,
-        }
-      );
-
-    res.status(200).json({
-      fechaReferencia:
-        fechaBase,
-
-      operarios:
-        resumenOperarios,
-
-      totalGeneral,
-    });
-  } catch (error) {
-    console.error(
-      "Error calculando resumen por operario:",
-      error
-    );
-
-    res.status(500).json({
-      message:
-        "Error al calcular las horas por operario",
-    });
-  }
-};
+      res.status(
+        500
+      ).json({
+        message:
+          "Error al calcular las horas por operario",
+      });
+    }
+  };

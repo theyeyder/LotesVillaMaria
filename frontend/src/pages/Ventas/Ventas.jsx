@@ -10,6 +10,7 @@ import {
   Edit3,
   LandPlot,
   Plus,
+  Printer,
   RefreshCw,
   Search,
   ShoppingCart,
@@ -112,6 +113,21 @@ const obtenerNombreCliente = (
     cliente.razonSocial ||
     "Cliente"
   );
+};
+
+/* =========================================================
+   ESCAPAR HTML PARA IMPRESIÓN
+========================================================= */
+
+const escaparHTML = (
+  valor = ""
+) => {
+  return String(valor)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 /* =========================================================
@@ -1078,6 +1094,1069 @@ export default function Ventas() {
     };
 
   /* =======================================================
+     VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1250,height=850"
+        );
+
+      if (!ventana) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión. Permita las ventanas emergentes.",
+          "error"
+        );
+
+        return;
+      }
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="es">
+
+          <head>
+
+            <meta charset="UTF-8" />
+
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
+
+            <title>
+              ${escaparHTML(titulo)}
+            </title>
+
+            <style>
+
+              * {
+                box-sizing: border-box;
+              }
+
+              body {
+                margin: 0;
+                padding: 28px;
+
+                background: #f1eee6;
+
+                color: #28352e;
+
+                font-family:
+                  Arial,
+                  Helvetica,
+                  sans-serif;
+              }
+
+              .acciones {
+                display: flex;
+                justify-content: flex-end;
+
+                gap: 10px;
+
+                width: 100%;
+                max-width: 1180px;
+
+                margin: 0 auto 15px;
+              }
+
+              .acciones button {
+                min-height: 40px;
+
+                padding: 0 17px;
+
+                border-radius: 9px;
+
+                font-size: 12px;
+                font-weight: 800;
+
+                cursor: pointer;
+              }
+
+              .cerrar {
+                border: 1px solid #d6d0c5;
+
+                background: #ffffff;
+
+                color: #58615b;
+              }
+
+              .imprimir {
+                border: 1px solid #173f2e;
+
+                background: #173f2e;
+
+                color: #ffffff;
+              }
+
+              .reporte {
+                width: 100%;
+                max-width: 1180px;
+
+                margin: 0 auto;
+
+                padding: 32px 35px;
+
+                border: 1px solid #e1ddd4;
+                border-radius: 14px;
+
+                background: #ffffff;
+
+                box-shadow:
+                  0 10px 30px
+                  rgba(23, 63, 46, 0.08);
+              }
+
+              .reporte-header {
+                position: relative;
+
+                margin-bottom: 24px;
+                padding-bottom: 17px;
+
+                border-bottom:
+                  3px solid #173f2e;
+
+                text-align: center;
+              }
+
+              .reporte-header::after {
+                content: "";
+
+                position: absolute;
+
+                left: 50%;
+                bottom: -3px;
+
+                width: 150px;
+                height: 3px;
+
+                transform:
+                  translateX(-50%);
+
+                background: #c99a4b;
+              }
+
+              .reporte-header h1 {
+                margin: 0;
+
+                color: #173f2e;
+
+                font-size: 26px;
+                font-weight: 900;
+
+                text-transform: uppercase;
+              }
+
+              .reporte-header h2 {
+                margin: 5px 0 0;
+
+                color: #99702f;
+
+                font-size: 15px;
+              }
+
+              .resumen {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(
+                    5,
+                    minmax(0, 1fr)
+                  );
+
+                gap: 8px;
+
+                margin-bottom: 24px;
+              }
+
+              .dato {
+                display: flex;
+                flex-direction: column;
+
+                gap: 4px;
+
+                min-width: 0;
+
+                padding: 10px 11px;
+
+                border:
+                  1px solid #ded8cd;
+                border-radius: 8px;
+
+                background: #faf8f3;
+              }
+
+              .dato span {
+                color: #7d857f;
+
+                font-size: 8px;
+                font-weight: 900;
+
+                text-transform: uppercase;
+              }
+
+              .dato strong {
+                overflow: hidden;
+
+                color: #173f2e;
+
+                font-size: 11px;
+
+                text-overflow: ellipsis;
+              }
+
+              h3 {
+                margin: 0 0 10px;
+
+                padding-left: 9px;
+
+                border-left:
+                  4px solid #c99a4b;
+
+                color: #173f2e;
+
+                font-size: 14px;
+              }
+
+              table {
+                width: 100%;
+
+                border-collapse: collapse;
+              }
+
+              th {
+                padding: 8px 6px;
+
+                border:
+                  1px solid #d7d7d7;
+
+                background: #173f2e;
+
+                color: #ffffff;
+
+                font-size: 8px;
+                font-weight: 900;
+
+                text-align: center;
+
+                text-transform: uppercase;
+              }
+
+              td {
+                padding: 8px 6px;
+
+                border:
+                  1px solid #e0ddd7;
+
+                color: #3a463f;
+
+                font-size: 8.5px;
+
+                text-align: center;
+
+                vertical-align: middle;
+              }
+
+              tbody
+              tr:nth-child(even) {
+                background: #faf8f3;
+              }
+
+              .texto-izquierda {
+                text-align: left;
+              }
+
+              .dinero {
+                color: #8b6527;
+
+                font-weight: 900;
+
+                white-space: nowrap;
+              }
+
+              .saldo {
+                color: #173f2e;
+
+                font-weight: 900;
+
+                white-space: nowrap;
+              }
+
+              .estado {
+                font-weight: 900;
+              }
+
+              .venta-ficha {
+                display: grid;
+
+                grid-template-columns:
+                  repeat(
+                    3,
+                    minmax(0, 1fr)
+                  );
+
+                gap: 9px;
+              }
+
+              .venta-ficha
+              .dato {
+                min-height: 66px;
+              }
+
+              .venta-observacion {
+                grid-column: 1 / -1;
+              }
+
+              .financiacion {
+                grid-column: 1 / -1;
+
+                display: grid;
+
+                grid-template-columns:
+                  repeat(
+                    3,
+                    minmax(0, 1fr)
+                  );
+
+                gap: 8px;
+
+                margin-top: 4px;
+                padding: 12px;
+
+                border:
+                  1px solid #d4e0d8;
+                border-radius: 10px;
+
+                background: #f1f6f3;
+              }
+
+              @media print {
+
+                @page {
+                  size: A4 landscape;
+                  margin: 9mm;
+                }
+
+                body {
+                  margin: 0;
+                  padding: 0;
+
+                  background:
+                    #ffffff;
+                }
+
+                .acciones {
+                  display: none;
+                }
+
+                .reporte {
+                  width: 100%;
+                  max-width: none;
+
+                  margin: 0;
+                  padding: 0;
+
+                  border: none;
+                  border-radius: 0;
+
+                  box-shadow: none;
+                }
+
+                .reporte-header {
+                  border-bottom:
+                    2px solid #000000;
+                }
+
+                .reporte-header::after {
+                  display: none;
+                }
+
+                .reporte-header h1,
+                .reporte-header h2,
+                h3,
+                .dato strong {
+                  color:
+                    #000000 !important;
+                }
+
+                th {
+                  padding: 5px;
+
+                  border:
+                    1px solid #777;
+
+                  background:
+                    #eeeeee !important;
+
+                  color:
+                    #000000 !important;
+
+                  font-size: 7px;
+
+                  -webkit-print-color-adjust:
+                    exact;
+
+                  print-color-adjust:
+                    exact;
+                }
+
+                td {
+                  padding: 5px;
+
+                  border:
+                    1px solid #999;
+
+                  color: #000000;
+
+                  font-size: 7px;
+                }
+
+                tr {
+                  break-inside: avoid;
+
+                  page-break-inside:
+                    avoid;
+                }
+              }
+
+            </style>
+
+          </head>
+
+          <body>
+
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="cerrar"
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="imprimir"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+
+            </div>
+
+            <main class="reporte">
+
+              ${contenido}
+
+            </main>
+
+          </body>
+
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     IMPRIMIR TODAS LAS VENTAS
+
+     IMPORTANTE:
+     Usa "ventas", no ventasPaginadas.
+     Por eso trae TODO el historial.
+  ======================================================= */
+
+  const imprimirTodasLasVentas =
+    () => {
+      if (
+        ventas.length ===
+        0
+      ) {
+        mostrarNotificacion(
+          "No hay ventas registradas para imprimir.",
+          "info"
+        );
+
+        return;
+      }
+
+      const filas =
+        ventas
+          .map(
+            (
+              venta
+            ) => {
+              const cliente =
+                venta.cliente;
+
+              const lote =
+                venta.lote;
+
+              const manzana =
+                lote?.manzana;
+
+              return `
+                <tr>
+
+                  <td>
+                    <strong>
+                      ${escaparHTML(
+                        venta.codigo ||
+                        "—"
+                      )}
+                    </strong>
+                  </td>
+
+                  <td class="texto-izquierda">
+
+                    <strong>
+                      ${escaparHTML(
+                        obtenerNombreCliente(
+                          cliente
+                        )
+                      )}
+                    </strong>
+
+                    <br />
+
+                    ${escaparHTML(
+                      cliente?.documento ||
+                      "Sin documento"
+                    )}
+
+                  </td>
+
+                  <td class="texto-izquierda">
+
+                    <strong>
+                      ${escaparHTML(
+                        lote?.codigo ||
+                        "—"
+                      )}
+                    </strong>
+
+                    <br />
+
+                    ${escaparHTML(
+                      manzana?.nombre ||
+                      "Sin manzana"
+                    )}
+
+                    ${
+                      lote?.numeroLote
+                        ? ` · Lote ${escaparHTML(
+                            lote.numeroLote
+                          )}`
+                        : ""
+                    }
+
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      formatearFecha(
+                        venta.fechaVenta
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        venta.valorVenta
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        venta.cuotaInicial
+                      )
+                    )}
+                  </td>
+
+                  <td class="saldo">
+                    ${escaparHTML(
+                      formatearDinero(
+                        venta.saldoFinanciar
+                      )
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      venta.formaPago ||
+                      "—"
+                    )}
+
+                    ${
+                      venta.formaPago ===
+                      "Financiado"
+                        ? `
+                            <br />
+
+                            ${escaparHTML(
+                              venta.numeroCuotas ||
+                              0
+                            )} cuotas
+
+                            <br />
+
+                            ${escaparHTML(
+                              formatearDinero(
+                                venta.valorCuota
+                              )
+                            )}
+                          `
+                        : ""
+                    }
+                  </td>
+
+                  <td class="estado">
+                    ${escaparHTML(
+                      venta.estado ||
+                      "—"
+                    )}
+                  </td>
+
+                </tr>
+              `;
+            }
+          )
+          .join("");
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Reporte general de ventas
+          </h2>
+
+        </div>
+
+        <div class="resumen">
+
+          <div class="dato">
+            <span>
+              Total ventas
+            </span>
+
+            <strong>
+              ${ventas.length}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Activas
+            </span>
+
+            <strong>
+              ${estadisticas.activas}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Pagadas
+            </span>
+
+            <strong>
+              ${estadisticas.pagadas}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Valor vendido
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  estadisticas.valorVentas
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Saldo financiado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  estadisticas.saldo
+                )
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+        <h3>
+          Ventas registradas
+        </h3>
+
+        <table>
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Venta
+              </th>
+
+              <th>
+                Cliente
+              </th>
+
+              <th>
+                Lote
+              </th>
+
+              <th>
+                Fecha
+              </th>
+
+              <th>
+                Valor venta
+              </th>
+
+              <th>
+                Inicial
+              </th>
+
+              <th>
+                Saldo
+              </th>
+
+              <th>
+                Pago
+              </th>
+
+              <th>
+                Estado
+              </th>
+
+            </tr>
+
+          </thead>
+
+          <tbody>
+            ${filas}
+          </tbody>
+
+        </table>
+      `;
+
+      abrirVentanaImpresion(
+        "Reporte general de ventas",
+        contenido
+      );
+    };
+
+  /* =======================================================
+     IMPRIMIR UNA SOLA VENTA
+  ======================================================= */
+
+  const imprimirVenta =
+    (
+      venta
+    ) => {
+      const cliente =
+        venta.cliente;
+
+      const lote =
+        venta.lote;
+
+      const manzana =
+        lote?.manzana;
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Ficha individual de venta
+          </h2>
+
+        </div>
+
+        <h3>
+          Información de la venta
+        </h3>
+
+        <div class="venta-ficha">
+
+          <div class="dato">
+            <span>
+              Código de venta
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                venta.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Fecha de venta
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearFecha(
+                  venta.fechaVenta
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Estado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                venta.estado ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Cliente
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                obtenerNombreCliente(
+                  cliente
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Documento
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                cliente?.documento ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Lote
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                lote?.codigo ||
+                "—"
+              )}
+
+              ${
+                lote?.numeroLote
+                  ? ` · Lote ${escaparHTML(
+                      lote.numeroLote
+                    )}`
+                  : ""
+              }
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Manzana
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana?.nombre ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Código manzana
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                manzana?.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Forma de pago
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                venta.formaPago ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Valor de venta
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  venta.valorVenta
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Cuota inicial
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  venta.cuotaInicial
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Saldo
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  venta.saldoFinanciar
+                )
+              )}
+            </strong>
+          </div>
+
+          ${
+            venta.formaPago ===
+            "Financiado"
+              ? `
+                  <div class="financiacion">
+
+                    <div class="dato">
+                      <span>
+                        Número de cuotas
+                      </span>
+
+                      <strong>
+                        ${escaparHTML(
+                          venta.numeroCuotas ||
+                          0
+                        )}
+                      </strong>
+                    </div>
+
+                    <div class="dato">
+                      <span>
+                        Valor por cuota
+                      </span>
+
+                      <strong>
+                        ${escaparHTML(
+                          formatearDinero(
+                            venta.valorCuota
+                          )
+                        )}
+                      </strong>
+                    </div>
+
+                    <div class="dato">
+                      <span>
+                        Saldo financiado
+                      </span>
+
+                      <strong>
+                        ${escaparHTML(
+                          formatearDinero(
+                            venta.saldoFinanciar
+                          )
+                        )}
+                      </strong>
+                    </div>
+
+                  </div>
+                `
+              : ""
+          }
+
+          <div class="dato venta-observacion">
+
+            <span>
+              Observaciones
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                venta.observaciones ||
+                "Sin observaciones"
+              )}
+            </strong>
+
+          </div>
+
+        </div>
+      `;
+
+      abrirVentanaImpresion(
+        `Venta ${venta.codigo}`,
+        contenido
+      );
+    };
+
+  /* =======================================================
      RENDER
   ======================================================= */
 
@@ -1126,6 +2205,20 @@ export default function Ventas() {
             />
 
             Actualizar
+          </button>
+
+          <button
+            type="button"
+            className="ventas-print-button"
+            onClick={
+              imprimirTodasLasVentas
+            }
+          >
+            <Printer
+              size={18}
+            />
+
+            Imprimir ventas
           </button>
 
           <button
@@ -1622,6 +2715,21 @@ export default function Ventas() {
 
                         <td>
                           <div className="ventas-actions">
+
+                            <button
+                              type="button"
+                              className="print"
+                              title={`Imprimir ${venta.codigo}`}
+                              onClick={() =>
+                                imprimirVenta(
+                                  venta
+                                )
+                              }
+                            >
+                              <Printer
+                                size={16}
+                              />
+                            </button>
 
                             <button
                               type="button"
