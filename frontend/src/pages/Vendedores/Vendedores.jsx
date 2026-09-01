@@ -11,6 +11,7 @@ import {
   Phone,
   Plus,
   Power,
+  Printer,
   RefreshCw,
   Save,
   Search,
@@ -47,6 +48,21 @@ const formatearDinero = (
   ).format(
     Number(valor) || 0
   );
+};
+
+/* =========================================================
+   ESCAPAR HTML PARA IMPRESIÓN
+========================================================= */
+
+const escaparHTML = (
+  valor = ""
+) => {
+  return String(valor)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 };
 
 /* =========================================================
@@ -534,6 +550,415 @@ export default function Vendedores() {
     };
 
   /* =======================================================
+     VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1200,height=850"
+        );
+
+      if (!ventana) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión.",
+          "error"
+        );
+
+        return;
+      }
+
+      const rutaEstilos =
+        `${window.location.origin}/styles/vendedores-impresion.css`;
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="es">
+
+          <head>
+            <meta charset="UTF-8" />
+
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
+
+            <title>
+              ${escaparHTML(titulo)}
+            </title>
+
+            <link
+              rel="stylesheet"
+              href="${rutaEstilos}"
+            />
+          </head>
+
+          <body>
+
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="cerrar"
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="imprimir"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+
+            </div>
+
+            <main class="reporte">
+              ${contenido}
+            </main>
+
+          </body>
+
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     IMPRIMIR VENDEDOR INDIVIDUAL
+  ======================================================= */
+
+  const imprimirVendedor =
+    (
+      vendedor
+    ) => {
+      const nombreCompleto = [
+        vendedor.nombres,
+        vendedor.apellidos,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Ficha individual de vendedor
+          </h2>
+
+        </div>
+
+        <div class="ficha">
+
+          <div class="dato">
+            <span>Código</span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.codigo || "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Vendedor</span>
+
+            <strong>
+              ${escaparHTML(
+                nombreCompleto
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Documento</span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.documento || "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Teléfono</span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.telefono || "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Correo</span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.correo ||
+                "Sin correo"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>Estado</span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.estado || "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Comisión por lote
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  vendedor.valorComision
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Lotes vendidos
+            </span>
+
+            <strong>
+              ${Number(
+                vendedor.lotesVendidos
+              ) || 0}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Comisiones generadas
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  vendedor.comisionesGeneradas
+                )
+              )}
+            </strong>
+          </div>
+
+          <div class="dato observaciones">
+            <span>
+              Observaciones
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor.observaciones ||
+                "Sin observaciones"
+              )}
+            </strong>
+          </div>
+
+        </div>
+      `;
+
+      abrirVentanaImpresion(
+        `Vendedor ${vendedor.codigo}`,
+        contenido
+      );
+    };
+
+  /* =======================================================
+     IMPRIMIR TODOS LOS VENDEDORES
+  ======================================================= */
+
+  const imprimirTodosVendedores =
+    async () => {
+      try {
+        const datos =
+          await obtenerVendedores({
+            search: "",
+            estado: "",
+          });
+
+        const todos =
+          Array.isArray(
+            datos
+          )
+            ? datos
+            : [];
+
+        if (
+          todos.length ===
+          0
+        ) {
+          mostrarNotificacion(
+            "No hay vendedores registrados para imprimir.",
+            "info"
+          );
+
+          return;
+        }
+
+        const filas =
+          todos
+            .map(
+              (
+                vendedor
+              ) => {
+                const nombre = [
+                  vendedor.nombres,
+                  vendedor.apellidos,
+                ]
+                  .filter(Boolean)
+                  .join(" ");
+
+                return `
+                  <tr>
+
+                    <td>
+                      ${escaparHTML(
+                        vendedor.codigo || "—"
+                      )}
+                    </td>
+
+                    <td class="nombre">
+
+                      <strong>
+                        ${escaparHTML(
+                          nombre
+                        )}
+                      </strong>
+
+                      <br />
+
+                      ${escaparHTML(
+                        vendedor.correo ||
+                        "Sin correo"
+                      )}
+
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        vendedor.documento || "—"
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        vendedor.telefono || "—"
+                      )}
+                    </td>
+
+                    <td class="dinero">
+                      ${escaparHTML(
+                        formatearDinero(
+                          vendedor.valorComision
+                        )
+                      )}
+                    </td>
+
+                    <td>
+                      ${Number(
+                        vendedor.lotesVendidos
+                      ) || 0}
+                    </td>
+
+                    <td class="dinero">
+                      ${escaparHTML(
+                        formatearDinero(
+                          vendedor.comisionesGeneradas
+                        )
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        vendedor.estado || "—"
+                      )}
+                    </td>
+
+                  </tr>
+                `;
+              }
+            )
+            .join("");
+
+        const contenido = `
+          <div class="reporte-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              Reporte general de vendedores
+            </h2>
+
+          </div>
+
+          <table>
+
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Vendedor</th>
+                <th>Documento</th>
+                <th>Teléfono</th>
+                <th>Comisión por lote</th>
+                <th>Lotes vendidos</th>
+                <th>Comisiones generadas</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              ${filas}
+            </tbody>
+
+          </table>
+        `;
+
+        abrirVentanaImpresion(
+          "Reporte general de vendedores",
+          contenido
+        );
+      } catch (error) {
+        console.error(
+          "Error imprimiendo vendedores:",
+          error
+        );
+
+        mostrarNotificacion(
+          "No fue posible cargar todos los vendedores para imprimir.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
      ESTADÍSTICAS
   ======================================================= */
 
@@ -603,6 +1028,20 @@ export default function Vendedores() {
             />
 
             Actualizar
+          </button>
+
+          <button
+            type="button"
+            className="vendedores-print-button"
+            onClick={
+              imprimirTodosVendedores
+            }
+          >
+            <Printer
+              size={17}
+            />
+
+            Imprimir vendedores
           </button>
 
           <button
@@ -786,6 +1225,14 @@ export default function Vendedores() {
                 </th>
 
                 <th>
+                  Lotes vendidos
+                </th>
+
+                <th>
+                  Comisiones generadas
+                </th>
+
+                <th>
                   Estado
                 </th>
 
@@ -800,7 +1247,7 @@ export default function Vendedores() {
               {cargando ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="9"
                     className="vendedores-empty"
                   >
                     <RefreshCw
@@ -817,7 +1264,7 @@ export default function Vendedores() {
                 0 ? (
                 <tr>
                   <td
-                    colSpan="7"
+                    colSpan="9"
                     className="vendedores-empty"
                   >
                     <Users
@@ -920,7 +1367,7 @@ export default function Vendedores() {
                         </div>
                       </td>
 
-                      {/* COMISIÓN */}
+                      {/* COMISIÓN POR LOTE */}
 
                       <td>
                         <div className="vendedor-comision">
@@ -933,6 +1380,46 @@ export default function Vendedores() {
                               vendedor.valorComision
                             )}
                           </strong>
+                        </div>
+                      </td>
+
+                      {/* LOTES VENDIDOS */}
+
+                      <td>
+                        <div className="vendedor-lotes-vendidos">
+
+                          <strong>
+                            {Number(
+                              vendedor.lotesVendidos
+                            ) || 0}
+                          </strong>
+
+                          <span>
+                            {Number(
+                              vendedor.lotesVendidos
+                            ) === 1
+                              ? "lote"
+                              : "lotes"}
+                          </span>
+
+                        </div>
+                      </td>
+
+                      {/* COMISIONES GENERADAS */}
+
+                      <td>
+                        <div className="vendedor-comisiones-generadas">
+
+                          <BadgeDollarSign
+                            size={15}
+                          />
+
+                          <strong>
+                            {formatearDinero(
+                              vendedor.comisionesGeneradas
+                            )}
+                          </strong>
+
                         </div>
                       </td>
 
@@ -954,6 +1441,21 @@ export default function Vendedores() {
 
                       <td>
                         <div className="vendedores-actions">
+
+                          <button
+                            type="button"
+                            className="print"
+                            title={`Imprimir ${vendedor.codigo}`}
+                            onClick={() =>
+                              imprimirVendedor(
+                                vendedor
+                              )
+                            }
+                          >
+                            <Printer
+                              size={15}
+                            />
+                          </button>
 
                           <button
                             type="button"

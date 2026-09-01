@@ -1,0 +1,338 @@
+/* =========================================================
+   LOTES VILLA MARÍA
+   IMPRESIÓN DE VENDEDORES
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 28px;
+
+  background: #f1eee6;
+
+  color: #27362e;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================================================
+   BOTONES SUPERIORES
+========================================================= */
+
+.acciones {
+  display: flex;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1150px;
+
+  margin: 0 auto 15px;
+}
+
+.acciones button {
+  min-height: 40px;
+
+  padding: 0 17px;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.cerrar {
+  border: 1px solid #d6d0c5;
+
+  background: #ffffff;
+
+  color: #58615b;
+}
+
+.imprimir {
+  border: 1px solid #173f2e;
+
+  background: #173f2e;
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   REPORTE
+========================================================= */
+
+.reporte {
+  width: 100%;
+  max-width: 1150px;
+
+  margin: 0 auto;
+
+  padding: 30px;
+
+  border: 1px solid #e1ddd4;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.08);
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.reporte-header {
+  position: relative;
+
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+
+  border-bottom:
+    3px solid #173f2e;
+
+  text-align: center;
+}
+
+.reporte-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -3px;
+
+  width: 150px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #c99a4b;
+}
+
+.reporte-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 25px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.reporte-header h2 {
+  margin: 5px 0 0;
+
+  color: #99702f;
+
+  font-size: 15px;
+}
+
+/* =========================================================
+   FICHA INDIVIDUAL
+========================================================= */
+
+.ficha {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+}
+
+.dato {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 12px;
+
+  border: 1px solid #ded8cd;
+  border-radius: 9px;
+
+  background: #faf8f3;
+}
+
+.dato span {
+  color: #7d857f;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.dato strong {
+  color: #173f2e;
+
+  font-size: 12px;
+
+  overflow-wrap: anywhere;
+}
+
+.dato.observaciones {
+  grid-column: 1 / -1;
+}
+
+/* =========================================================
+   TABLA GENERAL
+========================================================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+th {
+  padding: 8px 6px;
+
+  border: 1px solid #d7d7d7;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+td {
+  padding: 8px 6px;
+
+  border: 1px solid #e0ddd7;
+
+  color: #3a463f;
+
+  font-size: 8.5px;
+
+  text-align: center;
+
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+  background: #faf8f3;
+}
+
+td.nombre {
+  text-align: left;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.dinero {
+  color: #8b6527;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
+
+@media print {
+  @page {
+    size: A4 landscape;
+
+    margin: 9mm;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .acciones {
+    display: none;
+  }
+
+  .reporte {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .reporte-header {
+    border-bottom:
+      2px solid #000000;
+  }
+
+  .reporte-header::after {
+    display: none;
+  }
+
+  .reporte-header h1,
+  .reporte-header h2,
+  .dato strong {
+    color: #000000 !important;
+  }
+
+  th {
+    padding: 5px;
+
+    border: 1px solid #777;
+
+    background:
+      #eeeeee !important;
+
+    color:
+      #000000 !important;
+
+    font-size: 7px;
+
+    -webkit-print-color-adjust:
+      exact;
+
+    print-color-adjust:
+      exact;
+  }
+
+  td {
+    padding: 5px;
+
+    border: 1px solid #999;
+
+    color: #000000;
+
+    font-size: 7px;
+  }
+
+  tr {
+    break-inside: avoid;
+
+    page-break-inside: avoid;
+  }
+}
