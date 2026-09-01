@@ -3,6 +3,7 @@ import {
   Users,
   MapPinned,
   HandCoins,
+  BadgeDollarSign,
   WalletCards,
   CreditCard,
   ReceiptText,
@@ -33,6 +34,11 @@ const menuItems = [
     id: "ventas",
     label: "Ventas",
     icon: HandCoins,
+  },
+  {
+    id: "vendedores",
+    label: "Vendedores",
+    icon: BadgeDollarSign,
   },
   {
     id: "cuotas",

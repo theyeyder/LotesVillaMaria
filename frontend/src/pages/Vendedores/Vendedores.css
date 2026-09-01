@@ -1,0 +1,1140 @@
+/* =========================================================
+   VENDEDORES
+   LOTES VILLA MARÍA
+========================================================= */
+
+.vendedores-page {
+  width: 100%;
+  min-height: 100%;
+
+  padding: 28px;
+
+  color: #17241d;
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.vendedores-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 22px;
+
+  margin-bottom: 24px;
+}
+
+.vendedores-kicker {
+  display: inline-block;
+
+  margin-bottom: 6px;
+
+  color: #b98532;
+
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.13em;
+
+  text-transform: uppercase;
+}
+
+.vendedores-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 31px;
+  line-height: 1.1;
+}
+
+.vendedores-header p {
+  max-width: 650px;
+
+  margin: 8px 0 0;
+
+  color: #747d77;
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.vendedores-header-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 10px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   BOTÓN ACTUALIZAR
+========================================================= */
+
+.vendedores-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: 1px solid #cbdad0;
+  border-radius: 11px;
+
+  background: #edf5f0;
+
+  color: #1f6848;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.vendedores-refresh:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #aac4b3;
+
+  background: #e4f0e8;
+}
+
+.vendedores-refresh:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   BOTÓN NUEVO
+========================================================= */
+
+.vendedores-new-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border: 1px solid #1f6848;
+  border-radius: 11px;
+
+  background: #1f6848;
+
+  color: #ffffff;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.vendedores-new-button:hover {
+  transform: translateY(-1px);
+
+  border-color: #174f37;
+
+  background: #174f37;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+.vendedores-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 12px;
+
+  margin-bottom: 20px;
+}
+
+.vendedores-stat {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+  min-height: 94px;
+
+  padding: 15px;
+
+  border: 1px solid #e5ded1;
+  border-radius: 15px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 7px 22px
+    rgba(23, 63, 46, 0.05);
+}
+
+.vendedores-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex: 0 0 43px;
+
+  border-radius: 12px;
+
+  background: #edf4ef;
+
+  color: #1f6848;
+}
+
+.vendedores-stat > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.vendedores-stat span {
+  color: #7d857f;
+
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.vendedores-stat strong {
+  color: #173f2e;
+
+  font-size: 21px;
+}
+
+.vendedores-stat.activo {
+  border-bottom: 3px solid #3b8c5d;
+}
+
+.vendedores-stat.inactivo {
+  border-bottom: 3px solid #a4aaa6;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.vendedores-panel {
+  overflow: hidden;
+
+  border: 1px solid #e6dfd2;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.06);
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.vendedores-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #ece5d9;
+
+  background: #fcfaf5;
+}
+
+.vendedores-search {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  width: min(650px, 100%);
+  min-height: 43px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dcd6ca;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #38754f;
+}
+
+.vendedores-search:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.08);
+}
+
+.vendedores-search input {
+  width: 100%;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #17241d;
+
+  font-size: 12px;
+}
+
+.vendedores-toolbar select {
+  min-width: 170px;
+  min-height: 41px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #354039;
+
+  font-size: 11px;
+
+  cursor: pointer;
+}
+
+.vendedores-toolbar select:focus {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.vendedores-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.vendedores-table {
+  width: 100%;
+  min-width: 1050px;
+
+  border-collapse: collapse;
+}
+
+.vendedores-table thead {
+  background: #f6f2e9;
+}
+
+.vendedores-table th {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #e7dfd2;
+
+  color: #6c756e;
+
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-align: left;
+
+  text-transform: uppercase;
+}
+
+.vendedores-table td {
+  padding: 13px 14px;
+
+  border-bottom: 1px solid #f0ebe1;
+
+  color: #303a34;
+
+  font-size: 12px;
+
+  vertical-align: middle;
+}
+
+.vendedores-table tbody tr {
+  transition:
+    background 0.16s ease;
+}
+
+.vendedores-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+/* =========================================================
+   CÓDIGO
+========================================================= */
+
+.vendedor-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 78px;
+
+  padding: 5px 8px;
+
+  border: 1px solid #ead9b3;
+  border-radius: 8px;
+
+  background: #fff8e9;
+
+  color: #966d29;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   VENDEDOR
+========================================================= */
+
+.vendedor-name {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-width: 220px;
+}
+
+.vendedor-avatar {
+  display: grid;
+  place-items: center;
+
+  width: 36px;
+  height: 36px;
+
+  flex: 0 0 36px;
+
+  border-radius: 10px;
+
+  background: #e8f2eb;
+
+  color: #1f6848;
+
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.vendedor-name > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  gap: 2px;
+
+  min-width: 0;
+}
+
+.vendedor-name strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 11px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vendedor-name span {
+  overflow: hidden;
+
+  max-width: 210px;
+
+  color: #8b928d;
+
+  font-size: 9px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   INFORMACIÓN
+========================================================= */
+
+.vendedor-info-cell {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  color: #68736c;
+}
+
+.vendedor-info-cell svg {
+  flex: 0 0 auto;
+
+  color: #8a938d;
+}
+
+.vendedor-info-cell span {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   COMISIÓN
+========================================================= */
+
+.vendedor-comision {
+  display: inline-flex;
+  align-items: center;
+
+  gap: 6px;
+
+  min-width: 70px;
+
+  padding: 6px 9px;
+
+  border: 1px solid #ead9b3;
+  border-radius: 8px;
+
+  background: #fff8e9;
+
+  color: #946a26;
+}
+
+.vendedor-comision strong {
+  font-size: 11px;
+}
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+.vendedor-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 72px;
+  min-height: 27px;
+
+  padding: 0 10px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.vendedor-status-activo {
+  background: #e7f4eb;
+
+  color: #287047;
+}
+
+.vendedor-status-inactivo {
+  background: #efefed;
+
+  color: #747a76;
+}
+
+/* =========================================================
+   ACCIONES
+========================================================= */
+
+.vendedores-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+}
+
+.vendedores-actions button {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.vendedores-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.vendedores-actions button.edit {
+  border: 1px solid #bfd4c6;
+
+  background: #edf5f0;
+
+  color: #1f6848;
+}
+
+.vendedores-actions button.edit:hover {
+  border-color: #96b6a1;
+
+  background: #e2eee6;
+}
+
+.vendedores-actions button.disable {
+  border: 1px solid #e4c8c5;
+
+  background: #fbeceb;
+
+  color: #a85049;
+}
+
+.vendedores-actions button.disable:hover {
+  border-color: #d6aaa6;
+
+  background: #f7dfdd;
+}
+
+.vendedores-actions button.enable {
+  border: 1px solid #bfd4c6;
+
+  background: #e8f4ec;
+
+  color: #2d7d4b;
+}
+
+.vendedores-actions button.enable:hover {
+  border-color: #96b6a1;
+
+  background: #dbeddf;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.vendedores-empty {
+  height: 220px;
+
+  color: #858d88 !important;
+
+  text-align: center !important;
+}
+
+.vendedores-empty svg {
+  display: block;
+
+  margin: 0 auto 8px;
+}
+
+.vendedores-empty strong {
+  display: block;
+
+  margin-top: 6px;
+
+  color: #526058;
+}
+
+.vendedores-empty span {
+  display: block;
+
+  margin-top: 4px;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   PIE
+========================================================= */
+
+.vendedores-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  padding: 13px 17px;
+
+  border-top: 1px solid #ece5d9;
+
+  background: #fcfaf5;
+
+  color: #7d857f;
+
+  font-size: 11px;
+}
+
+.vendedores-footer strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   MODAL - FONDO
+========================================================= */
+
+.vendedor-modal-backdrop {
+  position: fixed;
+  z-index: 1000;
+
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+
+  overflow-y: auto;
+
+  background:
+    rgba(18, 34, 26, 0.52);
+
+  backdrop-filter:
+    blur(4px);
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.vendedor-modal {
+  width: min(
+    720px,
+    100%
+  );
+
+  overflow: hidden;
+
+  border: 1px solid #e0d8ca;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 24px 70px
+    rgba(17, 42, 30, 0.25);
+}
+
+/* =========================================================
+   CABECERA MODAL
+========================================================= */
+
+.vendedor-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #ece5d9;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfaf5 0%,
+      #f8f4eb 100%
+    );
+}
+
+.vendedor-modal-header > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.vendedor-modal-header span {
+  color: #b98532;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.vendedor-modal-header h2 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 20px;
+}
+
+.vendedor-modal-close {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #6c756e;
+
+  cursor: pointer;
+}
+
+.vendedor-modal-close:hover:not(:disabled) {
+  background: #f4eee5;
+
+  color: #173f2e;
+}
+
+.vendedor-modal-close:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   FORMULARIO
+========================================================= */
+
+.vendedor-form {
+  padding: 20px;
+}
+
+.vendedor-form-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 14px;
+}
+
+.vendedor-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.vendedor-field label {
+  color: #647068;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.vendedor-field small {
+  color: #919892;
+
+  font-size: 8px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   INPUT CON ICONO
+========================================================= */
+
+.vendedor-input-icon {
+  display: flex;
+  align-items: center;
+
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #8a938d;
+
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.vendedor-input-icon:focus-within {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+.vendedor-input-icon svg {
+  flex: 0 0 auto;
+}
+
+.vendedor-input-icon input {
+  width: 100%;
+  min-width: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #2b382f;
+
+  font-size: 11px;
+}
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.vendedor-field-full {
+  margin-top: 14px;
+}
+
+.vendedor-field textarea {
+  width: 100%;
+
+  min-height: 78px;
+
+  padding: 10px 11px;
+
+  resize: vertical;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #2b382f;
+
+  font-family: inherit;
+  font-size: 11px;
+}
+
+.vendedor-field textarea:focus {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+/* =========================================================
+   PIE DEL MODAL
+========================================================= */
+
+.vendedor-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 20px;
+  padding-top: 16px;
+
+  border-top: 1px solid #ece5d9;
+}
+
+.vendedor-cancel-button,
+.vendedor-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 0 15px;
+
+  border-radius: 10px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.vendedor-cancel-button {
+  border: 1px solid #dcd5c9;
+
+  background: #ffffff;
+
+  color: #756b5f;
+}
+
+.vendedor-cancel-button:hover:not(:disabled) {
+  background: #f7f2ea;
+}
+
+.vendedor-save-button {
+  border: 1px solid #1f6848;
+
+  background: #1f6848;
+
+  color: #ffffff;
+}
+
+.vendedor-save-button:hover:not(:disabled) {
+  background: #174f37;
+
+  border-color: #174f37;
+}
+
+.vendedor-cancel-button:disabled,
+.vendedor-save-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ANIMACIÓN
+========================================================= */
+
+.vendedores-spin {
+  animation:
+    vendedoresSpin
+    0.8s linear infinite;
+}
+
+@keyframes vendedoresSpin {
+  to {
+    transform: rotate(
+      360deg
+    );
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1000px) {
+  .vendedores-toolbar {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .vendedores-search {
+    width: 100%;
+  }
+
+  .vendedores-toolbar select {
+    width: 100%;
+  }
+}
+
+@media (max-width: 760px) {
+  .vendedores-page {
+    padding: 18px;
+  }
+
+  .vendedores-header {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .vendedores-header-actions {
+    width: 100%;
+  }
+
+  .vendedores-refresh,
+  .vendedores-new-button {
+    flex: 1;
+  }
+
+  .vendedores-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .vendedor-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .vendedores-header-actions {
+    flex-direction: column;
+  }
+
+  .vendedores-refresh,
+  .vendedores-new-button {
+    width: 100%;
+  }
+
+  .vendedor-modal-backdrop {
+    align-items: flex-start;
+
+    padding: 10px;
+  }
+
+  .vendedor-modal {
+    margin-top: 10px;
+
+    border-radius: 14px;
+  }
+
+  .vendedor-form {
+    padding: 15px;
+  }
+
+  .vendedor-modal-footer {
+    align-items: stretch;
+
+    flex-direction: column-reverse;
+  }
+
+  .vendedor-cancel-button,
+  .vendedor-save-button {
+    width: 100%;
+  }
+}

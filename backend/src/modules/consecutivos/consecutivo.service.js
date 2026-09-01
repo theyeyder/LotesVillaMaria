@@ -2,6 +2,7 @@ import Consecutivo from "./consecutivo.model.js";
 
 import Venta from "../ventas/venta.model.js";
 import Cuota from "../cuotas/cuota.model.js";
+import Vendedor from "../vendedores/vendedor.model.js";
 
 /* =========================================================
    EXTRAER NÚMERO DE UN CÓDIGO
@@ -614,4 +615,173 @@ export const generarCodigosCuotas =
     return reservarRangoCuotas(
       cantidad
     );
+  };
+  /* =========================================================
+   OBTENER MAYOR NÚMERO DE VENDEDORES
+
+   VD-0001
+   VD-0002
+   VD-0003...
+========================================================= */
+
+const obtenerMayorNumeroVendedores =
+  async () => {
+    const vendedores =
+      await Vendedor.find({
+        codigo: {
+          $regex:
+            /^VD-\d+$/i,
+        },
+      })
+        .select(
+          "codigo -_id"
+        )
+        .lean();
+
+    let mayorNumero =
+      0;
+
+    for (
+      const vendedor
+      of vendedores
+    ) {
+      const numero =
+        extraerNumeroCodigo(
+          vendedor.codigo,
+          /^VD-(\d+)$/
+        );
+
+      if (
+        numero >
+        mayorNumero
+      ) {
+        mayorNumero =
+          numero;
+      }
+    }
+
+    return mayorNumero;
+  };
+
+/* =========================================================
+   SINCRONIZAR CONSECUTIVO DE VENDEDORES
+========================================================= */
+
+const sincronizarConsecutivoVendedor =
+  async () => {
+    const mayorNumeroVendedores =
+      await obtenerMayorNumeroVendedores();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo:
+            "vendedor",
+        },
+        {
+          $setOnInsert: {
+            tipo:
+              "vendedor",
+
+            ultimoNumero:
+              mayorNumeroVendedores,
+          },
+        },
+        {
+          new:
+            true,
+
+          upsert:
+            true,
+        }
+      );
+
+    if (
+      Number(
+        consecutivo
+          ?.ultimoNumero ||
+          0
+      ) <
+      mayorNumeroVendedores
+    ) {
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo:
+            "vendedor",
+
+          ultimoNumero: {
+            $lt:
+              mayorNumeroVendedores,
+          },
+        },
+        {
+          $set: {
+            ultimoNumero:
+              mayorNumeroVendedores,
+          },
+        }
+      );
+    }
+  };
+
+/* =========================================================
+   GENERAR CÓDIGO DE VENDEDOR
+
+   VD-0001
+   VD-0002
+   VD-0003...
+========================================================= */
+
+export const generarCodigoVendedor =
+  async () => {
+    await sincronizarConsecutivoVendedor();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo:
+            "vendedor",
+        },
+        {
+          $inc: {
+            ultimoNumero:
+              1,
+          },
+        },
+        {
+          new:
+            true,
+        }
+      );
+
+    if (
+      !consecutivo
+    ) {
+      throw new Error(
+        "No fue posible generar el consecutivo del vendedor"
+      );
+    }
+
+    const numero =
+      Number(
+        consecutivo.ultimoNumero
+      );
+
+    if (
+      !Number.isInteger(
+        numero
+      ) ||
+      numero <= 0
+    ) {
+      throw new Error(
+        "El consecutivo generado para el vendedor no es válido"
+      );
+    }
+
+    return `VD-${String(
+      numero
+    ).padStart(
+      4,
+      "0"
+    )}`;
   };

@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import Venta from "./venta.model.js";
 import Cliente from "../clientes/cliente.model.js";
+import Vendedor from "../vendedores/vendedor.model.js";
 import Lote from "../lotes/lote.model.js";
 import Cuota from "../cuotas/cuota.model.js";
 import Pago from "../pagos/pago.model.js";
@@ -165,7 +166,7 @@ const distribuirValoresCuotas = (
   const restoCentavos =
     totalCentavos -
     baseCentavos *
-      numeroCuotas;
+    numeroCuotas;
 
   const valores =
     [];
@@ -179,7 +180,7 @@ const distribuirValoresCuotas = (
       baseCentavos +
       (
         i <
-        restoCentavos
+          restoCentavos
           ? 1
           : 0
       );
@@ -250,7 +251,7 @@ const agregarMesesSeguro = (
       Date.UTC(
         date.getUTCFullYear(),
         date.getUTCMonth() +
-          meses,
+        meses,
         1
       )
     );
@@ -260,7 +261,7 @@ const agregarMesesSeguro = (
       Date.UTC(
         objetivo.getUTCFullYear(),
         objetivo.getUTCMonth() +
-          1,
+        1,
         0
       )
     ).getUTCDate();
@@ -329,7 +330,7 @@ const validarLoteParaVenta = (
     Number(
       lote.frenteCentimetros || 0
     ) /
-      100;
+    100;
 
   const fondo =
     Number(
@@ -338,7 +339,7 @@ const validarLoteParaVenta = (
     Number(
       lote.fondoCentimetros || 0
     ) /
-      100;
+    100;
 
   /*
     Los lotes creados antes de agregar tipoLote
@@ -349,7 +350,7 @@ const validarLoteParaVenta = (
     lote.tipoLote ||
     (
       frente > 0 &&
-      fondo > 0
+        fondo > 0
         ? "Regular"
         : "Irregular"
     );
@@ -431,7 +432,7 @@ const crearCuotasAutomaticas =
   ) => {
     if (
       venta.formaPago !==
-        "Financiado" ||
+      "Financiado" ||
       Number(
         venta.numeroCuotas
       ) <= 0 ||
@@ -549,6 +550,9 @@ const obtenerVentaPoblada =
       .populate(
         "cliente"
       )
+      .populate(
+        "vendedor"
+      )
       .populate({
         path:
           "lote",
@@ -605,6 +609,9 @@ export const obtenerVentaActivaPorLote =
         })
           .populate(
             "cliente"
+          )
+          .populate(
+            "vendedor"
           )
           .populate({
             path:
@@ -668,6 +675,7 @@ export const crearVenta =
     try {
       const {
         cliente,
+        vendedor,
         lote,
         fechaVenta,
         valorVenta,
@@ -718,6 +726,36 @@ export const crearVenta =
         ).json({
           message:
             "El cliente seleccionado no existe",
+        });
+      }
+
+      /* =========================
+         VENDEDOR
+      ========================= */
+
+      if (!vendedor) {
+        return res.status(400).json({
+          message: "El vendedor es obligatorio",
+        });
+      }
+
+      if (!mongoose.Types.ObjectId.isValid(vendedor)) {
+        return res.status(400).json({
+          message: "El vendedor seleccionado no es válido",
+        });
+      }
+
+      const vendedorExiste = await Vendedor.findById(vendedor);
+
+      if (!vendedorExiste) {
+        return res.status(404).json({
+          message: "El vendedor seleccionado no existe",
+        });
+      }
+
+      if (vendedorExiste.estado !== "Activo") {
+        return res.status(409).json({
+          message: "El vendedor seleccionado se encuentra inactivo",
         });
       }
 
@@ -839,7 +877,7 @@ export const crearVenta =
 
       const forma =
         formaPago ===
-        "Contado"
+          "Contado"
           ? "Contado"
           : "Financiado";
 
@@ -868,6 +906,31 @@ export const crearVenta =
       }
 
       /* =========================
+         COMISIÓN FIJA DEL VENDEDOR
+      ========================= */
+
+      const valorComision =
+        Number(
+          vendedorExiste
+            .valorComision ||
+            0
+        );
+
+      if (
+        !Number.isFinite(
+          valorComision
+        ) ||
+        valorComision < 0
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El valor de comisión del vendedor no es válido",
+        });
+      }
+
+      /* =========================
          GENERAR CONSECUTIVO
       ========================= */
 
@@ -883,6 +946,11 @@ export const crearVenta =
           codigo,
 
           cliente,
+
+          vendedor: vendedorExiste._id,
+
+          valorComision,
+
           lote,
 
           fechaVenta:
@@ -925,7 +993,7 @@ export const crearVenta =
 
       if (
         venta.formaPago ===
-          "Financiado" &&
+        "Financiado" &&
         Number(
           venta.numeroCuotas
         ) > 0
@@ -959,7 +1027,7 @@ export const crearVenta =
       ).json({
         message:
           venta.formaPago ===
-          "Financiado"
+            "Financiado"
             ? `Venta ${venta.codigo} creada correctamente. Se generaron ${cuotasGeneradas.length} cuotas.`
             : `Venta ${venta.codigo} de contado creada correctamente.`,
 
@@ -999,6 +1067,9 @@ export const obtenerVentas =
         await Venta.find({})
           .populate(
             "cliente"
+          )
+          .populate(
+            "vendedor"
           )
           .populate({
             path:
@@ -1201,13 +1272,14 @@ export const actualizarVenta =
         fechaVenta:
           venta.fechaVenta
             ? normalizarFechaUTC(
-                venta.fechaVenta
-              )?.getTime()
+              venta.fechaVenta
+            )?.getTime()
             : null,
       };
 
       const {
         cliente,
+        vendedor,
         fechaVenta,
         valorVenta,
         cuotaInicial,
@@ -1256,6 +1328,107 @@ export const actualizarVenta =
       }
 
       /* =========================
+         VENDEDOR
+      ========================= */
+
+      const vendedorAnteriorId =
+        venta.vendedor
+          ? String(
+            venta.vendedor
+          )
+          : "";
+
+      const vendedorNuevoId =
+        vendedor !==
+          undefined &&
+          vendedor !==
+          null
+          ? String(
+            vendedor
+          ).trim()
+          : vendedorAnteriorId;
+
+      /*
+        Si la venta ya tiene vendedor,
+        no permitimos quitarlo.
+      */
+
+      if (
+        vendedorAnteriorId &&
+        !vendedorNuevoId
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "No se puede quitar el vendedor de una venta existente",
+        });
+      }
+
+      let vendedorExiste =
+        null;
+
+      if (
+        vendedorNuevoId
+      ) {
+        if (
+          !mongoose.Types.ObjectId.isValid(
+            vendedorNuevoId
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "El vendedor seleccionado no es válido",
+          });
+        }
+
+        vendedorExiste =
+          await Vendedor.findById(
+            vendedorNuevoId
+          );
+
+        if (
+          !vendedorExiste
+        ) {
+          return res.status(
+            404
+          ).json({
+            message:
+              "El vendedor seleccionado no existe",
+          });
+        }
+      }
+
+      const cambioVendedor =
+        vendedorAnteriorId !==
+        vendedorNuevoId;
+
+      /*
+        Si se está cambiando de vendedor,
+        el nuevo vendedor debe estar activo.
+
+        Si es el mismo vendedor histórico y
+        posteriormente fue inactivado, la venta
+        puede seguir conservándolo.
+      */
+
+      if (
+        cambioVendedor &&
+        vendedorExiste &&
+        vendedorExiste.estado !==
+        "Activo"
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "El nuevo vendedor seleccionado se encuentra inactivo",
+        });
+      }
+
+      /* =========================
          FORMA DE PAGO
       ========================= */
 
@@ -1264,7 +1437,7 @@ export const actualizarVenta =
           formaPago ??
           venta.formaPago
         ) ===
-        "Contado"
+          "Contado"
           ? "Contado"
           : "Financiado";
 
@@ -1302,6 +1475,69 @@ export const actualizarVenta =
       }
 
       /* =========================
+         COMISIÓN FIJA DE LA VENTA
+      ========================= */
+
+      /*
+        Si permanece el mismo vendedor,
+        conservamos la comisión histórica
+        guardada en la venta.
+
+        Si cambia el vendedor,
+        tomamos la comisión actual
+        configurada para el nuevo vendedor.
+      */
+
+      let valorComisionVenta =
+        Number(
+          venta.valorComision ||
+            0
+        );
+
+      if (
+        cambioVendedor &&
+        vendedorExiste
+      ) {
+        valorComisionVenta =
+          Number(
+            vendedorExiste
+              .valorComision ||
+              0
+          );
+      }
+
+      /*
+        Venta antigua que todavía
+        no tenía vendedor.
+      */
+
+      if (
+        !vendedorAnteriorId &&
+        vendedorExiste
+      ) {
+        valorComisionVenta =
+          Number(
+            vendedorExiste
+              .valorComision ||
+              0
+          );
+      }
+
+      if (
+        !Number.isFinite(
+          valorComisionVenta
+        ) ||
+        valorComisionVenta < 0
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El valor de comisión de la venta no es válido",
+        });
+      }
+
+      /* =========================
          FECHA
       ========================= */
 
@@ -1331,8 +1567,8 @@ export const actualizarVenta =
       const nuevaFechaComparacion =
         nuevaFecha
           ? normalizarFechaUTC(
-              nuevaFecha
-            )?.getTime()
+            nuevaFecha
+          )?.getTime()
           : null;
 
       /* =====================================================
@@ -1341,22 +1577,22 @@ export const actualizarVenta =
 
       const cambioFinanciacion =
         estructuraAnterior.valorVenta !==
-          financiacion.valorVenta ||
+        financiacion.valorVenta ||
 
         estructuraAnterior.cuotaInicial !==
-          financiacion.cuotaInicial ||
+        financiacion.cuotaInicial ||
 
         estructuraAnterior.saldoFinanciar !==
-          financiacion.saldoFinanciar ||
+        financiacion.saldoFinanciar ||
 
         estructuraAnterior.numeroCuotas !==
-          financiacion.numeroCuotas ||
+        financiacion.numeroCuotas ||
 
         estructuraAnterior.formaPago !==
-          forma ||
+        forma ||
 
         estructuraAnterior.fechaVenta !==
-          nuevaFechaComparacion;
+        nuevaFechaComparacion;
 
       /* =====================================================
          SI CAMBIA FINANCIACIÓN, NO PUEDE HABER PAGOS
@@ -1384,6 +1620,31 @@ export const actualizarVenta =
       }
 
       /* =====================================================
+         NO CAMBIAR VENDEDOR SI YA EXISTEN PAGOS
+      ===================================================== */
+
+      if (
+        cambioVendedor
+      ) {
+        const pagosRegistrados =
+          await Pago.countDocuments({
+            venta:
+              venta._id,
+          });
+
+        if (
+          pagosRegistrados > 0
+        ) {
+          return res.status(
+            409
+          ).json({
+            message:
+              "No se puede cambiar el vendedor porque esta venta ya tiene pagos registrados.",
+          });
+        }
+      }
+
+      /* =====================================================
          VERIFICAR ESTRUCTURA DE CUOTAS
       ===================================================== */
 
@@ -1395,10 +1656,10 @@ export const actualizarVenta =
 
       const cantidadEsperada =
         forma ===
-        "Financiado"
+          "Financiado"
           ? Number(
-              financiacion.numeroCuotas
-            )
+            financiacion.numeroCuotas
+          )
           : 0;
 
       const estructuraCuotasIncorrecta =
@@ -1411,6 +1672,16 @@ export const actualizarVenta =
 
       venta.cliente =
         clienteNuevo;
+
+      if (
+        vendedorNuevoId
+      ) {
+        venta.vendedor =
+          vendedorNuevoId;
+      }
+
+      venta.valorComision =
+        valorComisionVenta;
 
       venta.fechaVenta =
         nuevaFecha;
@@ -1495,7 +1766,7 @@ export const actualizarVenta =
 
           if (
             venta.formaPago ===
-              "Financiado" &&
+            "Financiado" &&
             Number(
               venta.numeroCuotas
             ) > 0 &&
@@ -1704,15 +1975,15 @@ export const eliminarVenta =
         loteLiberado:
           lote
             ? {
-                _id:
-                  lote._id,
+              _id:
+                lote._id,
 
-                codigo:
-                  lote.codigo,
+              codigo:
+                lote.codigo,
 
-                estado:
-                  lote.estado,
-              }
+              estado:
+                lote.estado,
+            }
             : null,
       });
     } catch (error) {

@@ -54,6 +54,8 @@ const obtenerFechaActual = () => {
 const crearEstadoInicial = () => ({
   cliente: "",
 
+  vendedor: "",
+
   manzana: "",
 
   lote: "",
@@ -233,6 +235,8 @@ export default function VentaModal({
 
   clientes = [],
 
+  vendedores = [],
+
   manzanas = [],
 
   lotes = [],
@@ -302,6 +306,12 @@ export default function VentaModal({
           ventaEditar.cliente
             ?._id ||
           ventaEditar.cliente ||
+          "",
+
+        vendedor:
+          ventaEditar.vendedor
+            ?._id ||
+          ventaEditar.vendedor ||
           "",
 
         manzana:
@@ -688,6 +698,66 @@ export default function VentaModal({
     ]);
 
   /* =======================================================
+     VENDEDOR SELECCIONADO
+  ======================================================= */
+
+  const vendedorSeleccionado =
+    vendedores.find(
+      (vendedor) =>
+        vendedor._id ===
+        form.vendedor
+    ) || null;
+
+  /* =======================================================
+     VENDEDORES DISPONIBLES
+
+     - Nuevas ventas: solo vendedores activos.
+     - Edición: conservamos visible el vendedor histórico
+       aunque actualmente esté inactivo.
+  ======================================================= */
+
+  const vendedorOriginalId =
+    ventaEditar?.vendedor?._id ||
+    ventaEditar?.vendedor ||
+    "";
+
+  const vendedoresDisponibles =
+    vendedores.filter(
+      (vendedor) =>
+        vendedor.estado ===
+          "Activo" ||
+        vendedor._id ===
+          vendedorOriginalId
+    );
+
+  /* =========================================================
+     COMISIÓN FIJA DE LA VENTA
+
+     Si se conserva el vendedor original,
+     mostramos la comisión histórica guardada
+     en la venta.
+
+     Si se selecciona otro vendedor,
+     mostramos la comisión actual de ese vendedor.
+  ========================================================= */
+
+  const valorComision =
+    ventaEditar &&
+    form.vendedor ===
+      vendedorOriginalId
+      ? Number(
+          ventaEditar.valorComision ??
+            vendedorSeleccionado
+              ?.valorComision ??
+            0
+        )
+      : Number(
+          vendedorSeleccionado
+            ?.valorComision ||
+            0
+        );
+
+  /* =======================================================
      ESCRIBIR EN BUSCADOR
   ======================================================= */
 
@@ -1017,6 +1087,16 @@ export default function VentaModal({
       }
 
       if (
+        !form.vendedor
+      ) {
+        alert(
+          "Debe seleccionar un vendedor"
+        );
+
+        return false;
+      }
+
+      if (
         !form.lote
       ) {
         alert(
@@ -1141,6 +1221,9 @@ export default function VentaModal({
       const datos = {
         cliente:
           form.cliente,
+
+        vendedor:
+          form.vendedor,
 
         fechaVenta:
           form.fechaVenta,
@@ -1484,6 +1567,137 @@ export default function VentaModal({
                 )}
 
               </div>
+
+            </div>
+
+            {/* =====================================
+                VENDEDOR
+            ===================================== */}
+
+            <div className="ventas-section">
+
+              <div className="ventas-section-title">
+
+                <UserRound
+                  size={18}
+                />
+
+                <div>
+                  <span>
+                    Asesor comercial
+                  </span>
+
+                  <h3>
+                    Vendedor
+                  </h3>
+                </div>
+
+              </div>
+
+              <div className="ventas-field">
+
+                <label>
+                  Vendedor *
+                </label>
+
+                <select
+                  name="vendedor"
+                  value={
+                    form.vendedor ||
+                    ""
+                  }
+                  onChange={(e) =>
+                    setForm(
+                      (prev) => ({
+                        ...prev,
+
+                        vendedor:
+                          e.target.value,
+                      })
+                    )
+                  }
+                  disabled={
+                    guardando
+                  }
+                  required
+                >
+                  <option value="">
+                    Seleccione un vendedor
+                  </option>
+
+                  {vendedoresDisponibles.map(
+                    (vendedor) => (
+                      <option
+                        key={
+                          vendedor._id
+                        }
+                        value={
+                          vendedor._id
+                        }
+                      >
+                        {vendedor.codigo} -{" "}
+                        {vendedor.nombres}{" "}
+                        {vendedor.apellidos} -{" "}
+                        {formatearDinero(
+                          vendedor.valorComision
+                        )}
+                        {vendedor.estado ===
+                        "Inactivo"
+                          ? " (Inactivo)"
+                          : ""}
+                      </option>
+                    )
+                  )}
+
+                </select>
+
+              </div>
+
+              {/* =====================================
+                  COMISIÓN ESTIMADA
+              ===================================== */}
+
+              {vendedorSeleccionado && (
+                <div className="venta-comision-info">
+
+                  <div>
+                    <span>
+                      Vendedor
+                    </span>
+
+                    <strong>
+                      {vendedorSeleccionado.codigo} -{" "}
+                      {vendedorSeleccionado.nombres}{" "}
+                      {vendedorSeleccionado.apellidos}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Comisión por lote
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        valorComision
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Valor de la venta
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        form.valorVenta
+                      )}
+                    </strong>
+                  </div>
+
+                </div>
+              )}
 
             </div>
 

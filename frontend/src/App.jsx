@@ -15,12 +15,14 @@ import Pagos from "./pages/Pagos/Pagos";
 import Facturas from "./pages/Facturas/Facturas";
 import Maquinaria from "./pages/Maquinaria/Maquinaria";
 import HorasMaquinaria from "./pages/HorasMaquinaria/HorasMaquinaria";
+import Vendedores from "./pages/Vendedores/Vendedores";
 
 const pages = {
   dashboard: Dashboard,
   clientes: Clientes,
   lotes: Lotes,
   ventas: Ventas,
+  vendedores: Vendedores,
   cuotas: Cuotas,
   pagos: Pagos,
   facturas: Facturas,

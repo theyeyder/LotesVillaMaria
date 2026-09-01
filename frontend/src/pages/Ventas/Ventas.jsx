@@ -36,6 +36,10 @@ import {
 } from "../../services/cliente.service";
 
 import {
+  obtenerVendedores,
+} from "../../services/vendedor.service";
+
+import {
   obtenerManzanas,
 } from "../../services/manzana.service";
 
@@ -147,6 +151,11 @@ export default function Ventas() {
   const [
     clientes,
     setClientes,
+  ] = useState([]);
+
+  const [
+    vendedores,
+    setVendedores,
   ] = useState([]);
 
   const [
@@ -287,6 +296,7 @@ export default function Ventas() {
     setFormulario,
   ] = useState({
     cliente: "",
+    vendedor: "",
     lote: "",
     fechaVenta: "",
     valorVenta: "",
@@ -369,6 +379,36 @@ export default function Ventas() {
     };
 
   /* =======================================================
+     CARGAR VENDEDORES
+  ======================================================= */
+
+  const cargarVendedores =
+    async () => {
+      try {
+        const datos =
+          await obtenerVendedores();
+
+        setVendedores(
+          Array.isArray(
+            datos
+          )
+            ? datos
+            : []
+        );
+      } catch (error) {
+        console.error(
+          "Error cargando vendedores:",
+          error
+        );
+
+        mostrarNotificacion(
+          "No fue posible cargar los vendedores.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
      CARGAR MANZANAS
   ======================================================= */
 
@@ -438,6 +478,7 @@ export default function Ventas() {
         await Promise.all([
           cargarVentas(),
           cargarClientes(),
+          cargarVendedores(),
           cargarManzanas(),
           cargarLotes(),
         ]);
@@ -767,12 +808,31 @@ export default function Ventas() {
             "Disponible"
         );
 
+      const vendedoresActivos =
+        vendedores.filter(
+          (vendedor) =>
+            vendedor.estado ===
+            "Activo"
+        );
+
       if (
         clientes.length ===
         0
       ) {
         mostrarNotificacion(
           "Debe registrar al menos un cliente antes de crear una venta.",
+          "info"
+        );
+
+        return;
+      }
+
+      if (
+        vendedoresActivos.length ===
+        0
+      ) {
+        mostrarNotificacion(
+          "Debe registrar al menos un vendedor activo antes de crear una venta.",
           "info"
         );
 
@@ -797,6 +857,7 @@ export default function Ventas() {
 
       setFormulario({
         cliente: "",
+        vendedor: "",
         lote: "",
         fechaVenta: "",
         valorVenta: "",
@@ -834,6 +895,11 @@ export default function Ventas() {
         cliente:
           venta.cliente?._id ||
           venta.cliente ||
+          "",
+
+        vendedor:
+          venta.vendedor?._id ||
+          venta.vendedor ||
           "",
 
         lote:
@@ -2877,6 +2943,9 @@ export default function Ventas() {
         }
         clientes={
           clientes
+        }
+        vendedores={
+          vendedores
         }
         manzanas={
           manzanas

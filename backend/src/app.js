@@ -10,6 +10,7 @@ import lotesRouter from "./modules/lotes/lote.routes.js";
 import ventasRouter from "./modules/ventas/venta.routes.js";
 import cuotasRouter from "./modules/cuotas/cuota.routes.js";
 import pagosRouter from "./modules/pagos/pago.routes.js";
+import vendedorRoutes from "./modules/vendedores/vendedor.routes.js";
 
 const app = express();
 
@@ -79,6 +80,11 @@ app.use(
 app.use(
   "/api/pagos",
   pagosRouter
+);
+
+app.use(
+  "/api/vendedores",
+  vendedorRoutes
 );
 
 /* =========================================================

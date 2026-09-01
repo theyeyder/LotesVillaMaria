@@ -2,13 +2,13 @@ import mongoose from "mongoose";
 
 const ventaSchema = new mongoose.Schema(
   {
- /* =====================================================
-   CÓDIGO ÚNICO DE LA VENTA
+    /* =====================================================
+      CÓDIGO ÚNICO DE LA VENTA
 
-   VT-0001
-   VT-0002
-   VT-0003...
-===================================================== */
+      VT-0001
+      VT-0002
+      VT-0003...
+    ===================================================== */
 
     codigo: {
       type: String,
@@ -18,7 +18,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       CLIENTE
+      CLIENTE
     ===================================================== */
 
     cliente: {
@@ -31,7 +31,46 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       LOTE
+      VENDEDOR QUE REALIZÓ LA VENTA
+
+      Se deja opcional para no romper
+      ventas antiguas ya guardadas.
+    ===================================================== */
+
+    vendedor: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Vendedor",
+      default: null,
+    },
+
+    /* =====================================================
+      COMISIÓN DEL VENDEDOR POR ESTA VENTA
+
+      La comisión corresponde a un valor fijo
+      por lote vendido.
+
+      Actualmente:
+      $2.000.000 por cada lote.
+
+      Este valor queda guardado dentro de la venta
+      para conservar el histórico.
+
+      NO reduce la deuda del cliente.
+    ===================================================== */
+
+    valorComision: {
+      type: Number,
+
+      default: 0,
+
+      min: [
+        0,
+        "El valor de la comisión no puede ser negativo",
+      ],
+    },
+
+    /* =====================================================
+      LOTE
     ===================================================== */
 
     lote: {
@@ -44,7 +83,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       FECHA DE VENTA
+      FECHA DE VENTA
     ===================================================== */
 
     fechaVenta: {
@@ -54,7 +93,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       VALOR DE LA VENTA
+      VALOR DE LA VENTA
     ===================================================== */
 
     valorVenta: {
@@ -67,7 +106,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       CUOTA INICIAL
+      CUOTA INICIAL
     ===================================================== */
 
     cuotaInicial: {
@@ -77,7 +116,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       SALDO FINANCIADO
+      SALDO FINANCIADO
     ===================================================== */
 
     saldoFinanciar: {
@@ -87,7 +126,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       FORMA DE PAGO
+      FORMA DE PAGO
     ===================================================== */
 
     formaPago: {
@@ -102,7 +141,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       NÚMERO DE CUOTAS
+      NÚMERO DE CUOTAS
     ===================================================== */
 
     numeroCuotas: {
@@ -112,7 +151,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       VALOR DE CUOTA
+      VALOR DE CUOTA
     ===================================================== */
 
     valorCuota: {
@@ -122,18 +161,18 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       ESTADO
+      ESTADO
 
-       Ya NO existe "Anulada".
+      Ya NO existe "Anulada".
 
-       Si una venta se elimina, el registro se borra
-       definitivamente de la colección.
+      Si una venta se elimina, el registro se borra
+      definitivamente de la colección.
 
-       Activa:
-       Todavía tiene saldo pendiente.
+      Activa:
+      Todavía tiene saldo pendiente.
 
-       Pagada:
-       Ya se pagó completamente.
+      Pagada:
+      Ya se pagó completamente.
     ===================================================== */
 
     estado: {
@@ -148,7 +187,7 @@ const ventaSchema = new mongoose.Schema(
     },
 
     /* =====================================================
-       OBSERVACIONES
+      OBSERVACIONES
     ===================================================== */
 
     observaciones: {
@@ -164,7 +203,7 @@ const ventaSchema = new mongoose.Schema(
 );
 
 /* =========================================================
-   ÍNDICES
+  ÍNDICES
 ========================================================= */
 
 ventaSchema.index({
@@ -180,8 +219,13 @@ ventaSchema.index({
   estado: 1,
 });
 
+ventaSchema.index({
+  vendedor: 1,
+  fechaVenta: -1,
+});
+
 /* =========================================================
-   MODELO
+  MODELO
 ========================================================= */
 
 const Venta = mongoose.model(
