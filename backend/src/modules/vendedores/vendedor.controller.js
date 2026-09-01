@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 
 import Vendedor from "./vendedor.model.js";
 
+import Venta from "../ventas/venta.model.js";
+
 import {
   generarCodigoVendedor,
 } from "../consecutivos/consecutivo.service.js";
@@ -158,7 +160,7 @@ export const obtenerVendedores =
       }
 
       /* =========================
-         CONSULTAR
+         CONSULTAR VENDEDORES
       ========================= */
 
       const vendedores =
@@ -166,15 +168,119 @@ export const obtenerVendedores =
           filtro
         )
           .sort({
-            createdAt:
-              -1,
+            createdAt: -1,
           })
           .lean();
+
+      /* =========================
+         RESUMEN DE VENTAS
+         POR VENDEDOR
+      ========================= */
+
+      const vendedoresIds =
+        vendedores.map(
+          (vendedor) =>
+            vendedor._id
+        );
+
+      let resumenVentas = [];
+
+      if (
+        vendedoresIds.length >
+        0
+      ) {
+        resumenVentas =
+          await Venta.aggregate([
+            {
+              $match: {
+                vendedor: {
+                  $in:
+                    vendedoresIds,
+                },
+              },
+            },
+
+            {
+              $group: {
+                _id:
+                  "$vendedor",
+
+                lotesVendidos: {
+                  $sum: 1,
+                },
+
+                comisionesGeneradas: {
+                  $sum: {
+                    $ifNull: [
+                      "$valorComision",
+                      0,
+                    ],
+                  },
+                },
+              },
+            },
+          ]);
+      }
+
+      /* =========================
+         MAPA DE RESUMEN
+      ========================= */
+
+      const resumenPorVendedor =
+        new Map(
+          resumenVentas.map(
+            (item) => [
+              String(item._id),
+
+              {
+                lotesVendidos:
+                  Number(
+                    item.lotesVendidos
+                  ) || 0,
+
+                comisionesGeneradas:
+                  Number(
+                    item.comisionesGeneradas
+                  ) || 0,
+              },
+            ]
+          )
+        );
+
+      /* =========================
+         RESPUESTA COMPLETA
+      ========================= */
+
+      const resultado =
+        vendedores.map(
+          (vendedor) => {
+            const resumen =
+              resumenPorVendedor.get(
+                String(
+                  vendedor._id
+                )
+              );
+
+            return {
+              ...vendedor,
+
+              lotesVendidos:
+                resumen
+                  ?.lotesVendidos ||
+                0,
+
+              comisionesGeneradas:
+                resumen
+                  ?.comisionesGeneradas ||
+                0,
+            };
+          }
+        );
 
       res.status(
         200
       ).json(
-        vendedores
+        resultado
       );
     } catch (error) {
       console.error(
