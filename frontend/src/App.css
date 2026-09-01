@@ -1,27 +1,85 @@
+/* =========================================================
+   ESTRUCTURA GENERAL
+========================================================= */
+
 .app-shell {
   display: flex;
+
   width: 100%;
   min-height: 100vh;
+
+  overflow: hidden;
+
   background: #f5f2e9;
 }
+
+/* =========================================================
+   CONTENIDO PRINCIPAL
+========================================================= */
 
 .app-main {
   display: flex;
   flex: 1;
   flex-direction: column;
+
+  width: 100%;
   min-width: 0;
   min-height: 100vh;
+
+  margin-left: 270px;
+
   background: #f5f2e9;
+
+  transition:
+    margin-left 0.28s ease,
+    width 0.28s ease;
 }
+
+/* =========================================================
+   CONTENIDO DE LOS MÓDULOS
+========================================================= */
 
 .app-content {
   flex: 1;
+
   width: 100%;
   min-width: 0;
+
   overflow-x: hidden;
+
+  transition:
+    width 0.28s ease;
 }
 
-/* Evita que inputs y botones hereden tamaños inconsistentes */
+/*
+  Cuando el menú lateral esté cerrado,
+  el módulo ocupa todo el espacio disponible.
+*/
+
+.app-content-sidebar-closed {
+  width: 100%;
+}
+
+/* =========================================================
+   SIDEBAR ABIERTO
+========================================================= */
+
+.sidebar-open + .app-main {
+  margin-left: 270px;
+}
+
+/* =========================================================
+   SIDEBAR CERRADO
+========================================================= */
+
+.sidebar-closed + .app-main {
+  margin-left: 0;
+}
+
+/* =========================================================
+   ELEMENTOS GENERALES
+========================================================= */
+
 * {
   box-sizing: border-box;
 }
@@ -33,36 +91,67 @@ textarea {
   font-family: inherit;
 }
 
-/* Scroll general */
+/* =========================================================
+   SCROLL GENERAL
+========================================================= */
+
 html {
   scroll-behavior: smooth;
 }
 
 body {
   margin: 0;
+
   min-width: 320px;
   min-height: 100vh;
+
+  overflow-x: hidden;
 }
 
-/* Tablet */
+/* =========================================================
+   TABLET
+========================================================= */
+
 @media (max-width: 950px) {
   .app-main {
-    width: calc(100% - 230px);
+    width: 100%;
+    margin-left: 230px;
+  }
+
+  .app-content {
+    width: 100%;
+  }
+
+  .sidebar-open + .app-main {
+    margin-left: 230px;
+  }
+
+  .sidebar-closed + .app-main {
+    margin-left: 0;
   }
 }
 
-/* Móvil */
+/* =========================================================
+   MÓVIL
+========================================================= */
+
 @media (max-width: 760px) {
   .app-shell {
-    display: block;
+    display: flex;
   }
 
   .app-main {
     width: 100%;
     min-height: 100vh;
+    margin-left: 0;
   }
 
   .app-content {
     width: 100%;
+  }
+
+  .sidebar-open + .app-main,
+  .sidebar-closed + .app-main {
+    margin-left: 0;
   }
 }

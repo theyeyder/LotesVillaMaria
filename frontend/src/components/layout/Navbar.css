@@ -143,7 +143,153 @@
   box-shadow: 0 10px 22px rgba(31, 104, 72, 0.22);
 }
 
-@media (max-width: 1100px) {
+/* =========================================================
+   BOTÓN FIJO DEL MENÚ
+   SIEMPRE EN EL LADO IZQUIERDO
+========================================================= */
+
+.navbar-menu-button {
+  position: fixed;
+
+  top: 24px;
+  left: 18px;
+
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(217, 170, 88, 0.45);
+
+  border-radius: 11px;
+
+  background: #fffaf0;
+
+  color: #173f2e;
+
+  box-shadow:
+    0 6px 18px
+    rgba(0, 0, 0, 0.14);
+
+  cursor: pointer;
+
+  z-index: 1200;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+/* ABIERTO Y CERRADO:
+   EL BOTÓN NO CAMBIA DE POSICIÓN */
+
+.navbar-menu-button-sidebar-open,
+.navbar-menu-button-sidebar-closed {
+  left: 18px;
+}
+
+/* HOVER */
+
+.navbar-menu-button:hover {
+  background: #d9aa58;
+
+  color: #173f2e;
+
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(0, 0, 0, 0.18);
+}
+
+/* =========================================================
+   CUANDO EL SIDEBAR ESTÁ CERRADO
+
+   Dejamos espacio para que el botón no tape
+   el título del Navbar.
+========================================================= */
+
+.navbar:has(
+  .navbar-menu-button-sidebar-closed
+) {
+  padding-left: 78px;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
+
+@media (max-width: 950px) {
+  .navbar-menu-button,
+  .navbar-menu-button-sidebar-open,
+  .navbar-menu-button-sidebar-closed {
+    top: 22px;
+    left: 16px;
+  }
+
+  .navbar:has(
+    .navbar-menu-button-sidebar-closed
+  ) {
+    padding-left: 74px;
+  }
+}
+
+/* =========================================================
+   MÓVIL
+========================================================= */
+
+@media (max-width: 760px) {
+  .navbar-menu-button,
+  .navbar-menu-button-sidebar-open,
+  .navbar-menu-button-sidebar-closed {
+    top: 16px;
+    left: 16px;
+  }
+
+  .navbar {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding:
+      16px 18px 16px 72px;
+  }
+
+  .navbar:has(
+    .navbar-menu-button-sidebar-closed
+  ) {
+    padding-left: 72px;
+  }
+
+  .navbar-actions {
+    width: 100%;
+
+    justify-content:
+      flex-start;
+
+    flex-wrap: wrap;
+  }
+
+  .navbar-search {
+    flex: 1 1 100%;
+
+    width: auto;
+  }
+
+  .navbar-payment-button {
+    flex: 1;
+  }
+}
+
+@media (max-width: 1100px) and (min-width: 761px) {
   .navbar {
     align-items: flex-start;
     flex-direction: column;
@@ -157,23 +303,5 @@
   .navbar-search {
     flex: 1;
     width: auto;
-  }
-}
-
-@media (max-width: 720px) {
-  .navbar {
-    padding: 16px 18px;
-  }
-
-  .navbar-actions {
-    flex-wrap: wrap;
-  }
-
-  .navbar-search {
-    flex: 1 1 100%;
-  }
-
-  .navbar-payment-button {
-    flex: 1;
   }
 }

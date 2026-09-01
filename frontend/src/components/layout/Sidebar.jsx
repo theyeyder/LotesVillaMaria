@@ -10,6 +10,7 @@ import {
   Tractor,
   Clock3,
   LogOut,
+  Menu,
 } from "lucide-react";
 
 import "./Sidebar.css";
@@ -71,83 +72,156 @@ export default function Sidebar({
   active,
   onNavigate,
   onLogout,
+  abierto = true,
+  onToggleSidebar,
 }) {
   return (
-    <aside className="sidebar">
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-mark">
-          VM
-        </div>
+    <>
+      {/* =================================================
+          BOTÓN FIJO ABRIR / CERRAR PANEL
+      ================================================= */}
 
-        <div>
-          <h2>Villa María</h2>
-          <span>Gestión de lotes</span>
-        </div>
-      </div>
+      <button
+        type="button"
+        className={`sidebar-toggle-button ${
+          abierto
+            ? "sidebar-toggle-open"
+            : "sidebar-toggle-closed"
+        }`}
+        onClick={onToggleSidebar}
+        title={
+          abierto
+            ? "Ocultar módulos"
+            : "Mostrar módulos"
+        }
+        aria-label={
+          abierto
+            ? "Ocultar módulos"
+            : "Mostrar módulos"
+        }
+      >
+        <Menu size={22} />
+      </button>
 
-      <div className="sidebar-section-title">
-        Menú principal
-      </div>
+      {/* =================================================
+          PANEL LATERAL
+      ================================================= */}
 
-      <nav className="sidebar-nav">
-        {menuItems.map((item) => {
-          const Icon = item.icon;
+      <aside
+        className={`sidebar ${
+          abierto
+            ? "sidebar-open"
+            : "sidebar-closed"
+        }`}
+      >
+        {/* ===============================================
+            MARCA
+        =============================================== */}
 
-          const isActive =
-            active === item.id;
-
-          return (
-            <button
-              key={item.id}
-              type="button"
-              className={`sidebar-item ${
-                isActive
-                  ? "sidebar-item-active"
-                  : ""
-              }`}
-              onClick={() =>
-                onNavigate(item.id)
-              }
-            >
-              <Icon size={19} />
-
-              <span>
-                {item.label}
-              </span>
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="sidebar-footer">
-        <div className="sidebar-user">
-          <div className="sidebar-user-avatar">
-            A
+        <div className="sidebar-brand">
+          <div className="sidebar-brand-mark">
+            VM
           </div>
 
-          <div className="sidebar-user-info">
-            <strong>
-              Administrador
-            </strong>
+          <div>
+            <h2>
+              Villa María
+            </h2>
 
             <span>
-              @admin
+              Gestión de lotes
             </span>
           </div>
         </div>
 
-        <button
-          type="button"
-          className="sidebar-logout"
-          onClick={onLogout}
-        >
-          <LogOut size={18} />
+        {/* ===============================================
+            MENÚ
+        =============================================== */}
 
-          <span>
-            Cerrar sesión
-          </span>
-        </button>
-      </div>
-    </aside>
+        <div className="sidebar-section-title">
+          Menú principal
+        </div>
+
+        <nav className="sidebar-nav">
+          {menuItems.map(
+            (item) => {
+              const Icon =
+                item.icon;
+
+              const isActive =
+                active ===
+                item.id;
+
+              return (
+                <button
+                  key={
+                    item.id
+                  }
+                  type="button"
+                  className={`sidebar-item ${
+                    isActive
+                      ? "sidebar-item-active"
+                      : ""
+                  }`}
+                  onClick={() =>
+                    onNavigate(
+                      item.id
+                    )
+                  }
+                >
+                  <Icon
+                    size={19}
+                  />
+
+                  <span>
+                    {
+                      item.label
+                    }
+                  </span>
+                </button>
+              );
+            }
+          )}
+        </nav>
+
+        {/* ===============================================
+            PIE
+        =============================================== */}
+
+        <div className="sidebar-footer">
+          <div className="sidebar-user">
+            <div className="sidebar-user-avatar">
+              A
+            </div>
+
+            <div className="sidebar-user-info">
+              <strong>
+                Administrador
+              </strong>
+
+              <span>
+                @admin
+              </span>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="sidebar-logout"
+            onClick={
+              onLogout
+            }
+          >
+            <LogOut
+              size={18}
+            />
+
+            <span>
+              Cerrar sesión
+            </span>
+          </button>
+        </div>
+      </aside>
+    </>
   );
 }

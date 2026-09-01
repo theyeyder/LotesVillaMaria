@@ -5,6 +5,7 @@ import {
 } from "react";
 
 import {
+  BadgeDollarSign,
   CalendarDays,
   CheckCircle2,
   Edit3,
@@ -116,6 +117,31 @@ const obtenerNombreCliente = (
     cliente.nombre ||
     cliente.razonSocial ||
     "Cliente"
+  );
+};
+
+/* =========================================================
+   NOMBRE DEL VENDEDOR
+========================================================= */
+
+const obtenerNombreVendedor = (
+  vendedor
+) => {
+  if (!vendedor) {
+    return "Sin vendedor";
+  }
+
+  const nombre = [
+    vendedor.nombres,
+    vendedor.apellidos,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+
+  return (
+    nombre ||
+    "Vendedor"
   );
 };
 
@@ -544,13 +570,29 @@ export default function Ventas() {
 
           const contenido = [
             venta.codigo,
+
             cliente,
+
             documento,
+
+            venta.vendedor?.codigo,
+
+            obtenerNombreVendedor(
+              venta.vendedor
+            ),
+
+            venta.vendedor?.documento,
+
             lote?.codigo,
+
             lote?.numeroLote,
+
             manzana?.codigo,
+
             manzana?.nombre,
+
             venta.estado,
+
             venta.formaPago,
           ]
             .filter(Boolean)
@@ -1666,6 +1708,9 @@ export default function Ventas() {
               const cliente =
                 venta.cliente;
 
+              const vendedor =
+                venta.vendedor;
+
               const lote =
                 venta.lote;
 
@@ -1699,6 +1744,25 @@ export default function Ventas() {
                     ${escaparHTML(
                       cliente?.documento ||
                       "Sin documento"
+                    )}
+
+                  </td>
+
+                  <td class="texto-izquierda">
+
+                    <strong>
+                      ${escaparHTML(
+                        vendedor?.codigo ||
+                        "—"
+                      )}
+                    </strong>
+
+                    <br />
+
+                    ${escaparHTML(
+                      obtenerNombreVendedor(
+                        vendedor
+                      )
                     )}
 
                   </td>
@@ -1741,6 +1805,14 @@ export default function Ventas() {
                     ${escaparHTML(
                       formatearDinero(
                         venta.valorVenta
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        venta.valorComision
                       )
                     )}
                   </td>
@@ -1897,6 +1969,10 @@ export default function Ventas() {
               </th>
 
               <th>
+                Vendedor
+              </th>
+
+              <th>
                 Lote
               </th>
 
@@ -1906,6 +1982,10 @@ export default function Ventas() {
 
               <th>
                 Valor venta
+              </th>
+
+              <th>
+                Comisión
               </th>
 
               <th>
@@ -1951,6 +2031,9 @@ export default function Ventas() {
     ) => {
       const cliente =
         venta.cliente;
+
+      const vendedor =
+        venta.vendedor;
 
       const lote =
         venta.lote;
@@ -2040,6 +2123,22 @@ export default function Ventas() {
               ${escaparHTML(
                 cliente?.documento ||
                 "—"
+              )}
+            </strong>
+          </div>
+
+          <div class="dato">
+            <span>
+              Vendedor
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                vendedor
+                  ? `${vendedor.codigo || ""} - ${obtenerNombreVendedor(
+                      vendedor
+                    )}`
+                  : "Sin vendedor"
               )}
             </strong>
           </div>
@@ -2435,7 +2534,7 @@ export default function Ventas() {
                   e.target.value
                 )
               }
-              placeholder="Buscar por venta, cliente, documento, lote o manzana..."
+              placeholder="Buscar por venta, cliente, vendedor, documento, lote o manzana..."
             />
           </div>
 
@@ -2509,6 +2608,10 @@ export default function Ventas() {
                 </th>
 
                 <th>
+                  Vendedor
+                </th>
+
+                <th>
                   Lote
                 </th>
 
@@ -2518,6 +2621,10 @@ export default function Ventas() {
 
                 <th>
                   Valor venta
+                </th>
+
+                <th>
+                  Comisión
                 </th>
 
                 <th>
@@ -2547,7 +2654,7 @@ export default function Ventas() {
               {cargando ? (
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="12"
                     className="ventas-empty"
                   >
                     <RefreshCw
@@ -2564,7 +2671,7 @@ export default function Ventas() {
                 0 ? (
                 <tr>
                   <td
-                    colSpan="10"
+                    colSpan="12"
                     className="ventas-empty"
                   >
                     <ShoppingCart
@@ -2587,6 +2694,9 @@ export default function Ventas() {
                   (venta) => {
                     const cliente =
                       venta.cliente;
+
+                    const vendedor =
+                      venta.vendedor;
 
                     const lote =
                       venta.lote;
@@ -2652,6 +2762,33 @@ export default function Ventas() {
                           </div>
                         </td>
 
+                        {/* VENDEDOR */}
+
+                        <td>
+                          <div className="venta-vendedor-cell">
+
+                            <UserRound
+                              size={16}
+                            />
+
+                            <div>
+
+                              <strong>
+                                {obtenerNombreVendedor(
+                                  vendedor
+                                )}
+                              </strong>
+
+                              <span>
+                                {vendedor?.codigo ||
+                                  "Venta antigua"}
+                              </span>
+
+                            </div>
+
+                          </div>
+                        </td>
+
                         {/* LOTE */}
 
                         <td>
@@ -2708,6 +2845,24 @@ export default function Ventas() {
                           </strong>
                         </td>
 
+                        {/* COMISIÓN */}
+
+                        <td>
+                          <div className="venta-comision-cell">
+
+                            <BadgeDollarSign
+                              size={15}
+                            />
+
+                            <strong>
+                              {formatearDinero(
+                                venta.valorComision
+                              )}
+                            </strong>
+
+                          </div>
+                        </td>
+
                         {/* INICIAL */}
 
                         <td>
@@ -2722,13 +2877,13 @@ export default function Ventas() {
 
                         <td>
                           <strong
-                            className={`venta-saldo ${
+                            className={`venta-saldo ${(
                               Number(
                                 venta.saldoFinanciar
                               ) === 0
                                 ? "venta-saldo-cero"
                                 : ""
-                            }`}
+                            )}`}
                           >
                             {formatearDinero(
                               venta.saldoFinanciar

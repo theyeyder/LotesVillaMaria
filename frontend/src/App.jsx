@@ -37,6 +37,13 @@ export default function App() {
 
   const [active, setActive] = useState("dashboard");
   const [search, setSearch] = useState("");
+  const [sidebarAbierto, setSidebarAbierto] = useState(true);
+
+  const toggleSidebar = () => {
+    setSidebarAbierto(
+      (estado) => !estado
+    );
+  };
 
   const login = () => {
     sessionStorage.setItem("vm-admin-demo", "1");
@@ -67,9 +74,17 @@ export default function App() {
         active={active}
         onNavigate={navigate}
         onLogout={logout}
+        abierto={sidebarAbierto}
+        onToggleSidebar={toggleSidebar}
       />
 
-      <main className="app-main">
+      <main
+        className={`app-main ${
+          sidebarAbierto
+            ? ""
+            : "app-main-sidebar-closed"
+        }`}
+      >
         <Navbar
           active={active}
           search={search}
@@ -77,7 +92,13 @@ export default function App() {
           onNewPayment={() => navigate("pagos")}
         />
 
-        <div className="app-content">
+        <div
+          className={`app-content ${
+            sidebarAbierto
+              ? ""
+              : "app-content-sidebar-closed"
+          }`}
+        >
           <Page
             search={search}
             onNavigate={navigate}

@@ -1,125 +1,410 @@
+/* =========================================================
+   SIDEBAR
+========================================================= */
+/* =========================================================
+   BOTÓN FIJO ABRIR / CERRAR SIDEBAR
+========================================================= */
+
+.sidebar-toggle-button {
+  position: fixed;
+
+  top: 28px;
+  left: 18px;
+
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  padding: 0;
+
+  border:
+    1px solid
+    rgba(217, 170, 88, 0.45);
+
+  border-radius: 10px;
+
+  background: #fffaf0;
+
+  color: #173f2e;
+
+  box-shadow:
+    0 5px 15px
+    rgba(0, 0, 0, 0.16);
+
+  cursor: pointer;
+
+  z-index: 1200;
+
+  transition:
+    background 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+/* =========================================================
+   SIDEBAR ABIERTO
+========================================================= */
+
+.sidebar-toggle-open {
+  top: 28px;
+  left: 18px;
+
+  background: #fffaf0;
+
+  color: #173f2e;
+}
+
+/* =========================================================
+   SIDEBAR CERRADO
+========================================================= */
+
+.sidebar-toggle-closed {
+  top: 18px;
+  left: 18px;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  border-color: #173f2e;
+
+  box-shadow:
+    0 6px 18px
+    rgba(23, 63, 46, 0.22);
+}
+
+/* =========================================================
+   HOVER
+========================================================= */
+
+.sidebar-toggle-button:hover {
+  transform:
+    translateY(-1px);
+
+  background: #d9aa58;
+
+  color: #173f2e;
+
+  border-color: #d9aa58;
+
+  box-shadow:
+    0 7px 18px
+    rgba(0, 0, 0, 0.2);
+}
 .sidebar {
-  position: sticky;
+  position: fixed;
+
   top: 0;
+  left: 0;
+
   display: flex;
   flex-direction: column;
+
   width: 270px;
   min-width: 270px;
   height: 100vh;
+
   padding: 22px 16px 18px;
+
   background:
-    radial-gradient(circle at top left, rgba(217, 170, 88, 0.09), transparent 24%),
-    linear-gradient(180deg, #173f2e 0%, #123526 100%);
+    radial-gradient(
+      circle at top left,
+      rgba(217, 170, 88, 0.09),
+      transparent 24%
+    ),
+    linear-gradient(
+      180deg,
+      #173f2e 0%,
+      #123526 100%
+    );
+
   color: #ffffff;
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 10px 0 30px rgba(14, 37, 26, 0.12);
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.06);
+
+  box-shadow:
+    10px 0 30px
+    rgba(14, 37, 26, 0.12);
+
+  overflow-x: hidden;
   overflow-y: auto;
+
   z-index: 100;
+
+  transition:
+    width 0.28s ease,
+    min-width 0.28s ease,
+    padding 0.28s ease,
+    transform 0.28s ease,
+    border 0.28s ease,
+    box-shadow 0.28s ease;
 }
+
+/* =========================================================
+   SIDEBAR ABIERTO
+========================================================= */
+
+.sidebar-open {
+  width: 270px;
+  min-width: 270px;
+
+  padding:
+    22px 16px 18px;
+
+  transform:
+    translateX(0);
+}
+
+/* =========================================================
+   SIDEBAR CERRADO
+========================================================= */
+
+.sidebar-closed {
+  width: 0;
+  min-width: 0;
+
+  padding-left: 0;
+  padding-right: 0;
+
+  border-right: 0;
+
+  box-shadow: none;
+
+  overflow: hidden;
+}
+
+/*
+  Ocultamos el contenido interno
+  mientras el panel está cerrado.
+*/
+
+.sidebar-closed
+.sidebar-brand,
+.sidebar-closed
+.sidebar-section-title,
+.sidebar-closed
+.sidebar-nav,
+.sidebar-closed
+.sidebar-footer {
+  opacity: 0;
+
+  pointer-events: none;
+
+  visibility: hidden;
+
+  transition:
+    opacity 0.12s ease,
+    visibility 0.12s ease;
+}
+
+/* =========================================================
+   MARCA
+========================================================= */
 
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 4px 6px 24px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  gap: 9px;
+
+  /*
+    Reservamos el lado izquierdo
+    para el botón fijo ☰
+  */
+  padding:
+    4px 4px 24px 58px;
+
+  min-height: 70px;
+
+  border-bottom:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  opacity: 1;
+
+  transition:
+    opacity 0.18s ease;
 }
 
 .sidebar-brand-mark {
   display: grid;
   place-items: center;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
-  border-radius: 14px;
-  background: linear-gradient(145deg, #d9aa58, #ba8330);
+
+  width: 42px;
+  height: 42px;
+
+  flex:
+    0 0 42px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      #d9aa58,
+      #ba8330
+    );
+
   color: #173f2e;
+
   font-size: 15px;
   font-weight: 900;
+
   letter-spacing: 0.06em;
+
   box-shadow:
-    0 8px 18px rgba(0, 0, 0, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.28);
+    0 8px 18px
+      rgba(0, 0, 0, 0.18),
+    inset 0 1px 0
+      rgba(255, 255, 255, 0.28);
 }
 
 .sidebar-brand h2 {
   margin: 0;
+
   color: #fff8ec;
-  font-size: 19px;
+
+  font-size: 17px;
   line-height: 1.15;
+
+  white-space: nowrap;
 }
 
 .sidebar-brand span {
   display: inline-block;
+
   margin-top: 4px;
+
   color: #bfcfc4;
+
   font-size: 12px;
+
+  white-space: nowrap;
 }
 
+/* =========================================================
+   TÍTULO DE SECCIÓN
+========================================================= */
+
 .sidebar-section-title {
-  padding: 22px 10px 10px;
+  padding:
+    22px 10px 10px;
+
   color: #d9aa58;
+
   font-size: 10px;
   font-weight: 900;
+
   letter-spacing: 0.16em;
+
   text-transform: uppercase;
+
+  white-space: nowrap;
 }
+
+/* =========================================================
+   NAVEGACIÓN
+========================================================= */
 
 .sidebar-nav {
   display: flex;
   flex-direction: column;
+
   gap: 5px;
 }
 
 .sidebar-item {
   position: relative;
+
   display: flex;
   align-items: center;
+
   gap: 12px;
+
   width: 100%;
   min-height: 46px;
-  padding: 0 13px;
-  border: 1px solid transparent;
+
+  padding:
+    0 13px;
+
+  border:
+    1px solid transparent;
+
   border-radius: 12px;
-  background: transparent;
+
+  background:
+    transparent;
+
   color: #d5e0d8;
+
   font-size: 14px;
   font-weight: 650;
+
   text-align: left;
+
   cursor: pointer;
+
+  white-space: nowrap;
+
   transition:
     background 0.18s ease,
     color 0.18s ease,
     transform 0.18s ease,
-    border 0.18s ease;
+    border-color 0.18s ease;
 }
 
 .sidebar-item svg {
-  flex: 0 0 auto;
+  flex:
+    0 0 auto;
+
   color: #9cb5a4;
-  transition: color 0.18s ease;
+
+  transition:
+    color 0.18s ease;
 }
 
 .sidebar-item:hover {
-  transform: translateX(2px);
-  background: rgba(255, 255, 255, 0.07);
+  transform:
+    translateX(2px);
+
+  background:
+    rgba(255, 255, 255, 0.07);
+
   color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.04);
+
+  border-color:
+    rgba(255, 255, 255, 0.04);
 }
 
 .sidebar-item:hover svg {
   color: #e4c280;
 }
 
+/* =========================================================
+   ELEMENTO ACTIVO
+========================================================= */
+
 .sidebar-item-active {
-  background: linear-gradient(
-    90deg,
-    rgba(217, 170, 88, 0.18),
-    rgba(217, 170, 88, 0.08)
-  );
+  background:
+    linear-gradient(
+      90deg,
+      rgba(217, 170, 88, 0.18),
+      rgba(217, 170, 88, 0.08)
+    );
+
   color: #fff7e9;
-  border-color: rgba(217, 170, 88, 0.18);
-  box-shadow: inset 3px 0 0 #d9aa58;
+
+  border-color:
+    rgba(217, 170, 88, 0.18);
+
+  box-shadow:
+    inset 3px 0 0
+    #d9aa58;
 }
 
 .sidebar-item-active svg {
@@ -128,38 +413,72 @@
 
 .sidebar-item-active::after {
   content: "";
+
   position: absolute;
+
   right: 12px;
+
   width: 5px;
   height: 5px;
+
   border-radius: 50%;
+
   background: #d9aa58;
-  box-shadow: 0 0 9px rgba(217, 170, 88, 0.65);
+
+  box-shadow:
+    0 0 9px
+    rgba(217, 170, 88, 0.65);
 }
+
+/* =========================================================
+   PIE
+========================================================= */
 
 .sidebar-footer {
   margin-top: auto;
+
   padding-top: 18px;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+  border-top:
+    1px solid
+    rgba(255, 255, 255, 0.08);
 }
+
+/* =========================================================
+   USUARIO
+========================================================= */
 
 .sidebar-user {
   display: flex;
   align-items: center;
+
   gap: 11px;
-  padding: 11px 8px;
+
+  padding:
+    11px 8px;
 }
 
 .sidebar-user-avatar {
   display: grid;
   place-items: center;
+
   width: 38px;
   height: 38px;
-  flex: 0 0 38px;
+
+  flex:
+    0 0 38px;
+
   border-radius: 11px;
-  background: rgba(217, 170, 88, 0.16);
-  border: 1px solid rgba(217, 170, 88, 0.28);
+
+  background:
+    rgba(217, 170, 88, 0.16);
+
+  border:
+    1px solid
+    rgba(217, 170, 88, 0.28);
+
   color: #e9c986;
+
   font-size: 14px;
   font-weight: 900;
 }
@@ -167,83 +486,262 @@
 .sidebar-user-info {
   display: flex;
   flex-direction: column;
+
   min-width: 0;
 }
 
 .sidebar-user-info strong {
   overflow: hidden;
+
   color: #fff7ec;
+
   font-size: 13px;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
+  text-overflow:
+    ellipsis;
+
+  white-space:
+    nowrap;
 }
 
 .sidebar-user-info span {
   margin-top: 2px;
+
   color: #9eb1a3;
+
   font-size: 11px;
 }
+
+/* =========================================================
+   CERRAR SESIÓN
+========================================================= */
 
 .sidebar-logout {
   display: flex;
   align-items: center;
   justify-content: center;
+
   gap: 8px;
+
   width: 100%;
   min-height: 42px;
+
   margin-top: 7px;
-  border: 1px solid rgba(239, 151, 151, 0.15);
+
+  border:
+    1px solid
+    rgba(239, 151, 151, 0.15);
+
   border-radius: 11px;
-  background: rgba(173, 68, 68, 0.08);
+
+  background:
+    rgba(173, 68, 68, 0.08);
+
   color: #e9b2b2;
+
   font-size: 13px;
   font-weight: 700;
+
   cursor: pointer;
+
+  white-space: nowrap;
+
   transition:
     background 0.18s ease,
-    border 0.18s ease,
+    border-color 0.18s ease,
     color 0.18s ease;
 }
 
 .sidebar-logout:hover {
-  background: rgba(173, 68, 68, 0.16);
-  border-color: rgba(239, 151, 151, 0.25);
+  background:
+    rgba(173, 68, 68, 0.16);
+
+  border-color:
+    rgba(239, 151, 151, 0.25);
+
   color: #ffd2d2;
 }
+
+/* =========================================================
+   SCROLL
+========================================================= */
 
 .sidebar::-webkit-scrollbar {
   width: 6px;
 }
 
 .sidebar::-webkit-scrollbar-track {
-  background: transparent;
+  background:
+    transparent;
 }
 
 .sidebar::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
+  border-radius:
+    999px;
+
+  background:
+    rgba(255, 255, 255, 0.12);
 }
 
-/* Responsive */
+/* =========================================================
+   APP MAIN - CONTENEDOR PRINCIPAL
+========================================================= */
+
+.app-main {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+
+  min-height: 100vh;
+
+  margin-left: 270px;
+
+  transition:
+    margin-left 0.28s ease;
+}
+
+/*
+  Cuando el sidebar está cerrado,
+  el contenido ocupa todo el ancho.
+*/
+
+.app-main-sidebar-closed {
+  margin-left: 0;
+}
+
+/* =========================================================
+   APP CONTENT - CONTENIDO DE LA PÁGINA
+========================================================= */
+
+.app-content {
+  flex: 1;
+
+  padding: 20px 28px 32px;
+
+  transition:
+    padding 0.28s ease;
+}
+
+/* =========================================================
+   TABLET
+========================================================= */
 
 @media (max-width: 950px) {
-  .sidebar {
+  .sidebar-open {
     width: 230px;
     min-width: 230px;
+  }
+
+  .sidebar-closed {
+    width: 0;
+    min-width: 0;
   }
 
   .sidebar-item {
     font-size: 13px;
   }
+
+  .app-main {
+    margin-left: 230px;
+  }
+
+  .app-main-sidebar-closed {
+    margin-left: 0;
+  }
+
+  .sidebar-brand {
+    gap: 8px;
+
+    padding:
+      4px 2px 24px 52px;
+  }
+
+  .sidebar-brand-mark {
+    width: 40px;
+    height: 40px;
+
+    flex:
+      0 0 40px;
+  }
+
+  .sidebar-brand h2 {
+    font-size: 16px;
+  }
 }
+
+/* =========================================================
+   MÓVIL
+========================================================= */
 
 @media (max-width: 760px) {
   .sidebar {
     position: fixed;
+
     left: 0;
     top: 0;
+
     width: 260px;
     min-width: 260px;
-    transform: translateX(-100%);
+
+    padding:
+      22px 16px 18px;
+
+    box-shadow:
+      12px 0 35px
+      rgba(0, 0, 0, 0.22);
+  }
+
+  .sidebar-open {
+    width: 260px;
+    min-width: 260px;
+
+    transform:
+      translateX(0);
+  }
+
+  .sidebar-closed {
+    width: 260px;
+    min-width: 260px;
+
+    transform:
+      translateX(-105%);
+
+    border-right:
+      1px solid
+      rgba(255, 255, 255, 0.06);
+
+    box-shadow: none;
+  }
+
+  .app-main {
+    margin-left: 0;
+  }
+
+  .app-main-sidebar-closed {
+    margin-left: 0;
+  }
+
+  .app-content {
+    padding: 16px 14px 24px;
+  }
+
+  .sidebar-brand {
+    gap: 8px;
+
+    padding:
+      4px 2px 24px 52px;
+  }
+
+  .sidebar-brand-mark {
+    width: 40px;
+    height: 40px;
+
+    flex:
+      0 0 40px;
+  }
+
+  .sidebar-brand h2 {
+    font-size: 16px;
   }
 }

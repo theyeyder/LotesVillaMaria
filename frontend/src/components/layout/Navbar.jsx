@@ -27,6 +27,11 @@ const titles = {
     subtitle: "Control de ventas realizadas",
   },
 
+  vendedores: {
+    title: "Vendedores",
+    subtitle: "Gestión de vendedores y comisiones",
+  },
+
   cuotas: {
     title: "Cuotas",
     subtitle: "Seguimiento de cuotas y vencimientos",
@@ -60,10 +65,16 @@ export default function Navbar({
   onNewPayment,
 }) {
   const page =
-    titles[active] || titles.dashboard;
+    titles[active] ||
+    titles.dashboard;
 
   return (
     <header className="navbar">
+
+      {/* =============================================
+          TÍTULO
+      ============================================= */}
+
       <div className="navbar-title">
         <span className="navbar-kicker">
           Lotes Villa María
@@ -78,15 +89,23 @@ export default function Navbar({
         </p>
       </div>
 
+      {/* =============================================
+          ACCIONES
+      ============================================= */}
+
       <div className="navbar-actions">
         <div className="navbar-search">
           <Search size={18} />
 
           <input
             type="text"
-            value={search}
+            value={
+              search || ""
+            }
             onChange={(e) =>
-              onSearch?.(e.target.value)
+              onSearch?.(
+                e.target.value
+              )
             }
             placeholder="Buscar..."
           />
@@ -103,9 +122,13 @@ export default function Navbar({
         <button
           type="button"
           className="navbar-payment-button"
-          onClick={onNewPayment}
+          onClick={
+            onNewPayment
+          }
         >
-          <CircleDollarSign size={19} />
+          <CircleDollarSign
+            size={19}
+          />
 
           Registrar pago
         </button>
