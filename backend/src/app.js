@@ -12,6 +12,7 @@ import cuotasRouter from "./modules/cuotas/cuota.routes.js";
 import pagosRouter from "./modules/pagos/pago.routes.js";
 import vendedorRoutes from "./modules/vendedores/vendedor.routes.js";
 import comisionRoutes from "./modules/comisiones/comision.routes.js";
+import egresoRoutes from "./modules/egresos/egreso.routes.js";
 
 const app = express();
 
@@ -91,6 +92,10 @@ app.use(
 app.use(
   "/api/comisiones",
   comisionRoutes
+);
+app.use(
+  "/api/egresos",
+  egresoRoutes
 );
 
 /* =========================================================

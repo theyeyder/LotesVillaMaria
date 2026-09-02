@@ -4,7 +4,7 @@ import Venta from "../ventas/venta.model.js";
 import Cuota from "../cuotas/cuota.model.js";
 import Vendedor from "../vendedores/vendedor.model.js";
 import Comision from "../comisiones/comision.model.js";
-
+import Egreso from "../egresos/egreso.model.js";
 /* =========================================================
    EXTRAER NÚMERO DE UN CÓDIGO
 ========================================================= */
@@ -930,6 +930,161 @@ export const generarCodigoComision =
     }
 
     return `CM-${String(
+      numero
+    ).padStart(
+      4,
+      "0"
+    )}`;
+  };
+  /* =========================================================
+   OBTENER MAYOR NÚMERO DE EGRESOS EXISTENTES
+
+   EG-0001
+   EG-0002
+   EG-0003
+========================================================= */
+
+const obtenerMayorNumeroEgresos =
+  async () => {
+    const egresos =
+      await Egreso.find({
+        codigo: {
+          $regex: /^EG-\d+$/i,
+        },
+      })
+        .select("codigo -_id")
+        .lean();
+
+    let mayorNumero = 0;
+
+    for (const egreso of egresos) {
+      const coincidencia =
+        String(
+          egreso.codigo || ""
+        ).match(
+          /^EG-(\d+)$/i
+        );
+
+      const numero =
+        coincidencia
+          ? Number(
+              coincidencia[1]
+            )
+          : 0;
+
+      if (
+        Number.isInteger(numero) &&
+        numero > mayorNumero
+      ) {
+        mayorNumero =
+          numero;
+      }
+    }
+
+    return mayorNumero;
+  };
+
+/* =========================================================
+   SINCRONIZAR CONSECUTIVO DE EGRESOS
+========================================================= */
+
+const sincronizarConsecutivoEgreso =
+  async () => {
+    const mayorNumeroEgresos =
+      await obtenerMayorNumeroEgresos();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "egreso",
+        },
+        {
+          $setOnInsert: {
+            tipo: "egreso",
+            ultimoNumero:
+              mayorNumeroEgresos,
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+        }
+      );
+
+    if (
+      Number(
+        consecutivo?.ultimoNumero ||
+          0
+      ) <
+      mayorNumeroEgresos
+    ) {
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "egreso",
+
+          ultimoNumero: {
+            $lt:
+              mayorNumeroEgresos,
+          },
+        },
+        {
+          $set: {
+            ultimoNumero:
+              mayorNumeroEgresos,
+          },
+        }
+      );
+    }
+  };
+
+/* =========================================================
+   GENERAR CÓDIGO DE EGRESO
+
+   EG-0001
+   EG-0002
+   EG-0003
+========================================================= */
+
+export const generarCodigoEgreso =
+  async () => {
+    await sincronizarConsecutivoEgreso();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "egreso",
+        },
+        {
+          $inc: {
+            ultimoNumero: 1,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+    if (!consecutivo) {
+      throw new Error(
+        "No fue posible generar el consecutivo del egreso"
+      );
+    }
+
+    const numero =
+      Number(
+        consecutivo.ultimoNumero
+      );
+
+    if (
+      !Number.isInteger(numero) ||
+      numero <= 0
+    ) {
+      throw new Error(
+        "El consecutivo generado para el egreso no es válido"
+      );
+    }
+
+    return `EG-${String(
       numero
     ).padStart(
       4,

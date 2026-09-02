@@ -8,16 +8,27 @@ import {
   BadgeDollarSign,
   CircleCheckBig,
   Clock3,
+  HandCoins,
+  History,
+  Printer,
   RefreshCw,
+  Save,
   Search,
   UserRound,
   WalletCards,
+  X,
 } from "lucide-react";
 
 import {
   obtenerComisiones,
   sincronizarComisiones,
 } from "../../services/comision.service";
+
+import {
+  abonarComision,
+  obtenerPagosComision,
+  pagarSaldoComision,
+} from "../../services/egreso.service";
 
 import Toast from "../../components/ui/Toast";
 
@@ -39,6 +50,53 @@ const formatearDinero = (
     }
   ).format(
     Number(valor) || 0
+  );
+};
+
+/* =========================================================
+   ESCAPAR HTML PARA IMPRESIÓN
+========================================================= */
+
+const escaparHTML = (
+  valor = ""
+) => {
+  return String(
+    valor ?? ""
+  )
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+/* =========================================================
+   FORMATEAR VALOR EN INPUT
+
+   1000000
+   ↓
+   1.000.000
+========================================================= */
+
+const formatearValorInput = (
+  valor = ""
+) => {
+  const limpio =
+    String(
+      valor ?? ""
+    ).replace(
+      /\D/g,
+      ""
+    );
+
+  if (!limpio) {
+    return "";
+  }
+
+  return new Intl.NumberFormat(
+    "es-CO"
+  ).format(
+    Number(limpio)
   );
 };
 
@@ -74,6 +132,37 @@ const formatearFecha = (
       }
     );
 };
+
+/* =========================================================
+   FECHA ACTUAL PARA INPUT
+========================================================= */
+
+const obtenerFechaActual =
+  () => {
+    const fecha =
+      new Date();
+
+    const year =
+      fecha.getFullYear();
+
+    const month =
+      String(
+        fecha.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+    const day =
+      String(
+        fecha.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
+    return `${year}-${month}-${day}`;
+  };
 
 /* =========================================================
    NOMBRE COMPLETO
@@ -134,6 +223,18 @@ const obtenerNombreLote = (
 };
 
 /* =========================================================
+   FORMULARIO INICIAL DEL PAGO
+========================================================= */
+
+const formularioPagoInicial = {
+  valor: "",
+  formaPago: "Efectivo",
+  referenciaPago: "",
+  fechaPago: obtenerFechaActual(),
+  observaciones: "",
+};
+
+/* =========================================================
    COMPONENTE
 ========================================================= */
 
@@ -183,6 +284,56 @@ export default function Comisiones() {
     filtroEstado,
     setFiltroEstado,
   ] = useState("");
+
+  /* =======================================================
+     MODAL PAGO / ABONO
+  ======================================================= */
+
+  const [
+    modalPagoAbierto,
+    setModalPagoAbierto,
+  ] = useState(false);
+
+  const [
+    comisionSeleccionada,
+    setComisionSeleccionada,
+  ] = useState(null);
+
+  const [
+    tipoOperacion,
+    setTipoOperacion,
+  ] = useState("Abono");
+
+  const [
+    formularioPago,
+    setFormularioPago,
+  ] = useState(
+    formularioPagoInicial
+  );
+
+  const [
+    guardandoPago,
+    setGuardandoPago,
+  ] = useState(false);
+
+  /* =======================================================
+     MODAL HISTORIAL
+  ======================================================= */
+
+  const [
+    modalHistorialAbierto,
+    setModalHistorialAbierto,
+  ] = useState(false);
+
+  const [
+    historial,
+    setHistorial,
+  ] = useState(null);
+
+  const [
+    cargandoHistorial,
+    setCargandoHistorial,
+  ] = useState(false);
 
   /* =======================================================
      NOTIFICACIÓN
@@ -314,7 +465,7 @@ export default function Comisiones() {
     };
 
   /* =======================================================
-     CARGA INICIAL / CAMBIO ESTADO
+     CARGA INICIAL
   ======================================================= */
 
   useEffect(
@@ -363,6 +514,429 @@ export default function Comisiones() {
           false
         );
       }
+    };
+
+  /* =======================================================
+     ABRIR MODAL DE ABONO
+  ======================================================= */
+
+  const abrirAbono =
+    (
+      comision
+    ) => {
+      const saldo =
+        Number(
+          comision.saldoPendiente
+        ) || 0;
+
+      if (
+        saldo <= 0
+      ) {
+        mostrarNotificacion(
+          "Esta comisión ya se encuentra pagada.",
+          "error"
+        );
+
+        return;
+      }
+
+      setComisionSeleccionada(
+        comision
+      );
+
+      setTipoOperacion(
+        "Abono"
+      );
+
+      setFormularioPago({
+        ...formularioPagoInicial,
+
+        fechaPago:
+          obtenerFechaActual(),
+      });
+
+      setModalPagoAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     ABRIR MODAL PAGO TOTAL
+  ======================================================= */
+
+  const abrirPagoTotal =
+    (
+      comision
+    ) => {
+      const saldo =
+        Number(
+          comision.saldoPendiente
+        ) || 0;
+
+      if (
+        saldo <= 0
+      ) {
+        mostrarNotificacion(
+          "Esta comisión ya se encuentra pagada.",
+          "error"
+        );
+
+        return;
+      }
+
+      setComisionSeleccionada(
+        comision
+      );
+
+      setTipoOperacion(
+        "Pago"
+      );
+
+      setFormularioPago({
+        ...formularioPagoInicial,
+
+        valor:
+          String(
+            saldo
+          ),
+
+        fechaPago:
+          obtenerFechaActual(),
+      });
+
+      setModalPagoAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     CERRAR MODAL PAGO
+  ======================================================= */
+
+  const cerrarModalPago =
+    () => {
+      if (
+        guardandoPago
+      ) {
+        return;
+      }
+
+      setModalPagoAbierto(
+        false
+      );
+
+      setComisionSeleccionada(
+        null
+      );
+
+      setTipoOperacion(
+        "Abono"
+      );
+
+      setFormularioPago(
+        formularioPagoInicial
+      );
+    };
+
+  /* =======================================================
+     CAMBIAR FORMULARIO PAGO
+  ======================================================= */
+
+  const cambiarFormularioPago =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
+
+      /* =====================================================
+         VALOR DEL ABONO
+
+         Quitamos puntos, letras, $, espacios, etc.
+
+         Visual:
+         1.000.000
+
+         Internamente:
+         1000000
+      ===================================================== */
+
+      if (
+        name ===
+        "valor"
+      ) {
+        const valorLimpio =
+          String(
+            value
+          ).replace(
+            /\D/g,
+            ""
+          );
+
+        setFormularioPago(
+          (
+            anterior
+          ) => ({
+            ...anterior,
+
+            valor:
+              valorLimpio,
+          })
+        );
+
+        return;
+      }
+
+      setFormularioPago(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [name]:
+            value,
+        })
+      );
+    };
+
+  /* =======================================================
+     REGISTRAR PAGO / ABONO
+  ======================================================= */
+
+  const guardarPago =
+    async (
+      e
+    ) => {
+      e.preventDefault();
+
+      if (
+        !comisionSeleccionada
+      ) {
+        return;
+      }
+
+      const saldo =
+        Number(
+          comisionSeleccionada
+            .saldoPendiente
+        ) || 0;
+
+      if (
+        saldo <= 0
+      ) {
+        mostrarNotificacion(
+          "La comisión ya está pagada.",
+          "error"
+        );
+
+        return;
+      }
+
+      /* =====================================================
+         VALIDAR ABONO
+      ===================================================== */
+
+      if (
+        tipoOperacion ===
+        "Abono"
+      ) {
+        const valor =
+          Number(
+            formularioPago.valor
+          );
+
+        if (
+          !Number.isFinite(
+            valor
+          ) ||
+          valor <= 0
+        ) {
+          mostrarNotificacion(
+            "Digite un valor de abono válido.",
+            "error"
+          );
+
+          return;
+        }
+
+        if (
+          valor >= saldo
+        ) {
+          mostrarNotificacion(
+            "Si desea cancelar todo el saldo utilice Pagar saldo.",
+            "error"
+          );
+
+          return;
+        }
+      }
+
+      try {
+        setGuardandoPago(
+          true
+        );
+
+        const datos = {
+          formaPago:
+            formularioPago.formaPago,
+
+          referenciaPago:
+            formularioPago
+              .referenciaPago
+              .trim(),
+
+          fechaPago:
+            formularioPago.fechaPago,
+
+          observaciones:
+            formularioPago
+              .observaciones
+              .trim(),
+        };
+
+        let respuesta;
+
+        if (
+          tipoOperacion ===
+          "Abono"
+        ) {
+          respuesta =
+            await abonarComision(
+              comisionSeleccionada._id,
+              {
+                ...datos,
+
+                valor:
+                  Number(
+                    formularioPago.valor
+                  ),
+              }
+            );
+        } else {
+          respuesta =
+            await pagarSaldoComision(
+              comisionSeleccionada._id,
+              datos
+            );
+        }
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            (
+              tipoOperacion ===
+              "Abono"
+                ? "Abono registrado correctamente."
+                : "Comisión pagada correctamente."
+            )
+        );
+
+        setModalPagoAbierto(
+          false
+        );
+
+        setComisionSeleccionada(
+          null
+        );
+
+        setFormularioPago(
+          formularioPagoInicial
+        );
+
+        await cargarComisiones();
+      } catch (error) {
+        console.error(
+          "Error registrando pago:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible registrar el movimiento.",
+          "error"
+        );
+      } finally {
+        setGuardandoPago(
+          false
+        );
+      }
+    };
+
+  /* =======================================================
+     ABRIR HISTORIAL
+  ======================================================= */
+
+  const abrirHistorial =
+    async (
+      comision
+    ) => {
+      try {
+        setComisionSeleccionada(
+          comision
+        );
+
+        setHistorial(
+          null
+        );
+
+        setModalHistorialAbierto(
+          true
+        );
+
+        setCargandoHistorial(
+          true
+        );
+
+        const datos =
+          await obtenerPagosComision(
+            comision._id
+          );
+
+        setHistorial(
+          datos
+        );
+      } catch (error) {
+        console.error(
+          "Error cargando historial:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible cargar el historial.",
+          "error"
+        );
+
+        setModalHistorialAbierto(
+          false
+        );
+      } finally {
+        setCargandoHistorial(
+          false
+        );
+      }
+    };
+
+  /* =======================================================
+     CERRAR HISTORIAL
+  ======================================================= */
+
+  const cerrarHistorial =
+    () => {
+      setModalHistorialAbierto(
+        false
+      );
+
+      setHistorial(
+        null
+      );
+
+      setComisionSeleccionada(
+        null
+      );
     };
 
   /* =======================================================
@@ -427,8 +1001,7 @@ export default function Comisiones() {
               ${documentoVendedor}
               ${documentoCliente}
               ${lote}
-            `
-              .toLowerCase();
+            `.toLowerCase();
 
             return contenido.includes(
               texto
@@ -441,6 +1014,1021 @@ export default function Comisiones() {
         busqueda,
       ]
     );
+
+  /* =======================================================
+     ABRIR VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1200,height=850"
+        );
+
+      if (!ventana) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión.",
+          "error"
+        );
+
+        return;
+      }
+
+      const rutaEstilos =
+        `${window.location.origin}/styles/comisiones-impresion.css`;
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="es">
+
+          <head>
+
+            <meta charset="UTF-8" />
+
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
+
+            <title>
+              ${escaparHTML(titulo)}
+            </title>
+
+            <link
+              rel="stylesheet"
+              href="${rutaEstilos}"
+            />
+
+          </head>
+
+          <body>
+
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="cerrar"
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="imprimir"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+
+            </div>
+
+            <main class="reporte">
+              ${contenido}
+            </main>
+
+          </body>
+
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     IMPRIMIR REPORTE GENERAL
+  ======================================================= */
+
+  const imprimirGeneral =
+    async () => {
+      try {
+        const datos =
+          await obtenerComisiones(
+            {}
+          );
+
+        const todas =
+          Array.isArray(
+            datos?.comisiones
+          )
+            ? datos.comisiones
+            : [];
+
+        if (
+          todas.length ===
+          0
+        ) {
+          mostrarNotificacion(
+            "No hay comisiones para imprimir.",
+            "error"
+          );
+
+          return;
+        }
+
+        /* =====================================================
+           AGRUPAR POR VENDEDOR
+        ===================================================== */
+
+        const vendedores =
+          new Map();
+
+        for (
+          const comision
+          of todas
+        ) {
+          const vendedor =
+            comision.vendedor;
+
+          const id =
+            vendedor?._id ||
+            "sin-vendedor";
+
+          if (
+            !vendedores.has(
+              id
+            )
+          ) {
+            vendedores.set(
+              id,
+              {
+                vendedor,
+
+                lotesVendidos:
+                  0,
+
+                generado:
+                  0,
+
+                pagado:
+                  0,
+
+                pendiente:
+                  0,
+              }
+            );
+          }
+
+          const item =
+            vendedores.get(
+              id
+            );
+
+          item.lotesVendidos +=
+            1;
+
+          item.generado +=
+            Number(
+              comision.valorComision
+            ) || 0;
+
+          item.pagado +=
+            Number(
+              comision.totalPagado
+            ) || 0;
+
+          item.pendiente +=
+            Number(
+              comision.saldoPendiente
+            ) || 0;
+        }
+
+        const lista =
+          Array.from(
+            vendedores.values()
+          );
+
+        const filas =
+          lista
+            .map(
+              (
+                item
+              ) => `
+                <tr>
+
+                  <td>
+                    ${escaparHTML(
+                      item.vendedor
+                        ?.codigo ||
+                        "—"
+                    )}
+                  </td>
+
+                  <td class="nombre">
+                    <strong>
+                      ${escaparHTML(
+                        obtenerNombreCompleto(
+                          item.vendedor
+                        )
+                      )}
+                    </strong>
+
+                    <br />
+
+                    <span>
+                      ${escaparHTML(
+                        item.vendedor
+                          ?.documento ||
+                          ""
+                      )}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${
+                      item.lotesVendidos
+                    }
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        item.generado
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero pagado">
+                    ${escaparHTML(
+                      formatearDinero(
+                        item.pagado
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero pendiente">
+                    ${escaparHTML(
+                      formatearDinero(
+                        item.pendiente
+                      )
+                    )}
+                  </td>
+
+                </tr>
+              `
+            )
+            .join("");
+
+        const totalGenerado =
+          lista.reduce(
+            (
+              total,
+              item
+            ) =>
+              total +
+              item.generado,
+            0
+          );
+
+        const totalPagado =
+          lista.reduce(
+            (
+              total,
+              item
+            ) =>
+              total +
+              item.pagado,
+            0
+          );
+
+        const totalPendiente =
+          lista.reduce(
+            (
+              total,
+              item
+            ) =>
+              total +
+              item.pendiente,
+            0
+          );
+
+        const contenido = `
+          <div class="reporte-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              Reporte general de comisiones
+            </h2>
+
+          </div>
+
+          <div class="resumen-general">
+
+            <div>
+              <span>
+                Vendedores
+              </span>
+
+              <strong>
+                ${lista.length}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Generado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalGenerado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Pagado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalPagado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Pendiente
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    totalPendiente
+                  )
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Código</th>
+                <th>Vendedor</th>
+                <th>Lotes vendidos</th>
+                <th>Generado</th>
+                <th>Pagado</th>
+                <th>Pendiente</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+              ${filas}
+            </tbody>
+
+            <tfoot>
+
+              <tr>
+
+                <td colspan="3">
+                  <strong>
+                    TOTALES
+                  </strong>
+                </td>
+
+                <td class="dinero">
+                  ${escaparHTML(
+                    formatearDinero(
+                      totalGenerado
+                    )
+                  )}
+                </td>
+
+                <td class="dinero pagado">
+                  ${escaparHTML(
+                    formatearDinero(
+                      totalPagado
+                    )
+                  )}
+                </td>
+
+                <td class="dinero pendiente">
+                  ${escaparHTML(
+                    formatearDinero(
+                      totalPendiente
+                    )
+                  )}
+                </td>
+
+              </tr>
+
+            </tfoot>
+
+          </table>
+        `;
+
+        abrirVentanaImpresion(
+          "Reporte general de comisiones",
+          contenido
+        );
+      } catch (error) {
+        console.error(
+          "Error imprimiendo reporte general:",
+          error
+        );
+
+        mostrarNotificacion(
+          "No fue posible generar el reporte general.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
+     IMPRIMIR COMISIONES DE UN VENDEDOR
+  ======================================================= */
+
+  const imprimirVendedor =
+    async (
+      vendedor
+    ) => {
+      try {
+        if (
+          !vendedor?._id
+        ) {
+          mostrarNotificacion(
+            "No fue posible identificar el vendedor.",
+            "error"
+          );
+
+          return;
+        }
+
+        const datos =
+          await obtenerComisiones({
+            vendedor:
+              vendedor._id,
+          });
+
+        const lista =
+          Array.isArray(
+            datos?.comisiones
+          )
+            ? datos.comisiones
+            : [];
+
+        if (
+          lista.length ===
+          0
+        ) {
+          mostrarNotificacion(
+            "Este vendedor no tiene comisiones.",
+            "error"
+          );
+
+          return;
+        }
+
+        const generado =
+          lista.reduce(
+            (
+              total,
+              comision
+            ) =>
+              total +
+              (
+                Number(
+                  comision.valorComision
+                ) || 0
+              ),
+            0
+          );
+
+        const pagado =
+          lista.reduce(
+            (
+              total,
+              comision
+            ) =>
+              total +
+              (
+                Number(
+                  comision.totalPagado
+                ) || 0
+              ),
+            0
+          );
+
+        const pendiente =
+          lista.reduce(
+            (
+              total,
+              comision
+            ) =>
+              total +
+              (
+                Number(
+                  comision.saldoPendiente
+                ) || 0
+              ),
+            0
+          );
+
+        const filas =
+          lista
+            .map(
+              (
+                comision
+              ) => `
+                <tr>
+
+                  <td>
+                    ${escaparHTML(
+                      comision.codigo ||
+                      "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      comision.venta
+                        ?.codigo ||
+                        "—"
+                    )}
+                  </td>
+
+                  <td class="nombre">
+                    ${escaparHTML(
+                      obtenerNombreCompleto(
+                        comision.cliente
+                      )
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      obtenerNombreLote(
+                        comision.lote
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        comision.valorComision
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero pagado">
+                    ${escaparHTML(
+                      formatearDinero(
+                        comision.totalPagado
+                      )
+                    )}
+                  </td>
+
+                  <td class="dinero pendiente">
+                    ${escaparHTML(
+                      formatearDinero(
+                        comision.saldoPendiente
+                      )
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      comision.estado ||
+                      "—"
+                    )}
+                  </td>
+
+                </tr>
+              `
+            )
+            .join("");
+
+        const contenido = `
+          <div class="reporte-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              Comisiones del vendedor
+            </h2>
+
+          </div>
+
+          <div class="vendedor-ficha">
+
+            <div>
+              <span>
+                Código
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  vendedor.codigo ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Vendedor
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  obtenerNombreCompleto(
+                    vendedor
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Documento
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  vendedor.documento ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <div class="resumen-general">
+
+            <div>
+              <span>
+                Lotes vendidos
+              </span>
+
+              <strong>
+                ${lista.length}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Generado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    generado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Pagado
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    pagado
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Pendiente
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    pendiente
+                  )
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Comisión</th>
+                <th>Venta</th>
+                <th>Cliente</th>
+                <th>Lote</th>
+                <th>Generado</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+              ${filas}
+            </tbody>
+
+          </table>
+        `;
+
+        abrirVentanaImpresion(
+          `Comisiones ${obtenerNombreCompleto(
+            vendedor
+          )}`,
+          contenido
+        );
+      } catch (error) {
+        console.error(
+          "Error imprimiendo vendedor:",
+          error
+        );
+
+        mostrarNotificacion(
+          "No fue posible imprimir las comisiones del vendedor.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
+     IMPRIMIR HISTORIAL DE UNA COMISIÓN
+  ======================================================= */
+
+  const imprimirHistorial =
+    () => {
+      if (
+        !historial ||
+        !comisionSeleccionada
+      ) {
+        mostrarNotificacion(
+          "No hay historial disponible para imprimir.",
+          "error"
+        );
+
+        return;
+      }
+
+      const movimientos =
+        Array.isArray(
+          historial.movimientos
+        )
+          ? historial.movimientos
+          : [];
+
+      const filas =
+        movimientos.length >
+        0
+          ? movimientos
+              .map(
+                (
+                  movimiento
+                ) => `
+                  <tr>
+
+                    <td>
+                      ${escaparHTML(
+                        movimiento.codigo ||
+                        "—"
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        formatearFecha(
+                          movimiento.fechaPago
+                        )
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        movimiento.tipoMovimiento ||
+                        "—"
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        movimiento.formaPago ||
+                        "—"
+                      )}
+                    </td>
+
+                    <td>
+                      ${escaparHTML(
+                        movimiento.referenciaPago ||
+                        "—"
+                      )}
+                    </td>
+
+                    <td class="dinero">
+                      ${escaparHTML(
+                        formatearDinero(
+                          movimiento.valor
+                        )
+                      )}
+                    </td>
+
+                    <td class="dinero pendiente">
+                      ${escaparHTML(
+                        formatearDinero(
+                          movimiento.saldoDespues
+                        )
+                      )}
+                    </td>
+
+                  </tr>
+                `
+              )
+              .join("")
+          : `
+              <tr>
+                <td
+                  colspan="7"
+                  class="sin-registros"
+                >
+                  No hay pagos o abonos registrados.
+                </td>
+              </tr>
+            `;
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Historial de pagos de comisión
+          </h2>
+
+        </div>
+
+        <div class="vendedor-ficha">
+
+          <div>
+            <span>
+              Comisión
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                comisionSeleccionada.codigo ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Vendedor
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                obtenerNombreCompleto(
+                  comisionSeleccionada.vendedor
+                )
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Venta
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                comisionSeleccionada.venta
+                  ?.codigo ||
+                  "—"
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="resumen-general">
+
+          <div>
+            <span>
+              Comisión
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  historial.resumen
+                    ?.valorComision
+                )
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Pagado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  historial.resumen
+                    ?.totalPagado
+                )
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Pendiente
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  historial.resumen
+                    ?.saldoPendiente
+                )
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>
+              Estado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                historial.resumen
+                  ?.estado ||
+                  "—"
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+        <table>
+
+          <thead>
+
+            <tr>
+              <th>Egreso</th>
+              <th>Fecha</th>
+              <th>Movimiento</th>
+              <th>Forma de pago</th>
+              <th>Referencia</th>
+              <th>Valor</th>
+              <th>Saldo después</th>
+            </tr>
+
+          </thead>
+
+          <tbody>
+            ${filas}
+          </tbody>
+
+        </table>
+      `;
+
+      abrirVentanaImpresion(
+        `Historial ${comisionSeleccionada.codigo}`,
+        contenido
+      );
+    };
 
   /* =======================================================
      RENDER
@@ -501,6 +2089,20 @@ export default function Comisiones() {
 
           <button
             type="button"
+            className="comisiones-print"
+            onClick={
+              imprimirGeneral
+            }
+          >
+            <Printer
+              size={17}
+            />
+
+            Imprimir general
+          </button>
+
+          <button
+            type="button"
             className="comisiones-sync"
             onClick={
               sincronizar
@@ -534,8 +2136,6 @@ export default function Comisiones() {
 
       <div className="comisiones-stats">
 
-        {/* GENERADO */}
-
         <article className="comisiones-stat generado">
 
           <div className="comisiones-stat-icon">
@@ -561,8 +2161,6 @@ export default function Comisiones() {
           </div>
 
         </article>
-
-        {/* PAGADO */}
 
         <article className="comisiones-stat pagado">
 
@@ -590,8 +2188,6 @@ export default function Comisiones() {
 
         </article>
 
-        {/* PENDIENTE */}
-
         <article className="comisiones-stat pendiente">
 
           <div className="comisiones-stat-icon">
@@ -617,8 +2213,6 @@ export default function Comisiones() {
           </div>
 
         </article>
-
-        {/* ABONADAS */}
 
         <article className="comisiones-stat abonado">
 
@@ -651,10 +2245,6 @@ export default function Comisiones() {
       ================================================= */}
 
       <div className="comisiones-panel">
-
-        {/* =============================================
-            FILTROS
-        ============================================= */}
 
         <div className="comisiones-toolbar">
 
@@ -767,6 +2357,10 @@ export default function Comisiones() {
                   Estado
                 </th>
 
+                <th>
+                  Acciones
+                </th>
+
               </tr>
 
             </thead>
@@ -778,7 +2372,7 @@ export default function Comisiones() {
                 <tr>
 
                   <td
-                    colSpan="10"
+                    colSpan="11"
                     className="comisiones-empty"
                   >
 
@@ -801,7 +2395,7 @@ export default function Comisiones() {
                 <tr>
 
                   <td
-                    colSpan="10"
+                    colSpan="11"
                     className="comisiones-empty"
                   >
 
@@ -836,30 +2430,19 @@ export default function Comisiones() {
                       }
                     >
 
-                      {/* CÓDIGO */}
-
                       <td>
-
                         <strong className="comision-code">
-                          {comision.codigo ||
-                            "—"}
+                          {comision.codigo || "—"}
                         </strong>
-
                       </td>
 
-                      {/* FECHA */}
-
                       <td>
-
                         <span className="comision-fecha">
                           {formatearFecha(
                             comision.fechaGeneracion
                           )}
                         </span>
-
                       </td>
-
-                      {/* VENDEDOR */}
 
                       <td>
 
@@ -899,19 +2482,13 @@ export default function Comisiones() {
 
                       </td>
 
-                      {/* VENTA */}
-
                       <td>
-
                         <strong className="comision-venta">
                           {comision.venta
                             ?.codigo ||
                             "—"}
                         </strong>
-
                       </td>
-
-                      {/* CLIENTE */}
 
                       <td>
 
@@ -941,55 +2518,37 @@ export default function Comisiones() {
 
                       </td>
 
-                      {/* LOTE */}
-
                       <td>
-
                         <span className="comision-lote">
                           {obtenerNombreLote(
                             comision.lote
                           )}
                         </span>
-
                       </td>
 
-                      {/* VALOR COMISIÓN */}
-
                       <td>
-
                         <strong className="comision-valor generado">
                           {formatearDinero(
                             comision.valorComision
                           )}
                         </strong>
-
                       </td>
 
-                      {/* PAGADO */}
-
                       <td>
-
                         <strong className="comision-valor pagado">
                           {formatearDinero(
                             comision.totalPagado
                           )}
                         </strong>
-
                       </td>
 
-                      {/* SALDO */}
-
                       <td>
-
                         <strong className="comision-valor saldo">
                           {formatearDinero(
                             comision.saldoPendiente
                           )}
                         </strong>
-
                       </td>
-
-                      {/* ESTADO */}
 
                       <td>
 
@@ -1010,6 +2569,82 @@ export default function Comisiones() {
 
                       </td>
 
+                      {/* ACCIONES */}
+
+                      <td>
+
+                        <div className="comisiones-actions">
+
+                          <button
+                            type="button"
+                            className="historial"
+                            title="Ver historial"
+                            onClick={() =>
+                              abrirHistorial(
+                                comision
+                              )
+                            }
+                          >
+                            <History
+                              size={15}
+                            />
+                          </button>
+
+                          <button
+                            type="button"
+                            className="imprimir-vendedor"
+                            title="Imprimir vendedor"
+                            onClick={() =>
+                              imprimirVendedor(
+                                comision.vendedor
+                              )
+                            }
+                          >
+                            <Printer
+                              size={15}
+                            />
+                          </button>
+
+                          {Number(
+                            comision.saldoPendiente
+                          ) > 0 && (
+                            <>
+                              <button
+                                type="button"
+                                className="abonar"
+                                title="Abonar comisión"
+                                onClick={() =>
+                                  abrirAbono(
+                                    comision
+                                  )
+                                }
+                              >
+                                <HandCoins
+                                  size={15}
+                                />
+                              </button>
+
+                              <button
+                                type="button"
+                                className="pagar"
+                                title="Pagar saldo completo"
+                                onClick={() =>
+                                  abrirPagoTotal(
+                                    comision
+                                  )
+                                }
+                              >
+                                <CircleCheckBig
+                                  size={15}
+                                />
+                              </button>
+                            </>
+                          )}
+
+                        </div>
+
+                      </td>
+
                     </tr>
 
                   )
@@ -1022,10 +2657,6 @@ export default function Comisiones() {
           </table>
 
         </div>
-
-        {/* =============================================
-            PIE
-        ============================================= */}
 
         <div className="comisiones-footer">
 
@@ -1050,6 +2681,618 @@ export default function Comisiones() {
       </div>
 
       {/* =================================================
+          MODAL ABONO / PAGO
+      ================================================= */}
+
+      {modalPagoAbierto &&
+        comisionSeleccionada && (
+
+          <div
+            className="comision-modal-backdrop"
+            onMouseDown={
+              cerrarModalPago
+            }
+          >
+
+            <div
+              className="comision-pago-modal"
+              onMouseDown={
+                (
+                  e
+                ) =>
+                  e.stopPropagation()
+              }
+            >
+
+              <div className="comision-modal-header">
+
+                <div>
+
+                  <span>
+                    {
+                      comisionSeleccionada.codigo
+                    }
+                  </span>
+
+                  <h2>
+                    {tipoOperacion ===
+                    "Abono"
+                      ? "Abonar comisión"
+                      : "Pagar saldo"}
+                  </h2>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="comision-modal-close"
+                  onClick={
+                    cerrarModalPago
+                  }
+                  disabled={
+                    guardandoPago
+                  }
+                >
+                  <X
+                    size={19}
+                  />
+                </button>
+
+              </div>
+
+              <form
+                className="comision-pago-form"
+                onSubmit={
+                  guardarPago
+                }
+              >
+
+                {/* RESUMEN */}
+
+                <div className="comision-pago-resumen">
+
+                  <div>
+                    <span>
+                      Vendedor
+                    </span>
+
+                    <strong>
+                      {obtenerNombreCompleto(
+                        comisionSeleccionada
+                          .vendedor
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Comisión
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        comisionSeleccionada
+                          .valorComision
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Pagado
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        comisionSeleccionada
+                          .totalPagado
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Saldo
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        comisionSeleccionada
+                          .saldoPendiente
+                      )}
+                    </strong>
+                  </div>
+
+                </div>
+
+                <div className="comision-pago-grid">
+
+                  {/* VALOR */}
+
+                  <div className="comision-pago-field">
+
+                    <label>
+                      {tipoOperacion ===
+                      "Abono"
+                        ? "Valor del abono *"
+                        : "Valor a pagar"}
+                    </label>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      name="valor"
+                      value={
+                        tipoOperacion ===
+                        "Pago"
+                          ? formatearValorInput(
+                              comisionSeleccionada
+                                .saldoPendiente
+                            )
+                          : formatearValorInput(
+                              formularioPago.valor
+                            )
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      disabled={
+                        tipoOperacion ===
+                        "Pago"
+                      }
+                      placeholder="Ej: 1.000.000"
+                      autoComplete="off"
+                    />
+
+                  </div>
+
+                  {/* FORMA PAGO */}
+
+                  <div className="comision-pago-field">
+
+                    <label>
+                      Forma de pago *
+                    </label>
+
+                    <select
+                      name="formaPago"
+                      value={
+                        formularioPago.formaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                    >
+                      <option value="Efectivo">
+                        Efectivo
+                      </option>
+
+                      <option value="Transferencia">
+                        Transferencia
+                      </option>
+
+                      <option value="Consignacion">
+                        Consignación
+                      </option>
+
+                      <option value="Otro">
+                        Otro
+                      </option>
+                    </select>
+
+                  </div>
+
+                  {/* FECHA */}
+
+                  <div className="comision-pago-field">
+
+                    <label>
+                      Fecha *
+                    </label>
+
+                    <input
+                      type="date"
+                      name="fechaPago"
+                      value={
+                        formularioPago.fechaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                    />
+
+                  </div>
+
+                  {/* REFERENCIA */}
+
+                  <div className="comision-pago-field">
+
+                    <label>
+                      Referencia
+                    </label>
+
+                    <input
+                      type="text"
+                      name="referenciaPago"
+                      value={
+                        formularioPago.referenciaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      placeholder="Transferencia, recibo..."
+                    />
+
+                  </div>
+
+                </div>
+
+                {/* OBSERVACIONES */}
+
+                <div className="comision-pago-field comision-pago-field-full">
+
+                  <label>
+                    Observaciones
+                  </label>
+
+                  <textarea
+                    name="observaciones"
+                    rows="3"
+                    value={
+                      formularioPago.observaciones
+                    }
+                    onChange={
+                      cambiarFormularioPago
+                    }
+                    placeholder="Observaciones del movimiento..."
+                  />
+
+                </div>
+
+                <div className="comision-modal-footer">
+
+                  <button
+                    type="button"
+                    className="comision-cancel-button"
+                    onClick={
+                      cerrarModalPago
+                    }
+                    disabled={
+                      guardandoPago
+                    }
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="comision-save-button"
+                    disabled={
+                      guardandoPago
+                    }
+                  >
+
+                    {guardandoPago ? (
+                      <RefreshCw
+                        size={17}
+                        className="comisiones-spin"
+                      />
+                    ) : (
+                      <Save
+                        size={17}
+                      />
+                    )}
+
+                    {guardandoPago
+                      ? "Guardando..."
+                      : tipoOperacion ===
+                          "Abono"
+                        ? "Registrar abono"
+                        : "Pagar saldo"}
+
+                  </button>
+
+                </div>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        )}
+
+      {/* =================================================
+          MODAL HISTORIAL
+      ================================================= */}
+
+      {modalHistorialAbierto &&
+        comisionSeleccionada && (
+
+          <div
+            className="comision-modal-backdrop"
+            onMouseDown={
+              cerrarHistorial
+            }
+          >
+
+            <div
+              className="comision-historial-modal"
+              onMouseDown={
+                (
+                  e
+                ) =>
+                  e.stopPropagation()
+              }
+            >
+
+              <div className="comision-modal-header">
+
+                <div>
+
+                  <span>
+                    {
+                      comisionSeleccionada.codigo
+                    }
+                  </span>
+
+                  <h2>
+                    Historial de pagos
+                  </h2>
+
+                </div>
+
+                <div className="comision-historial-header-actions">
+
+                  <button
+                    type="button"
+                    className="comision-imprimir-historial"
+                    onClick={
+                      imprimirHistorial
+                    }
+                    disabled={
+                      cargandoHistorial ||
+                      !historial
+                    }
+                  >
+                    <Printer
+                      size={16}
+                    />
+
+                    Imprimir historial
+                  </button>
+
+                  <button
+                    type="button"
+                    className="comision-modal-close"
+                    onClick={
+                      cerrarHistorial
+                    }
+                  >
+                    <X
+                      size={19}
+                    />
+                  </button>
+
+                </div>
+
+              </div>
+
+              <div className="comision-historial-body">
+
+                {cargandoHistorial ? (
+
+                  <div className="comision-historial-loading">
+
+                    <RefreshCw
+                      size={26}
+                      className="comisiones-spin"
+                    />
+
+                    <strong>
+                      Cargando historial...
+                    </strong>
+
+                  </div>
+
+                ) : historial ? (
+
+                  <>
+
+                    <div className="comision-historial-resumen">
+
+                      <div>
+                        <span>
+                          Comisión
+                        </span>
+
+                        <strong>
+                          {formatearDinero(
+                            historial.resumen
+                              ?.valorComision
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Pagado
+                        </span>
+
+                        <strong>
+                          {formatearDinero(
+                            historial.resumen
+                              ?.totalPagado
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Saldo
+                        </span>
+
+                        <strong>
+                          {formatearDinero(
+                            historial.resumen
+                              ?.saldoPendiente
+                          )}
+                        </strong>
+                      </div>
+
+                      <div>
+                        <span>
+                          Estado
+                        </span>
+
+                        <strong>
+                          {historial.resumen
+                            ?.estado ||
+                            "—"}
+                        </strong>
+                      </div>
+
+                    </div>
+
+                    <div className="comision-historial-table-wrapper">
+
+                      <table className="comision-historial-table">
+
+                        <thead>
+                          <tr>
+                            <th>
+                              Egreso
+                            </th>
+
+                            <th>
+                              Fecha
+                            </th>
+
+                            <th>
+                              Movimiento
+                            </th>
+
+                            <th>
+                              Forma
+                            </th>
+
+                            <th>
+                              Valor
+                            </th>
+
+                            <th>
+                              Saldo después
+                            </th>
+
+                            <th>
+                              Referencia
+                            </th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+
+                          {Array.isArray(
+                            historial.movimientos
+                          ) &&
+                          historial.movimientos
+                            .length >
+                            0 ? (
+
+                            historial.movimientos.map(
+                              (
+                                movimiento
+                              ) => (
+
+                                <tr
+                                  key={
+                                    movimiento._id
+                                  }
+                                >
+
+                                  <td>
+                                    <strong>
+                                      {movimiento.codigo ||
+                                        "—"}
+                                    </strong>
+                                  </td>
+
+                                  <td>
+                                    {formatearFecha(
+                                      movimiento.fechaPago
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    {
+                                      movimiento.tipoMovimiento
+                                    }
+                                  </td>
+
+                                  <td>
+                                    {
+                                      movimiento.formaPago
+                                    }
+                                  </td>
+
+                                  <td>
+                                    <strong>
+                                      {formatearDinero(
+                                        movimiento.valor
+                                      )}
+                                    </strong>
+                                  </td>
+
+                                  <td>
+                                    {formatearDinero(
+                                      movimiento.saldoDespues
+                                    )}
+                                  </td>
+
+                                  <td>
+                                    {movimiento.referenciaPago ||
+                                      "—"}
+                                  </td>
+
+                                </tr>
+
+                              )
+                            )
+
+                          ) : (
+
+                            <tr>
+
+                              <td
+                                colSpan="7"
+                                className="comision-historial-empty"
+                              >
+                                Esta comisión todavía no tiene pagos ni abonos registrados.
+                              </td>
+
+                            </tr>
+
+                          )}
+
+                        </tbody>
+
+                      </table>
+
+                    </div>
+
+                  </>
+
+                ) : null}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
+
+      {/* =================================================
           TOAST
       ================================================= */}
 
@@ -1070,4 +3313,4 @@ export default function Comisiones() {
 
     </section>
   );
-}
+} 

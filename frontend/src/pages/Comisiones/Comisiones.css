@@ -6,9 +6,7 @@
 .comisiones-page {
   width: 100%;
   min-height: 100%;
-
   padding: 28px;
-
   color: #17241d;
 }
 
@@ -20,15 +18,12 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 22px;
-
   margin-bottom: 24px;
 }
 
 .comisiones-kicker {
   display: inline-block;
-
   margin-bottom: 6px;
 
   color: #b98532;
@@ -51,7 +46,6 @@
 
 .comisiones-header p {
   max-width: 670px;
-
   margin: 8px 0 0;
 
   color: #747d77;
@@ -60,24 +54,19 @@
   line-height: 1.5;
 }
 
-/* =========================================================
-   ACCIONES CABECERA
-========================================================= */
-
 .comisiones-header-actions {
   display: flex;
   align-items: center;
-
   gap: 10px;
-
   flex-wrap: wrap;
 }
 
 /* =========================================================
-   BOTÓN ACTUALIZAR
+   BOTONES CABECERA
 ========================================================= */
 
-.comisiones-refresh {
+.comisiones-refresh,
+.comisiones-sync {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -88,12 +77,7 @@
 
   padding: 0 15px;
 
-  border: 1px solid #cbdad0;
   border-radius: 11px;
-
-  background: #edf5f0;
-
-  color: #1f6848;
 
   font-size: 12px;
   font-weight: 900;
@@ -103,7 +87,16 @@
   transition:
     transform 0.18s ease,
     background 0.18s ease,
-    border-color 0.18s ease;
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.comisiones-refresh {
+  border: 1px solid #cbdad0;
+
+  background: #edf5f0;
+
+  color: #1f6848;
 }
 
 .comisiones-refresh:hover:not(:disabled) {
@@ -114,43 +107,18 @@
   background: #e4f0e8;
 }
 
-/* =========================================================
-   BOTÓN SINCRONIZAR
-========================================================= */
-
 .comisiones-sync {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-
-  gap: 7px;
-
-  min-height: 42px;
-
-  padding: 0 16px;
-
-  border: 1px solid #b98532;
-  border-radius: 11px;
+  border: 1px solid #d9bf88;
 
   background: #fff7e8;
 
   color: #966a25;
-
-  font-size: 12px;
-  font-weight: 900;
-
-  cursor: pointer;
-
-  transition:
-    transform 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
 }
 
 .comisiones-sync:hover:not(:disabled) {
   transform: translateY(-1px);
 
-  border-color: #a47328;
+  border-color: #c79c48;
 
   background: #f9edcf;
 }
@@ -236,6 +204,7 @@
   color: #173f2e;
 
   font-size: 18px;
+  font-weight: 900;
 
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -256,8 +225,7 @@
   border-bottom: 3px solid #c29548;
 }
 
-.comisiones-stat.generado
-.comisiones-stat-icon {
+.comisiones-stat.generado .comisiones-stat-icon {
   background: #fff5df;
 
   color: #a67327;
@@ -267,8 +235,7 @@
   border-bottom: 3px solid #3b8c5d;
 }
 
-.comisiones-stat.pagado
-.comisiones-stat-icon {
+.comisiones-stat.pagado .comisiones-stat-icon {
   background: #e8f4ec;
 
   color: #287047;
@@ -278,8 +245,7 @@
   border-bottom: 3px solid #bc654d;
 }
 
-.comisiones-stat.pendiente
-.comisiones-stat-icon {
+.comisiones-stat.pendiente .comisiones-stat-icon {
   background: #fbece7;
 
   color: #a8513b;
@@ -289,8 +255,7 @@
   border-bottom: 3px solid #567da1;
 }
 
-.comisiones-stat.abonado
-.comisiones-stat-icon {
+.comisiones-stat.abonado .comisiones-stat-icon {
   background: #eaf1f6;
 
   color: #486f91;
@@ -419,7 +384,7 @@
 
 .comisiones-table {
   width: 100%;
-  min-width: 1450px;
+  min-width: 1580px;
 
   border-collapse: collapse;
 }
@@ -468,7 +433,7 @@
 }
 
 /* =========================================================
-   CÓDIGO DE COMISIÓN
+   CÓDIGO
 ========================================================= */
 
 .comision-code {
@@ -727,6 +692,85 @@
 }
 
 /* =========================================================
+   ACCIONES
+========================================================= */
+
+.comisiones-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 6px;
+
+  white-space: nowrap;
+}
+
+.comisiones-actions button {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.comisiones-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.comisiones-actions button.historial {
+  border: 1px solid #c8d5df;
+
+  background: #edf3f7;
+
+  color: #4c718e;
+}
+
+.comisiones-actions button.historial:hover {
+  border-color: #9fb7c8;
+
+  background: #e2edf4;
+}
+
+.comisiones-actions button.abonar {
+  border: 1px solid #e2cea5;
+
+  background: #fff7e8;
+
+  color: #9a6d27;
+}
+
+.comisiones-actions button.abonar:hover {
+  border-color: #cba85d;
+
+  background: #f9edcf;
+}
+
+.comisiones-actions button.pagar {
+  border: 1px solid #bdd6c6;
+
+  background: #e9f4ed;
+
+  color: #287047;
+}
+
+.comisiones-actions button.pagar:hover {
+  border-color: #91b5a0;
+
+  background: #dceee2;
+}
+
+/* =========================================================
    SIN REGISTROS
 ========================================================= */
 
@@ -787,6 +831,580 @@
 }
 
 /* =========================================================
+   FONDO MODALES
+========================================================= */
+
+.comision-modal-backdrop {
+  position: fixed;
+  z-index: 1500;
+
+  inset: 0;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+
+  overflow-y: auto;
+
+  background:
+    rgba(17, 36, 27, 0.55);
+
+  backdrop-filter:
+    blur(4px);
+}
+
+/* =========================================================
+   MODAL DE PAGO
+========================================================= */
+
+.comision-pago-modal {
+  width: min(
+    760px,
+    100%
+  );
+
+  max-height: calc(
+    100vh - 40px
+  );
+
+  overflow-y: auto;
+
+  border: 1px solid #e1d9cb;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 26px 80px
+    rgba(17, 42, 30, 0.26);
+}
+
+/* =========================================================
+   MODAL HISTORIAL
+========================================================= */
+
+.comision-historial-modal {
+  width: min(
+    1050px,
+    100%
+  );
+
+  max-height: calc(
+    100vh - 40px
+  );
+
+  overflow: hidden;
+
+  border: 1px solid #e1d9cb;
+  border-radius: 18px;
+
+  background: #fffdf7;
+
+  box-shadow:
+    0 26px 80px
+    rgba(17, 42, 30, 0.26);
+}
+
+/* =========================================================
+   CABECERA MODAL
+========================================================= */
+
+.comision-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid #ece5d9;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfaf5 0%,
+      #f8f4eb 100%
+    );
+}
+
+.comision-modal-header > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 3px;
+}
+
+.comision-modal-header span {
+  color: #b98532;
+
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+.comision-modal-header h2 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 20px;
+}
+
+.comision-modal-close {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  padding: 0;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  color: #6c756e;
+
+  cursor: pointer;
+}
+
+.comision-modal-close:hover:not(:disabled) {
+  background: #f4eee5;
+
+  color: #173f2e;
+}
+
+.comision-modal-close:disabled {
+  opacity: 0.5;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   FORMULARIO DE PAGO
+========================================================= */
+
+.comision-pago-form {
+  padding: 20px;
+}
+
+/* =========================================================
+   RESUMEN DEL PAGO
+========================================================= */
+
+.comision-pago-resumen {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.comision-pago-resumen > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 11px 12px;
+
+  border: 1px solid #e2dbcf;
+  border-radius: 10px;
+
+  background: #faf8f3;
+}
+
+.comision-pago-resumen span {
+  color: #858c87;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comision-pago-resumen strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.comision-pago-resumen > div:last-child {
+  border-color: #e8c7bd;
+
+  background: #fdf0ec;
+}
+
+.comision-pago-resumen > div:last-child strong {
+  color: #a8513b;
+}
+
+/* =========================================================
+   GRID FORMULARIO
+========================================================= */
+
+.comision-pago-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.comision-pago-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  min-width: 0;
+}
+
+.comision-pago-field label {
+  color: #647068;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   INPUTS
+========================================================= */
+
+.comision-pago-field input,
+.comision-pago-field select {
+  width: 100%;
+  min-height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #2b382f;
+
+  font-family: inherit;
+  font-size: 11px;
+
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.comision-pago-field input:focus,
+.comision-pago-field select:focus,
+.comision-pago-field textarea:focus {
+  border-color: #1f6848;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(31, 104, 72, 0.07);
+}
+
+.comision-pago-field input:disabled {
+  border-color: #e2ddd4;
+
+  background: #f3f0e9;
+
+  color: #173f2e;
+
+  font-weight: 900;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TEXTAREA
+========================================================= */
+
+.comision-pago-field-full {
+  margin-top: 14px;
+}
+
+.comision-pago-field textarea {
+  width: 100%;
+  min-height: 80px;
+
+  padding: 10px 11px;
+
+  resize: vertical;
+
+  border: 1px solid #ddd6ca;
+  border-radius: 10px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #2b382f;
+
+  font-family: inherit;
+  font-size: 11px;
+}
+
+/* =========================================================
+   PIE DEL MODAL
+========================================================= */
+
+.comision-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  margin-top: 20px;
+  padding-top: 16px;
+
+  border-top: 1px solid #ece5d9;
+}
+
+.comision-cancel-button,
+.comision-save-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 40px;
+
+  padding: 0 15px;
+
+  border-radius: 10px;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.comision-cancel-button {
+  border: 1px solid #dcd5c9;
+
+  background: #ffffff;
+
+  color: #756b5f;
+}
+
+.comision-cancel-button:hover:not(:disabled) {
+  background: #f7f2ea;
+}
+
+.comision-save-button {
+  border: 1px solid #1f6848;
+
+  background: #1f6848;
+
+  color: #ffffff;
+}
+
+.comision-save-button:hover:not(:disabled) {
+  border-color: #174f37;
+
+  background: #174f37;
+}
+
+.comision-cancel-button:disabled,
+.comision-save-button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   HISTORIAL
+========================================================= */
+
+.comision-historial-body {
+  max-height: calc(
+    100vh - 130px
+  );
+
+  padding: 20px;
+
+  overflow-y: auto;
+}
+
+.comision-historial-resumen {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.comision-historial-resumen > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 11px 12px;
+
+  border: 1px solid #e1dbcf;
+  border-radius: 10px;
+
+  background: #faf8f3;
+}
+
+.comision-historial-resumen span {
+  color: #858d87;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comision-historial-resumen strong {
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLA HISTORIAL
+========================================================= */
+
+.comision-historial-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  border: 1px solid #e5dfd4;
+  border-radius: 11px;
+}
+
+.comision-historial-table {
+  width: 100%;
+  min-width: 800px;
+
+  border-collapse: collapse;
+}
+
+.comision-historial-table thead {
+  background: #f5f1e8;
+}
+
+.comision-historial-table th {
+  padding: 11px 10px;
+
+  border-bottom: 1px solid #ded8cc;
+
+  color: #6c756e;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-align: left;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.comision-historial-table td {
+  padding: 11px 10px;
+
+  border-bottom: 1px solid #eee8de;
+
+  color: #4b554f;
+
+  font-size: 10px;
+
+  white-space: nowrap;
+}
+
+.comision-historial-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.comision-historial-table tbody tr:hover {
+  background: #fbf9f4;
+}
+
+.comision-historial-table td strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   HISTORIAL VACÍO / CARGANDO
+========================================================= */
+
+.comision-historial-loading {
+  display: grid;
+  place-items: center;
+
+  min-height: 220px;
+
+  color: #7c8680;
+
+  text-align: center;
+}
+
+.comision-historial-loading svg {
+  margin-bottom: 10px;
+}
+
+.comision-historial-loading strong {
+  color: #526058;
+
+  font-size: 11px;
+}
+
+.comision-historial-empty {
+  height: 130px;
+
+  color: #858d88 !important;
+
+  text-align: center !important;
+}
+
+/* =========================================================
    ANIMACIÓN
 ========================================================= */
 
@@ -798,29 +1416,35 @@
 
 @keyframes comisionesSpin {
   to {
-    transform: rotate(360deg);
+    transform: rotate(
+      360deg
+    );
   }
 }
 
 /* =========================================================
-   SCROLL DE TABLA
+   SCROLL TABLA
 ========================================================= */
 
-.comisiones-table-wrapper::-webkit-scrollbar {
+.comisiones-table-wrapper::-webkit-scrollbar,
+.comision-historial-table-wrapper::-webkit-scrollbar {
   height: 8px;
 }
 
-.comisiones-table-wrapper::-webkit-scrollbar-track {
+.comisiones-table-wrapper::-webkit-scrollbar-track,
+.comision-historial-table-wrapper::-webkit-scrollbar-track {
   background: #f2eee5;
 }
 
-.comisiones-table-wrapper::-webkit-scrollbar-thumb {
+.comisiones-table-wrapper::-webkit-scrollbar-thumb,
+.comision-historial-table-wrapper::-webkit-scrollbar-thumb {
   border-radius: 999px;
 
   background: #c5c0b6;
 }
 
-.comisiones-table-wrapper::-webkit-scrollbar-thumb:hover {
+.comisiones-table-wrapper::-webkit-scrollbar-thumb:hover,
+.comision-historial-table-wrapper::-webkit-scrollbar-thumb:hover {
   background: #aaa49a;
 }
 
@@ -831,7 +1455,10 @@
 @media (max-width: 1180px) {
   .comisiones-stats {
     grid-template-columns:
-      repeat(2, minmax(0, 1fr));
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
   }
 }
 
@@ -848,6 +1475,17 @@
 
   .comisiones-toolbar select {
     width: 100%;
+  }
+}
+
+@media (max-width: 820px) {
+  .comision-pago-resumen,
+  .comision-historial-resumen {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
   }
 }
 
@@ -880,6 +1518,46 @@
   }
 }
 
+@media (max-width: 620px) {
+  .comision-modal-backdrop {
+    align-items: flex-start;
+
+    padding: 10px;
+  }
+
+  .comision-pago-modal,
+  .comision-historial-modal {
+    margin-top: 10px;
+
+    border-radius: 14px;
+  }
+
+  .comision-pago-form,
+  .comision-historial-body {
+    padding: 15px;
+  }
+
+  .comision-pago-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comision-pago-resumen,
+  .comision-historial-resumen {
+    grid-template-columns: 1fr;
+  }
+
+  .comision-modal-footer {
+    align-items: stretch;
+
+    flex-direction: column-reverse;
+  }
+
+  .comision-cancel-button,
+  .comision-save-button {
+    width: 100%;
+  }
+}
+
 @media (max-width: 520px) {
   .comisiones-page {
     padding: 14px;
@@ -901,4 +1579,131 @@
   .comisiones-toolbar {
     padding: 13px;
   }
+}
+/* =========================================================
+   BOTÓN IMPRIMIR GENERAL
+========================================================= */
+
+.comisiones-print {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: 1px solid #d7c79f;
+  border-radius: 11px;
+
+  background: #fff8e9;
+
+  color: #946a26;
+
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
+}
+
+.comisiones-print:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #c9a55d;
+
+  background: #f9edcf;
+
+  color: #7c571d;
+}
+
+.comisiones-print:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+} 
+/* =========================================================
+   ACCIONES CABECERA HISTORIAL
+========================================================= */
+
+.comision-modal-header
+  > .comision-historial-header-actions {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 8px;
+}
+
+/* =========================================================
+   BOTÓN IMPRIMIR HISTORIAL
+========================================================= */
+
+.comision-imprimir-historial {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 36px;
+
+  padding: 0 13px;
+
+  border: 1px solid #d7c79f;
+  border-radius: 9px;
+
+  background: #fff8e9;
+
+  color: #946a26;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.comision-imprimir-historial:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #c9a55d;
+
+  background: #f9edcf;
+
+  color: #7c571d;
+}
+
+.comision-imprimir-historial:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   BOTÓN CERRAR JUNTO A IMPRIMIR
+========================================================= */
+
+.comision-historial-header-actions
+  .comision-modal-close {
+  flex: 0 0 34px;
 }

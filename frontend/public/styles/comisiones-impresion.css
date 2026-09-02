@@ -1,0 +1,924 @@
+/* =========================================================
+   LOTES VILLA MARÍA
+   IMPRESIÓN DE COMISIONES
+
+   Se utiliza para:
+
+   1. Reporte general de comisiones
+   2. Comisiones por vendedor
+   3. Historial de pagos de una comisión
+========================================================= */
+
+/* =========================================================
+   GENERAL
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  min-height: 100%;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+body {
+  padding: 28px;
+
+  background: #f1eee6;
+
+  color: #27362e;
+}
+
+/* =========================================================
+   BOTONES SUPERIORES
+========================================================= */
+
+.acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1180px;
+
+  margin:
+    0 auto
+    15px;
+}
+
+.acciones button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 40px;
+
+  padding:
+    0 18px;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.acciones button:hover {
+  transform:
+    translateY(-1px);
+}
+
+.acciones .cerrar {
+  border:
+    1px solid
+    #d6d0c5;
+
+  background:
+    #ffffff;
+
+  color:
+    #58615b;
+}
+
+.acciones .cerrar:hover {
+  background:
+    #f8f5ef;
+}
+
+.acciones .imprimir {
+  border:
+    1px solid
+    #173f2e;
+
+  background:
+    #173f2e;
+
+  color:
+    #ffffff;
+}
+
+.acciones .imprimir:hover {
+  border-color:
+    #0f3022;
+
+  background:
+    #0f3022;
+}
+
+/* =========================================================
+   CONTENEDOR DEL REPORTE
+========================================================= */
+
+.reporte {
+  width: 100%;
+  max-width: 1180px;
+
+  margin:
+    0 auto;
+
+  padding: 30px;
+
+  border:
+    1px solid
+    #e1ddd4;
+
+  border-radius: 15px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    0 10px 32px
+    rgba(
+      23,
+      63,
+      46,
+      0.08
+    );
+}
+
+/* =========================================================
+   CABECERA DEL REPORTE
+========================================================= */
+
+.reporte-header {
+  position: relative;
+
+  margin-bottom: 24px;
+
+  padding-bottom: 17px;
+
+  border-bottom:
+    3px solid
+    #173f2e;
+
+  text-align: center;
+}
+
+.reporte-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -3px;
+
+  width: 160px;
+  height: 3px;
+
+  transform:
+    translateX(-50%);
+
+  background:
+    #c99a4b;
+}
+
+.reporte-header h1 {
+  margin: 0;
+
+  color:
+    #173f2e;
+
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+
+  text-transform:
+    uppercase;
+}
+
+.reporte-header h2 {
+  margin:
+    6px 0
+    0;
+
+  color:
+    #99702f;
+
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   FICHA DEL VENDEDOR / COMISIÓN
+========================================================= */
+
+.vendedor-ficha {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  margin-bottom: 14px;
+}
+
+.vendedor-ficha > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    #dfd8cd;
+
+  border-radius:
+    9px;
+
+  background:
+    #faf8f3;
+}
+
+.vendedor-ficha span {
+  color:
+    #858c87;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-transform:
+    uppercase;
+}
+
+.vendedor-ficha strong {
+  color:
+    #173f2e;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  overflow-wrap:
+    anywhere;
+}
+
+/* =========================================================
+   RESUMEN GENERAL
+========================================================= */
+
+.resumen-general {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(
+        0,
+        1fr
+      )
+    );
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.resumen-general > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 12px;
+
+  border:
+    1px solid
+    #dfd8cd;
+
+  border-radius:
+    9px;
+
+  background:
+    #faf8f3;
+}
+
+.resumen-general span {
+  color:
+    #858c87;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+
+  text-transform:
+    uppercase;
+}
+
+.resumen-general strong {
+  color:
+    #173f2e;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  white-space:
+    nowrap;
+}
+
+/* =========================================================
+   RESALTADOS DEL RESUMEN
+========================================================= */
+
+.resumen-general > div:nth-last-child(2) {
+  border-color:
+    #c8ddcf;
+
+  background:
+    #eef7f1;
+}
+
+.resumen-general > div:nth-last-child(2) strong {
+  color:
+    #287047;
+}
+
+.resumen-general > div:last-child {
+  border-color:
+    #e9cbc1;
+
+  background:
+    #fdf0ec;
+}
+
+.resumen-general > div:last-child strong {
+  color:
+    #a8513b;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+table {
+  width: 100%;
+
+  border-collapse:
+    collapse;
+
+  background:
+    #ffffff;
+}
+
+thead {
+  display:
+    table-header-group;
+}
+
+tfoot {
+  display:
+    table-footer-group;
+}
+
+th {
+  padding:
+    9px 7px;
+
+  border:
+    1px solid
+    #d6d1c8;
+
+  background:
+    #173f2e;
+
+  color:
+    #ffffff;
+
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+
+  text-align:
+    center;
+
+  text-transform:
+    uppercase;
+
+  white-space:
+    nowrap;
+}
+
+td {
+  padding:
+    9px 7px;
+
+  border:
+    1px solid
+    #e1ddd6;
+
+  color:
+    #3a463f;
+
+  font-size:
+    8.5px;
+
+  line-height:
+    1.35;
+
+  text-align:
+    center;
+
+  vertical-align:
+    middle;
+}
+
+tbody tr:nth-child(even) {
+  background:
+    #faf8f3;
+}
+
+tbody tr:hover {
+  background:
+    #f7f3ea;
+}
+
+/* =========================================================
+   NOMBRE
+========================================================= */
+
+td.nombre {
+  min-width: 150px;
+
+  text-align:
+    left;
+}
+
+td.nombre strong {
+  color:
+    #173f2e;
+
+  font-weight: 900;
+}
+
+td.nombre span {
+  color:
+    #888f8a;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   VALORES DE DINERO
+========================================================= */
+
+.dinero {
+  font-weight: 900;
+
+  white-space:
+    nowrap;
+}
+
+td.dinero {
+  color:
+    #946a26;
+}
+
+td.dinero.pagado {
+  color:
+    #287047;
+}
+
+td.dinero.pendiente {
+  color:
+    #a8513b;
+}
+
+/* =========================================================
+   PIE DE TOTALES
+========================================================= */
+
+tfoot td {
+  padding:
+    10px 7px;
+
+  border:
+    1px solid
+    #d0cbc2;
+
+  background:
+    #f4f0e7;
+
+  color:
+    #173f2e;
+
+  font-size:
+    9px;
+  font-weight: 900;
+}
+
+tfoot td:first-child {
+  text-align:
+    right;
+
+  letter-spacing:
+    0.04em;
+}
+
+/* =========================================================
+   HISTORIAL SIN REGISTROS
+========================================================= */
+
+.sin-registros {
+  height: 90px;
+
+  color:
+    #7d857f !important;
+
+  font-size:
+    10px !important;
+
+  text-align:
+    center !important;
+}
+
+/* =========================================================
+   RESPONSIVE DE VISTA PREVIA
+========================================================= */
+
+@media (
+  max-width: 850px
+) {
+  body {
+    padding:
+      15px;
+  }
+
+  .reporte {
+    padding:
+      20px;
+  }
+
+  .resumen-general {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(
+          0,
+          1fr
+        )
+      );
+  }
+
+  .vendedor-ficha {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte {
+    overflow-x:
+      auto;
+  }
+
+  table {
+    min-width:
+      800px;
+  }
+}
+
+@media (
+  max-width: 520px
+) {
+  body {
+    padding:
+      10px;
+  }
+
+  .acciones {
+    flex-direction:
+      column-reverse;
+
+    align-items:
+      stretch;
+  }
+
+  .acciones button {
+    width:
+      100%;
+  }
+
+  .reporte {
+    padding:
+      15px;
+
+    border-radius:
+      11px;
+  }
+
+  .resumen-general {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte-header h1 {
+    font-size:
+      20px;
+  }
+
+  .reporte-header h2 {
+    font-size:
+      12px;
+  }
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
+
+@media print {
+  @page {
+    size:
+      A4 landscape;
+
+    margin:
+      9mm;
+  }
+
+  html,
+  body {
+    width:
+      100%;
+
+    margin:
+      0;
+
+    padding:
+      0;
+
+    background:
+      #ffffff;
+  }
+
+  /* =======================================================
+     OCULTAR BOTONES
+  ======================================================= */
+
+  .acciones {
+    display:
+      none !important;
+  }
+
+  /* =======================================================
+     REPORTE
+  ======================================================= */
+
+  .reporte {
+    width:
+      100%;
+
+    max-width:
+      none;
+
+    margin:
+      0;
+
+    padding:
+      0;
+
+    border:
+      none;
+
+    border-radius:
+      0;
+
+    background:
+      #ffffff;
+
+    box-shadow:
+      none;
+  }
+
+  /* =======================================================
+     CABECERA
+  ======================================================= */
+
+  .reporte-header {
+    margin-bottom:
+      14px;
+
+    padding-bottom:
+      10px;
+
+    border-bottom:
+      2px solid
+      #000000;
+  }
+
+  .reporte-header::after {
+    display:
+      none;
+  }
+
+  .reporte-header h1 {
+    color:
+      #000000 !important;
+
+    font-size:
+      18px;
+  }
+
+  .reporte-header h2 {
+    color:
+      #000000 !important;
+
+    font-size:
+      11px;
+  }
+
+  /* =======================================================
+     TARJETAS RESUMEN
+  ======================================================= */
+
+  .vendedor-ficha,
+  .resumen-general {
+    gap:
+      5px;
+
+    margin-bottom:
+      10px;
+  }
+
+  .vendedor-ficha > div,
+  .resumen-general > div {
+    padding:
+      7px;
+
+    border:
+      1px solid
+      #999;
+
+    border-radius:
+      0;
+
+    background:
+      #ffffff !important;
+  }
+
+  .vendedor-ficha span,
+  .resumen-general span {
+    color:
+      #333333 !important;
+
+    font-size:
+      6.5px;
+  }
+
+  .vendedor-ficha strong,
+  .resumen-general strong {
+    color:
+      #000000 !important;
+
+    font-size:
+      8px;
+  }
+
+  /* =======================================================
+     TABLA
+  ======================================================= */
+
+  table {
+    width:
+      100%;
+
+    min-width:
+      0 !important;
+
+    page-break-inside:
+      auto;
+  }
+
+  thead {
+    display:
+      table-header-group;
+  }
+
+  tfoot {
+    display:
+      table-footer-group;
+  }
+
+  tr {
+    break-inside:
+      avoid;
+
+    page-break-inside:
+      avoid;
+  }
+
+  th {
+    padding:
+      5px 4px;
+
+    border:
+      1px solid
+      #666;
+
+    background:
+      #eeeeee !important;
+
+    color:
+      #000000 !important;
+
+    font-size:
+      6.5px;
+
+    -webkit-print-color-adjust:
+      exact;
+
+    print-color-adjust:
+      exact;
+  }
+
+  td {
+    padding:
+      5px 4px;
+
+    border:
+      1px solid
+      #999;
+
+    background:
+      #ffffff !important;
+
+    color:
+      #000000 !important;
+
+    font-size:
+      6.7px;
+  }
+
+  tbody tr:nth-child(even) td {
+    background:
+      #f7f7f7 !important;
+
+    -webkit-print-color-adjust:
+      exact;
+
+    print-color-adjust:
+      exact;
+  }
+
+  td.nombre strong,
+  td.nombre span,
+  td.dinero,
+  td.dinero.pagado,
+  td.dinero.pendiente {
+    color:
+      #000000 !important;
+  }
+
+  tfoot td {
+    border:
+      1px solid
+      #666;
+
+    background:
+      #eeeeee !important;
+
+    color:
+      #000000 !important;
+
+    font-size:
+      7px;
+
+    -webkit-print-color-adjust:
+      exact;
+
+    print-color-adjust:
+      exact;
+  }
+
+  .sin-registros {
+    color:
+      #000000 !important;
+  }
+}
