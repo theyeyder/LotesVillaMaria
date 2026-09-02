@@ -16,6 +16,7 @@ import Facturas from "./pages/Facturas/Facturas";
 import Maquinaria from "./pages/Maquinaria/Maquinaria";
 import HorasMaquinaria from "./pages/HorasMaquinaria/HorasMaquinaria";
 import Vendedores from "./pages/Vendedores/Vendedores";
+import Comisiones from "./pages/Comisiones/Comisiones";
 
 const pages = {
   dashboard: Dashboard,
@@ -23,6 +24,7 @@ const pages = {
   lotes: Lotes,
   ventas: Ventas,
   vendedores: Vendedores,
+  comisiones: Comisiones,
   cuotas: Cuotas,
   pagos: Pagos,
   facturas: Facturas,

@@ -4,6 +4,7 @@ import {
   MapPinned,
   HandCoins,
   BadgeDollarSign,
+  CircleDollarSign,
   WalletCards,
   CreditCard,
   ReceiptText,
@@ -40,6 +41,11 @@ const menuItems = [
     id: "vendedores",
     label: "Vendedores",
     icon: BadgeDollarSign,
+  },
+  {
+    id: "comisiones",
+    label: "Comisiones",
+    icon: CircleDollarSign,
   },
   {
     id: "cuotas",

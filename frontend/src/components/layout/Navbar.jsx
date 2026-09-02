@@ -27,15 +27,20 @@ const titles = {
     subtitle: "Control de ventas realizadas",
   },
 
-  vendedores: {
-    title: "Vendedores",
-    subtitle: "Gestión de vendedores y comisiones",
-  },
+ vendedores: {
+  title: "Vendedores",
+  subtitle: "Gestión de vendedores y comisiones",
+},
 
-  cuotas: {
-    title: "Cuotas",
-    subtitle: "Seguimiento de cuotas y vencimientos",
-  },
+comisiones: {
+  title: "Comisiones",
+  subtitle: "Control de comisiones y saldos por pagar",
+},
+
+cuotas: {
+  title: "Cuotas",
+  subtitle: "Seguimiento de cuotas y vencimientos",
+},
 
   pagos: {
     title: "Pagos",

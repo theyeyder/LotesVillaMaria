@@ -3,6 +3,7 @@ import Consecutivo from "./consecutivo.model.js";
 import Venta from "../ventas/venta.model.js";
 import Cuota from "../cuotas/cuota.model.js";
 import Vendedor from "../vendedores/vendedor.model.js";
+import Comision from "../comisiones/comision.model.js";
 
 /* =========================================================
    EXTRAER NÚMERO DE UN CÓDIGO
@@ -779,6 +780,156 @@ export const generarCodigoVendedor =
     }
 
     return `VD-${String(
+      numero
+    ).padStart(
+      4,
+      "0"
+    )}`;
+  };
+  /* =========================================================
+   OBTENER MAYOR NÚMERO DE COMISIONES
+========================================================= */
+
+const obtenerMayorNumeroComisiones =
+  async () => {
+    const comisiones =
+      await Comision.find({
+        codigo: {
+          $regex: /^CM-\d+$/i,
+        },
+      })
+        .select("codigo -_id")
+        .lean();
+
+    let mayorNumero = 0;
+
+    for (const comision of comisiones) {
+      const coincidencia =
+        String(
+          comision.codigo || ""
+        ).match(
+          /^CM-(\d+)$/i
+        );
+
+      const numero =
+        coincidencia
+          ? Number(
+              coincidencia[1]
+            )
+          : 0;
+
+      if (
+        Number.isInteger(numero) &&
+        numero > mayorNumero
+      ) {
+        mayorNumero =
+          numero;
+      }
+    }
+
+    return mayorNumero;
+  };
+
+/* =========================================================
+   SINCRONIZAR CONSECUTIVO DE COMISIONES
+========================================================= */
+
+const sincronizarConsecutivoComision =
+  async () => {
+    const mayorNumeroComisiones =
+      await obtenerMayorNumeroComisiones();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "comision",
+        },
+        {
+          $setOnInsert: {
+            tipo: "comision",
+            ultimoNumero:
+              mayorNumeroComisiones,
+          },
+        },
+        {
+          new: true,
+          upsert: true,
+        }
+      );
+
+    if (
+      Number(
+        consecutivo?.ultimoNumero ||
+          0
+      ) <
+      mayorNumeroComisiones
+    ) {
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "comision",
+          ultimoNumero: {
+            $lt:
+              mayorNumeroComisiones,
+          },
+        },
+        {
+          $set: {
+            ultimoNumero:
+              mayorNumeroComisiones,
+          },
+        }
+      );
+    }
+  };
+
+/* =========================================================
+   GENERAR CÓDIGO DE COMISIÓN
+
+   CM-0001
+   CM-0002
+   CM-0003
+========================================================= */
+
+export const generarCodigoComision =
+  async () => {
+    await sincronizarConsecutivoComision();
+
+    const consecutivo =
+      await Consecutivo.findOneAndUpdate(
+        {
+          tipo: "comision",
+        },
+        {
+          $inc: {
+            ultimoNumero: 1,
+          },
+        },
+        {
+          new: true,
+        }
+      );
+
+    if (!consecutivo) {
+      throw new Error(
+        "No fue posible generar el consecutivo de la comisión"
+      );
+    }
+
+    const numero =
+      Number(
+        consecutivo.ultimoNumero
+      );
+
+    if (
+      !Number.isInteger(numero) ||
+      numero <= 0
+    ) {
+      throw new Error(
+        "El consecutivo generado para la comisión no es válido"
+      );
+    }
+
+    return `CM-${String(
       numero
     ).padStart(
       4,
