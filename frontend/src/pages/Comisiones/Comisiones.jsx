@@ -10,10 +10,12 @@ import {
   Clock3,
   HandCoins,
   History,
+  Pencil,
   Printer,
   RefreshCw,
   Save,
   Search,
+  Trash2,
   UserRound,
   WalletCards,
   X,
@@ -26,6 +28,8 @@ import {
 
 import {
   abonarComision,
+  editarAbonoComision,
+  eliminarMovimientoComision,
   obtenerPagosComision,
   pagarSaldoComision,
 } from "../../services/egreso.service";
@@ -99,6 +103,45 @@ const formatearValorInput = (
     Number(limpio)
   );
 };
+
+/* =========================================================
+   FECHA PARA INPUT
+========================================================= */
+
+const obtenerFechaInput =
+  (
+    fecha
+  ) => {
+    if (!fecha) {
+      return obtenerFechaActual();
+    }
+
+    const texto =
+      String(
+        fecha
+      );
+
+    /*
+      Si viene de Mongo:
+      2026-09-01T00:00:00.000Z
+
+      conservamos:
+      2026-09-01
+    */
+
+    if (
+      /^\d{4}-\d{2}-\d{2}/.test(
+        texto
+      )
+    ) {
+      return texto.slice(
+        0,
+        10
+      );
+    }
+
+    return obtenerFechaActual();
+  };
 
 /* =========================================================
    FORMATEAR FECHA
@@ -333,6 +376,55 @@ export default function Comisiones() {
   const [
     cargandoHistorial,
     setCargandoHistorial,
+  ] = useState(false);
+
+  /* =======================================================
+     EDITAR ABONO
+  ======================================================= */
+
+  const [
+    modalEditarAbonoAbierto,
+    setModalEditarAbonoAbierto,
+  ] = useState(false);
+
+  const [
+    movimientoSeleccionado,
+    setMovimientoSeleccionado,
+  ] = useState(null);
+
+  const [
+    formularioEditarAbono,
+    setFormularioEditarAbono,
+  ] = useState({
+    valor: "",
+    formaPago: "Efectivo",
+    fechaPago: obtenerFechaActual(),
+    referenciaPago: "",
+    observaciones: "",
+  });
+
+  const [
+    guardandoEdicion,
+    setGuardandoEdicion,
+  ] = useState(false);
+
+  /* =======================================================
+     ELIMINAR MOVIMIENTO
+  ======================================================= */
+
+  const [
+    modalEliminarAbierto,
+    setModalEliminarAbierto,
+  ] = useState(false);
+
+  const [
+    movimientoEliminar,
+    setMovimientoEliminar,
+  ] = useState(null);
+
+  const [
+    eliminandoMovimiento,
+    setEliminandoMovimiento,
   ] = useState(false);
 
   /* =======================================================
@@ -937,6 +1029,383 @@ export default function Comisiones() {
       setComisionSeleccionada(
         null
       );
+    };
+
+  /* =======================================================
+     ABRIR EDITAR ABONO
+  ======================================================= */
+
+  const abrirEditarAbono =
+    (
+      movimiento
+    ) => {
+      if (
+        movimiento
+          ?.tipoMovimiento !==
+        "Abono"
+      ) {
+        mostrarNotificacion(
+          "El pago total no se puede editar.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (
+        movimiento
+          ?.puedeEditar !==
+        true
+      ) {
+        mostrarNotificacion(
+          "Solo se puede editar el último abono registrado.",
+          "error"
+        );
+
+        return;
+      }
+
+      setMovimientoSeleccionado(
+        movimiento
+      );
+
+      setFormularioEditarAbono({
+        valor:
+          String(
+            Number(
+              movimiento.valor
+            ) || ""
+          ),
+
+        formaPago:
+          movimiento.formaPago ||
+          "Efectivo",
+
+        fechaPago:
+          obtenerFechaInput(
+            movimiento.fechaPago
+          ),
+
+        referenciaPago:
+          movimiento.referenciaPago ||
+          "",
+
+        observaciones:
+          movimiento.observaciones ||
+          "",
+      });
+
+      setModalEditarAbonoAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     CERRAR EDITAR
+  ======================================================= */
+
+  const cerrarEditarAbono =
+    () => {
+      if (
+        guardandoEdicion
+      ) {
+        return;
+      }
+
+      setModalEditarAbonoAbierto(
+        false
+      );
+
+      setMovimientoSeleccionado(
+        null
+      );
+    };
+
+  /* =======================================================
+     CAMBIAR FORMULARIO EDICIÓN
+  ======================================================= */
+
+  const cambiarFormularioEditarAbono =
+    (
+      e
+    ) => {
+      const {
+        name,
+        value,
+      } = e.target;
+
+      if (
+        name ===
+        "valor"
+      ) {
+        const valorLimpio =
+          String(
+            value
+          ).replace(
+            /\D/g,
+            ""
+          );
+
+        setFormularioEditarAbono(
+          (
+            anterior
+          ) => ({
+            ...anterior,
+
+            valor:
+              valorLimpio,
+          })
+        );
+
+        return;
+      }
+
+      setFormularioEditarAbono(
+        (
+          anterior
+        ) => ({
+          ...anterior,
+
+          [name]:
+            value,
+        })
+      );
+    };
+
+  /* =======================================================
+     GUARDAR EDICIÓN
+  ======================================================= */
+
+  const guardarEdicionAbono =
+    async (
+      e
+    ) => {
+      e.preventDefault();
+
+      if (
+        !movimientoSeleccionado
+          ?._id
+      ) {
+        return;
+      }
+
+      const valor =
+        Number(
+          formularioEditarAbono.valor
+        );
+
+      if (
+        !Number.isFinite(
+          valor
+        ) ||
+        valor <= 0
+      ) {
+        mostrarNotificacion(
+          "Digite un valor de abono válido.",
+          "error"
+        );
+
+        return;
+      }
+
+      try {
+        setGuardandoEdicion(
+          true
+        );
+
+        const respuesta =
+          await editarAbonoComision(
+            movimientoSeleccionado._id,
+            {
+              ...formularioEditarAbono,
+
+              valor,
+            }
+          );
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Abono actualizado correctamente."
+        );
+
+        /*
+          Actualizar historial sin cerrar
+          la ventana principal.
+        */
+
+        if (
+          comisionSeleccionada
+            ?._id
+        ) {
+          const datosHistorial =
+            await obtenerPagosComision(
+              comisionSeleccionada._id
+            );
+
+          setHistorial(
+            datosHistorial
+          );
+        }
+
+        await cargarComisiones();
+
+        setModalEditarAbonoAbierto(
+          false
+        );
+
+        setMovimientoSeleccionado(
+          null
+        );
+      } catch (error) {
+        console.error(
+          "Error editando abono:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible editar el abono.",
+          "error"
+        );
+      } finally {
+        setGuardandoEdicion(
+          false
+        );
+      }
+    };
+
+  /* =======================================================
+     ABRIR CONFIRMACIÓN DE ELIMINACIÓN
+  ======================================================= */
+
+  const abrirEliminarMovimiento =
+    (
+      movimiento
+    ) => {
+      if (
+        movimiento
+          ?.puedeEliminar !==
+        true
+      ) {
+        mostrarNotificacion(
+          "Solo se puede eliminar el último movimiento registrado.",
+          "error"
+        );
+
+        return;
+      }
+
+      setMovimientoEliminar(
+        movimiento
+      );
+
+      setModalEliminarAbierto(
+        true
+      );
+    };
+
+  /* =======================================================
+     CERRAR ELIMINAR
+  ======================================================= */
+
+  const cerrarEliminarMovimiento =
+    () => {
+      if (
+        eliminandoMovimiento
+      ) {
+        return;
+      }
+
+      setModalEliminarAbierto(
+        false
+      );
+
+      setMovimientoEliminar(
+        null
+      );
+    };
+
+  /* =======================================================
+     CONFIRMAR ELIMINACIÓN
+  ======================================================= */
+
+  const confirmarEliminarMovimiento =
+    async () => {
+      if (
+        !movimientoEliminar
+          ?._id
+      ) {
+        return;
+      }
+
+      try {
+        setEliminandoMovimiento(
+          true
+        );
+
+        const respuesta =
+          await eliminarMovimientoComision(
+            movimientoEliminar._id
+          );
+
+        mostrarNotificacion(
+          respuesta?.message ||
+            "Movimiento eliminado correctamente."
+        );
+
+        /*
+          Actualizamos inmediatamente el historial.
+        */
+
+        if (
+          comisionSeleccionada
+            ?._id
+        ) {
+          const datosHistorial =
+            await obtenerPagosComision(
+              comisionSeleccionada._id
+            );
+
+          setHistorial(
+            datosHistorial
+          );
+        }
+
+        /*
+          También actualizamos:
+          - Pagado
+          - Saldo
+          - Estado
+          - estadísticas
+        */
+
+        await cargarComisiones();
+
+        setModalEliminarAbierto(
+          false
+        );
+
+        setMovimientoEliminar(
+          null
+        );
+      } catch (error) {
+        console.error(
+          "Error eliminando movimiento:",
+          error
+        );
+
+        mostrarNotificacion(
+          error?.response?.data
+            ?.message ||
+            "No fue posible eliminar el movimiento.",
+          "error"
+        );
+      } finally {
+        setEliminandoMovimiento(
+          false
+        );
+      }
     };
 
   /* =======================================================
@@ -1551,8 +2020,7 @@ export default function Comisiones() {
           lista
             .map(
               (
-                comision
-              ) => `
+                comision              ) => `
                 <tr>
 
                   <td>
@@ -3187,6 +3655,10 @@ export default function Comisiones() {
                             <th>
                               Referencia
                             </th>
+
+                            <th>
+                              Acciones
+                            </th>
                           </tr>
                         </thead>
 
@@ -3254,6 +3726,60 @@ export default function Comisiones() {
                                       "—"}
                                   </td>
 
+                                  <td>
+
+                                    <div className="comision-historial-actions">
+
+                                      {movimiento.puedeEditar && (
+                                        <button
+                                          type="button"
+                                          className="comision-historial-edit"
+                                          title="Editar abono"
+                                          onClick={() =>
+                                            abrirEditarAbono(
+                                              movimiento
+                                            )
+                                          }
+                                        >
+                                          <Pencil
+                                            size={14}
+                                          />
+                                        </button>
+                                      )}
+
+                                      {movimiento.puedeEliminar && (
+                                        <button
+                                          type="button"
+                                          className="comision-historial-delete"
+                                          title={
+                                            movimiento.tipoMovimiento ===
+                                            "Pago"
+                                              ? "Eliminar pago total"
+                                              : "Eliminar abono"
+                                          }
+                                          onClick={() =>
+                                            abrirEliminarMovimiento(
+                                              movimiento
+                                            )
+                                          }
+                                        >
+                                          <Trash2
+                                            size={14}
+                                          />
+                                        </button>
+                                      )}
+
+                                      {!movimiento.puedeEditar &&
+                                        !movimiento.puedeEliminar && (
+                                          <span className="comision-historial-sin-acciones">
+                                            —
+                                          </span>
+                                        )}
+
+                                    </div>
+
+                                  </td>
+
                                 </tr>
 
                               )
@@ -3264,7 +3790,7 @@ export default function Comisiones() {
                             <tr>
 
                               <td
-                                colSpan="7"
+                                colSpan="8"
                                 className="comision-historial-empty"
                               >
                                 Esta comisión todavía no tiene pagos ni abonos registrados.
@@ -3283,6 +3809,442 @@ export default function Comisiones() {
                   </>
 
                 ) : null}
+
+              </div>
+
+            </div>
+
+          </div>
+
+        )}
+
+      {/* =================================================
+          EDITAR ABONO
+      ================================================= */}
+
+      {modalEditarAbonoAbierto &&
+        movimientoSeleccionado && (
+
+          <div className="comision-modal-backdrop">
+
+            <div className="comision-pago-modal comision-editar-abono-modal">
+
+              <div className="comision-modal-header">
+
+                <div>
+
+                  <span>
+                    {
+                      movimientoSeleccionado.codigo
+                    }
+                  </span>
+
+                  <h2>
+                    Editar abono
+                  </h2>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="comision-modal-close"
+                  onClick={
+                    cerrarEditarAbono
+                  }
+                  disabled={
+                    guardandoEdicion
+                  }
+                >
+                  <X
+                    size={19}
+                  />
+                </button>
+
+              </div>
+
+              <form
+                onSubmit={
+                  guardarEdicionAbono
+                }
+              >
+
+                <div className="comision-pago-body">
+
+                  <div className="comision-pago-resumen">
+
+                    <div>
+                      <span>
+                        Egreso
+                      </span>
+
+                      <strong>
+                        {
+                          movimientoSeleccionado.codigo
+                        }
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Valor actual
+                      </span>
+
+                      <strong>
+                        {formatearDinero(
+                          movimientoSeleccionado.valor
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Movimiento
+                      </span>
+
+                      <strong>
+                        Abono
+                      </strong>
+                    </div>
+
+                  </div>
+
+                  <div className="comision-pago-grid">
+
+                    {/* VALOR */}
+
+                    <div className="comision-pago-field">
+
+                      <label>
+                        Valor del abono *
+                      </label>
+
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        name="valor"
+                        value={
+                          formatearValorInput(
+                            formularioEditarAbono.valor
+                          )
+                        }
+                        onChange={
+                          cambiarFormularioEditarAbono
+                        }
+                        placeholder="Ej: 500.000"
+                        autoComplete="off"
+                        disabled={
+                          guardandoEdicion
+                        }
+                      />
+
+                    </div>
+
+                    {/* FORMA */}
+
+                    <div className="comision-pago-field">
+
+                      <label>
+                        Forma de pago *
+                      </label>
+
+                      <select
+                        name="formaPago"
+                        value={
+                          formularioEditarAbono.formaPago
+                        }
+                        onChange={
+                          cambiarFormularioEditarAbono
+                        }
+                        disabled={
+                          guardandoEdicion
+                        }
+                      >
+                        <option value="Efectivo">
+                          Efectivo
+                        </option>
+
+                        <option value="Transferencia">
+                          Transferencia
+                        </option>
+
+                        <option value="Consignacion">
+                          Consignación
+                        </option>
+
+                        <option value="Otro">
+                          Otro
+                        </option>
+                      </select>
+
+                    </div>
+
+                    {/* FECHA */}
+
+                    <div className="comision-pago-field">
+
+                      <label>
+                        Fecha *
+                      </label>
+
+                      <input
+                        type="date"
+                        name="fechaPago"
+                        value={
+                          formularioEditarAbono.fechaPago
+                        }
+                        onChange={
+                          cambiarFormularioEditarAbono
+                        }
+                        disabled={
+                          guardandoEdicion
+                        }
+                      />
+
+                    </div>
+
+                    {/* REFERENCIA */}
+
+                    <div className="comision-pago-field">
+
+                      <label>
+                        Referencia
+                      </label>
+
+                      <input
+                        type="text"
+                        name="referenciaPago"
+                        value={
+                          formularioEditarAbono.referenciaPago
+                        }
+                        onChange={
+                          cambiarFormularioEditarAbono
+                        }
+                        placeholder="Ej: TRX-001"
+                        disabled={
+                          guardandoEdicion
+                        }
+                      />
+
+                    </div>
+
+                    {/* OBSERVACIONES */}
+
+                    <div className="comision-pago-field comision-pago-field-full">
+
+                      <label>
+                        Observaciones
+                      </label>
+
+                      <textarea
+                        name="observaciones"
+                        rows="3"
+                        value={
+                          formularioEditarAbono.observaciones
+                        }
+                        onChange={
+                          cambiarFormularioEditarAbono
+                        }
+                        placeholder="Observaciones del abono..."
+                        disabled={
+                          guardandoEdicion
+                        }
+                      />
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+                <div className="comision-pago-footer">
+
+                  <button
+                    type="button"
+                    className="comision-pago-cancelar"
+                    onClick={
+                      cerrarEditarAbono
+                    }
+                    disabled={
+                      guardandoEdicion
+                    }
+                  >
+                    Cancelar
+                  </button>
+
+                  <button
+                    type="submit"
+                    className="comision-pago-guardar"
+                    disabled={
+                      guardandoEdicion
+                    }
+                  >
+                    <Save
+                      size={16}
+                    />
+
+                    {guardandoEdicion
+                      ? "Guardando..."
+                      : "Guardar cambios"}
+                  </button>
+
+                </div>
+
+              </form>
+
+            </div>
+
+          </div>
+
+        )}
+
+      {/* =================================================
+          ELIMINAR MOVIMIENTO
+      ================================================= */}
+
+      {modalEliminarAbierto &&
+        movimientoEliminar && (
+
+          <div className="comision-modal-backdrop">
+
+            <div className="comision-pago-modal comision-eliminar-modal">
+
+              <div className="comision-modal-header">
+
+                <div>
+
+                  <span>
+                    {
+                      movimientoEliminar.codigo
+                    }
+                  </span>
+
+                  <h2>
+                    {movimientoEliminar.tipoMovimiento ===
+                    "Pago"
+                      ? "Eliminar pago total"
+                      : "Eliminar abono"}
+                  </h2>
+
+                </div>
+
+                <button
+                  type="button"
+                  className="comision-modal-close"
+                  onClick={
+                    cerrarEliminarMovimiento
+                  }
+                  disabled={
+                    eliminandoMovimiento
+                  }
+                >
+                  <X
+                    size={19}
+                  />
+                </button>
+
+              </div>
+
+              <div className="comision-pago-body">
+
+                <div className="comision-eliminar-alerta">
+
+                  <Trash2
+                    size={25}
+                  />
+
+                  <div>
+
+                    <strong>
+                      ¿Desea eliminar este movimiento?
+                    </strong>
+
+                    <p>
+                      {movimientoEliminar.tipoMovimiento ===
+                      "Pago"
+                        ? "Al eliminar este pago total, la comisión volverá a tener saldo pendiente."
+                        : "Al eliminar este abono, el valor pagado y el saldo de la comisión serán recalculados."}
+                    </p>
+
+                  </div>
+
+                </div>
+
+                <div className="comision-pago-resumen">
+
+                  <div>
+                    <span>
+                      Egreso
+                    </span>
+
+                    <strong>
+                      {
+                        movimientoEliminar.codigo
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Movimiento
+                    </span>
+
+                    <strong>
+                      {movimientoEliminar.tipoMovimiento ===
+                      "Pago"
+                        ? "Pago total"
+                        : "Abono"}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Valor
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        movimientoEliminar.valor
+                      )}
+                    </strong>
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="comision-pago-footer">
+
+                <button
+                  type="button"
+                  className="comision-pago-cancelar"
+                  onClick={
+                    cerrarEliminarMovimiento
+                  }
+                  disabled={
+                    eliminandoMovimiento
+                  }
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="button"
+                  className="comision-eliminar-confirmar"
+                  onClick={
+                    confirmarEliminarMovimiento
+                  }
+                  disabled={
+                    eliminandoMovimiento
+                  }
+                >
+                  <Trash2
+                    size={16}
+                  />
+
+                  {eliminandoMovimiento
+                    ? "Eliminando..."
+                    : "Sí, eliminar"}
+                </button>
 
               </div>
 
@@ -3313,4 +4275,4 @@ export default function Comisiones() {
 
     </section>
   );
-} 
+}

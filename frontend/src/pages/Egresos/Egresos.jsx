@@ -1,0 +1,951 @@
+import {
+  BadgeDollarSign,
+  CalendarDays,
+  CircleDollarSign,
+  Search,
+  Tractor,
+  WalletCards,
+} from "lucide-react";
+
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
+import {
+  obtenerEgresos,
+} from "../../services/egreso.service";
+
+import Toast from "../../components/ui/Toast";
+
+import "./Egresos.css";
+
+/* =========================================================
+   FORMATEAR DINERO
+========================================================= */
+
+const formatearDinero =
+  (
+    valor = 0
+  ) => {
+    return new Intl.NumberFormat(
+      "es-CO",
+      {
+        style: "currency",
+        currency: "COP",
+        maximumFractionDigits: 0,
+      }
+    ).format(
+      Number(
+        valor
+      ) || 0
+    );
+  };
+
+/* =========================================================
+   FORMATEAR FECHA
+========================================================= */
+
+const formatearFecha =
+  (
+    fecha
+  ) => {
+    if (!fecha) {
+      return "—";
+    }
+
+    const texto =
+      String(
+        fecha
+      );
+
+    if (
+      /^\d{4}-\d{2}-\d{2}/.test(
+        texto
+      )
+    ) {
+      const [
+        anio,
+        mes,
+        dia,
+      ] =
+        texto
+          .slice(
+            0,
+            10
+          )
+          .split("-");
+
+      return `${dia}/${mes}/${anio}`;
+    }
+
+    return "—";
+  };
+
+/* =========================================================
+   COMPONENTE
+========================================================= */
+
+export default function Egresos() {
+
+  /* =======================================================
+     DATOS
+  ======================================================= */
+
+  const [
+    egresos,
+    setEgresos,
+  ] = useState([]);
+
+  const [
+    resumen,
+    setResumen,
+  ] = useState({
+    totalMovimientos: 0,
+    totalEgresos: 0,
+    totalComisiones: 0,
+    totalMaquinaria: 0,
+    totalOtros: 0,
+  });
+
+  const [
+    cargando,
+    setCargando,
+  ] = useState(true);
+
+  /* =======================================================
+     FILTROS
+  ======================================================= */
+
+  const [
+    busqueda,
+    setBusqueda,
+  ] = useState("");
+
+  const [
+    tipo,
+    setTipo,
+  ] = useState("");
+
+  const [
+    tipoMovimiento,
+    setTipoMovimiento,
+  ] = useState("");
+
+  const [
+    desde,
+    setDesde,
+  ] = useState("");
+
+  const [
+    hasta,
+    setHasta,
+  ] = useState("");
+
+  /* =======================================================
+     TOAST
+  ======================================================= */
+
+  const [
+    toast,
+    setToast,
+  ] = useState({
+    visible: false,
+    mensaje: "",
+    tipo: "success",
+  });
+
+  const mostrarNotificacion =
+    (
+      mensaje,
+      tipoToast = "success"
+    ) => {
+      setToast({
+        visible: true,
+        mensaje,
+        tipo: tipoToast,
+      });
+    };
+
+  /* =======================================================
+     CARGAR EGRESOS
+  ======================================================= */
+
+  const cargarEgresos =
+    useCallback(
+      async () => {
+        try {
+          setCargando(
+            true
+          );
+
+          const params =
+            {};
+
+          if (tipo) {
+            params.tipo =
+              tipo;
+          }
+
+          if (
+            tipoMovimiento
+          ) {
+            params.tipoMovimiento =
+              tipoMovimiento;
+          }
+
+          if (desde) {
+            params.desde =
+              desde;
+          }
+
+          if (hasta) {
+            params.hasta =
+              hasta;
+          }
+
+          const datos =
+            await obtenerEgresos(
+              params
+            );
+
+          setEgresos(
+            Array.isArray(
+              datos?.egresos
+            )
+              ? datos.egresos
+              : []
+          );
+
+          setResumen({
+            totalMovimientos:
+              Number(
+                datos?.resumen
+                  ?.totalMovimientos
+              ) || 0,
+
+            totalEgresos:
+              Number(
+                datos?.resumen
+                  ?.totalEgresos
+              ) || 0,
+
+            totalComisiones:
+              Number(
+                datos?.resumen
+                  ?.totalComisiones
+              ) || 0,
+
+            totalMaquinaria:
+              Number(
+                datos?.resumen
+                  ?.totalMaquinaria
+              ) || 0,
+
+            totalOtros:
+              Number(
+                datos?.resumen
+                  ?.totalOtros
+              ) || 0,
+          });
+        } catch (error) {
+          console.error(
+            "Error cargando egresos:",
+            error
+          );
+
+          mostrarNotificacion(
+            error?.response?.data
+              ?.message ||
+              "No fue posible cargar los egresos.",
+            "error"
+          );
+        } finally {
+          setCargando(
+            false
+          );
+        }
+      },
+      [
+        tipo,
+        tipoMovimiento,
+        desde,
+        hasta,
+      ]
+    );
+
+  useEffect(
+    () => {
+      cargarEgresos();
+    },
+    [
+      cargarEgresos,
+    ]
+  );
+
+  /* =======================================================
+     FILTRO LOCAL DE BÚSQUEDA
+  ======================================================= */
+
+  const egresosFiltrados =
+    useMemo(
+      () => {
+        const texto =
+          busqueda
+            .trim()
+            .toLowerCase();
+
+        if (!texto) {
+          return egresos;
+        }
+
+        return egresos.filter(
+          (
+            egreso
+          ) => {
+            const contenido = [
+              egreso.codigo,
+              egreso.beneficiarioNombre,
+              egreso.beneficiarioDocumento,
+              egreso.concepto,
+              egreso.formaPago,
+              egreso.referenciaPago,
+              egreso.tipo,
+              egreso.tipoMovimiento,
+              egreso.comision
+                ?.codigo,
+            ]
+              .filter(Boolean)
+              .join(" ")
+              .toLowerCase();
+
+            return contenido.includes(
+              texto
+            );
+          }
+        );
+      },
+      [
+        egresos,
+        busqueda,
+      ]
+    );
+
+  /* =======================================================
+     LIMPIAR FILTROS
+  ======================================================= */
+
+  const limpiarFiltros =
+    () => {
+      setBusqueda("");
+      setTipo("");
+      setTipoMovimiento("");
+      setDesde("");
+      setHasta("");
+    };
+
+  /* =======================================================
+     RENDER
+  ======================================================= */
+
+  return (
+    <div className="egresos-page">
+
+      {/* =================================================
+          HEADER
+      ================================================= */}
+
+      <div className="egresos-header">
+
+        <div>
+
+          <span className="egresos-kicker">
+            Tesorería
+          </span>
+
+          <h1>
+            Egresos
+          </h1>
+
+          <p>
+            Control de pagos y salidas de dinero de Villa María
+          </p>
+
+        </div>
+
+        <button
+          type="button"
+          className="egresos-refresh"
+          onClick={
+            cargarEgresos
+          }
+          disabled={
+            cargando
+          }
+        >
+          Actualizar
+        </button>
+
+      </div>
+
+      {/* =================================================
+          ESTADÍSTICAS
+      ================================================= */}
+
+      <div className="egresos-stats">
+
+        <div className="egresos-stat">
+
+          <div className="egresos-stat-icon">
+            <WalletCards
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Total egresos
+            </span>
+
+            <strong>
+              {formatearDinero(
+                resumen.totalEgresos
+              )}
+            </strong>
+
+            <small>
+              {
+                resumen.totalMovimientos
+              } movimientos
+            </small>
+          </div>
+
+        </div>
+
+        <div className="egresos-stat">
+
+          <div className="egresos-stat-icon">
+            <BadgeDollarSign
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Comisiones
+            </span>
+
+            <strong>
+              {formatearDinero(
+                resumen.totalComisiones
+              )}
+            </strong>
+
+            <small>
+              Pagos a vendedores
+            </small>
+          </div>
+
+        </div>
+
+        <div className="egresos-stat">
+
+          <div className="egresos-stat-icon">
+            <Tractor
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Maquinaria
+            </span>
+
+            <strong>
+              {formatearDinero(
+                resumen.totalMaquinaria
+              )}
+            </strong>
+
+            <small>
+              Horas y servicios
+            </small>
+          </div>
+
+        </div>
+
+        <div className="egresos-stat">
+
+          <div className="egresos-stat-icon">
+            <CircleDollarSign
+              size={20}
+            />
+          </div>
+
+          <div>
+            <span>
+              Otros gastos
+            </span>
+
+            <strong>
+              {formatearDinero(
+                resumen.totalOtros
+              )}
+            </strong>
+
+            <small>
+              Otros egresos
+            </small>
+          </div>
+
+        </div>
+
+      </div>
+
+      {/* =================================================
+          PANEL
+      ================================================= */}
+
+      <div className="egresos-panel">
+
+        {/* ===============================================
+            FILTROS
+        =============================================== */}
+
+        <div className="egresos-toolbar">
+
+          <div className="egresos-search">
+
+            <Search
+              size={17}
+            />
+
+            <input
+              type="text"
+              value={
+                busqueda
+              }
+              onChange={
+                (
+                  e
+                ) =>
+                  setBusqueda(
+                    e.target.value
+                  )
+              }
+              placeholder="Buscar egreso, beneficiario, documento, concepto..."
+            />
+
+          </div>
+
+          <select
+            value={
+              tipo
+            }
+            onChange={
+              (
+                e
+              ) =>
+                setTipo(
+                  e.target.value
+                )
+            }
+          >
+            <option value="">
+              Todos los tipos
+            </option>
+
+            <option value="Comision">
+              Comisiones
+            </option>
+
+            <option value="HorasMaquinaria">
+              Maquinaria
+            </option>
+
+            <option value="Otro">
+              Otros
+            </option>
+          </select>
+
+          <select
+            value={
+              tipoMovimiento
+            }
+            onChange={
+              (
+                e
+              ) =>
+                setTipoMovimiento(
+                  e.target.value
+                )
+            }
+          >
+            <option value="">
+              Todos los movimientos
+            </option>
+
+            <option value="Abono">
+              Abonos
+            </option>
+
+            <option value="Pago">
+              Pagos
+            </option>
+          </select>
+
+        </div>
+
+        {/* ===============================================
+            FECHAS
+        =============================================== */}
+
+        <div className="egresos-fechas">
+
+          <div>
+
+            <CalendarDays
+              size={15}
+            />
+
+            <label>
+              Desde
+            </label>
+
+            <input
+              type="date"
+              value={
+                desde
+              }
+              onChange={
+                (
+                  e
+                ) =>
+                  setDesde(
+                    e.target.value
+                  )
+              }
+            />
+
+          </div>
+
+          <div>
+
+            <CalendarDays
+              size={15}
+            />
+
+            <label>
+              Hasta
+            </label>
+
+            <input
+              type="date"
+              value={
+                hasta
+              }
+              onChange={
+                (
+                  e
+                ) =>
+                  setHasta(
+                    e.target.value
+                  )
+              }
+            />
+
+          </div>
+
+          <button
+            type="button"
+            className="egresos-clear"
+            onClick={
+              limpiarFiltros
+            }
+          >
+            Limpiar filtros
+          </button>
+
+        </div>
+
+        {/* ===============================================
+            TABLA
+        =============================================== */}
+
+        <div className="egresos-table-wrap">
+
+          <table className="egresos-table">
+
+            <thead>
+
+              <tr>
+
+                <th>
+                  Egreso
+                </th>
+
+                <th>
+                  Fecha
+                </th>
+
+                <th>
+                  Tipo
+                </th>
+
+                <th>
+                  Movimiento
+                </th>
+
+                <th>
+                  Beneficiario
+                </th>
+
+                <th>
+                  Concepto
+                </th>
+
+                <th>
+                  Forma de pago
+                </th>
+
+                <th>
+                  Referencia
+                </th>
+
+                <th>
+                  Valor
+                </th>
+
+                <th>
+                  Saldo después
+                </th>
+
+              </tr>
+
+            </thead>
+
+            <tbody>
+
+              {cargando ? (
+
+                <tr>
+
+                  <td
+                    colSpan="10"
+                    className="egresos-empty"
+                  >
+                    Cargando egresos...
+                  </td>
+
+                </tr>
+
+              ) : egresosFiltrados.length ===
+                0 ? (
+
+                <tr>
+
+                  <td
+                    colSpan="10"
+                    className="egresos-empty"
+                  >
+                    No hay egresos registrados.
+                  </td>
+
+                </tr>
+
+              ) : (
+
+                egresosFiltrados.map(
+                  (
+                    egreso
+                  ) => (
+
+                    <tr
+                      key={
+                        egreso._id
+                      }
+                    >
+
+                      <td>
+                        <span className="egresos-code">
+                          {
+                            egreso.codigo
+                          }
+                        </span>
+                      </td>
+
+                      <td>
+                        {formatearFecha(
+                          egreso.fechaPago
+                        )}
+                      </td>
+
+                      <td>
+                        <span
+                          className={`egresos-type egresos-type-${String(
+                            egreso.tipo
+                          ).toLowerCase()}`}
+                        >
+                          {egreso.tipo ===
+                          "Comision"
+                            ? "Comisión"
+                            : egreso.tipo ===
+                              "HorasMaquinaria"
+                            ? "Maquinaria"
+                            : "Otro"}
+                        </span>
+                      </td>
+
+                      <td>
+                        <span
+                          className={`egresos-movement ${
+                            egreso.tipoMovimiento ===
+                            "Pago"
+                              ? "pago"
+                              : "abono"
+                          }`}
+                        >
+                          {egreso.tipoMovimiento ===
+                          "Pago"
+                            ? "Pago total"
+                            : "Abono"}
+                        </span>
+                      </td>
+
+                      <td className="egresos-beneficiary">
+
+                        <strong>
+                          {
+                            egreso.beneficiarioNombre ||
+                            "—"
+                          }
+                        </strong>
+
+                        {egreso.beneficiarioDocumento && (
+                          <span>
+                            {
+                              egreso.beneficiarioDocumento
+                            }
+                          </span>
+                        )}
+
+                      </td>
+
+                      <td className="egresos-concept">
+                        {
+                          egreso.concepto ||
+                          "—"
+                        }
+                      </td>
+
+                      <td>
+                        {
+                          egreso.formaPago ||
+                          "—"
+                        }
+                      </td>
+
+                      <td>
+                        {
+                          egreso.referenciaPago ||
+                          "—"
+                        }
+                      </td>
+
+                      <td className="egresos-value">
+                        {formatearDinero(
+                          egreso.valor
+                        )}
+                      </td>
+
+                      <td className="egresos-balance">
+                        {formatearDinero(
+                          egreso.saldoDespues
+                        )}
+                      </td>
+
+                    </tr>
+
+                  )
+                )
+
+              )}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        {/* ===============================================
+            FOOTER
+        =============================================== */}
+
+        <div className="egresos-footer">
+
+          <span>
+            Mostrando{" "}
+            <strong>
+              {
+                egresosFiltrados.length
+              }
+            </strong>{" "}
+            de{" "}
+            <strong>
+              {
+                egresos.length
+              }
+            </strong>{" "}
+            movimientos
+          </span>
+
+          <strong>
+            Total mostrado:{" "}
+            {formatearDinero(
+              egresosFiltrados.reduce(
+                (
+                  total,
+                  egreso
+                ) =>
+                  total +
+                  (
+                    Number(
+                      egreso.valor
+                    ) || 0
+                  ),
+                0
+              )
+            )}
+          </strong>
+
+        </div>
+
+      </div>
+
+      <Toast
+        visible={
+          toast.visible
+        }
+        mensaje={
+          toast.mensaje
+        }
+        tipo={
+          toast.tipo
+        }
+        onClose={() =>
+          setToast(
+            (
+              anterior
+            ) => ({
+              ...anterior,
+              visible: false,
+            })
+          )
+        }
+      />
+
+    </div>
+  );
+}

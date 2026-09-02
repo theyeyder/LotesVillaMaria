@@ -1,16 +1,7 @@
 import api from "./api";
 
 /* =========================================================
-   OBTENER EGRESOS
-
-   Filtros disponibles:
-
-   tipo
-   tipoMovimiento
-   vendedor
-   comision
-   desde
-   hasta
+   OBTENER TODOS LOS EGRESOS
 ========================================================= */
 
 export const obtenerEgresos =
@@ -46,21 +37,12 @@ export const obtenerEgresoPorId =
 
 /* =========================================================
    REGISTRAR ABONO DE COMISIÓN
-
-   Ejemplo:
-
-   {
-     valor: 500000,
-     formaPago: "Transferencia",
-     referenciaPago: "TRX-123",
-     observaciones: ""
-   }
 ========================================================= */
 
 export const abonarComision =
   async (
     comisionId,
-    datos = {}
+    datos
   ) => {
     const response =
       await api.post(
@@ -75,16 +57,14 @@ export const abonarComision =
             ),
 
           formaPago:
-            datos.formaPago ||
-            "Efectivo",
+            datos.formaPago,
 
           referenciaPago:
             datos.referenciaPago ||
             "",
 
           fechaPago:
-            datos.fechaPago ||
-            undefined,
+            datos.fechaPago,
 
           observaciones:
             datos.observaciones ||
@@ -96,18 +76,15 @@ export const abonarComision =
   };
 
 /* =========================================================
-   PAGAR SALDO COMPLETO DE COMISIÓN
+   PAGAR SALDO TOTAL DE COMISIÓN
 
-   El backend toma automáticamente
-   TODO el saldo pendiente.
-
-   No enviamos valor.
+   El backend calcula automáticamente el saldo pendiente.
 ========================================================= */
 
 export const pagarSaldoComision =
   async (
     comisionId,
-    datos = {}
+    datos
   ) => {
     const response =
       await api.post(
@@ -117,16 +94,14 @@ export const pagarSaldoComision =
             "Pago",
 
           formaPago:
-            datos.formaPago ||
-            "Efectivo",
+            datos.formaPago,
 
           referenciaPago:
             datos.referenciaPago ||
             "",
 
           fechaPago:
-            datos.fechaPago ||
-            undefined,
+            datos.fechaPago,
 
           observaciones:
             datos.observaciones ||
@@ -148,6 +123,70 @@ export const obtenerPagosComision =
     const response =
       await api.get(
         `/egresos/comisiones/${comisionId}`
+      );
+
+    return response.data;
+  };
+
+/* =========================================================
+   EDITAR ABONO
+
+   SOLO ABONOS.
+
+   Un movimiento tipo Pago total NO puede editarse.
+========================================================= */
+
+export const editarAbonoComision =
+  async (
+    egresoId,
+    datos
+  ) => {
+    const response =
+      await api.put(
+        `/egresos/comisiones/abonos/${egresoId}`,
+        {
+          valor:
+            Number(
+              datos.valor
+            ),
+
+          formaPago:
+            datos.formaPago,
+
+          referenciaPago:
+            datos.referenciaPago ||
+            "",
+
+          fechaPago:
+            datos.fechaPago,
+
+          observaciones:
+            datos.observaciones ||
+            "",
+        }
+      );
+
+    return response.data;
+  };
+
+/* =========================================================
+   ELIMINAR MOVIMIENTO DE COMISIÓN
+
+   PERMITE:
+
+   - Eliminar Abono
+   - Eliminar Pago total
+
+   NO permite editar Pago total.
+========================================================= */
+
+export const eliminarMovimientoComision =
+  async (
+    egresoId
+  ) => {
+    const response =
+      await api.delete(
+        `/egresos/comisiones/movimientos/${egresoId}`
       );
 
     return response.data;
