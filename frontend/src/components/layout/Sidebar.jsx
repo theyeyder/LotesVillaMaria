@@ -58,6 +58,11 @@ const menuItems = [
     icon: CreditCard,
   },
   {
+    id: "egresos",
+    label: "Egresos",
+    icon: WalletCards,
+  },
+  {
     id: "facturas",
     label: "Facturas",
     icon: ReceiptText,

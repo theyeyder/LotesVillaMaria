@@ -27,29 +27,34 @@ const titles = {
     subtitle: "Control de ventas realizadas",
   },
 
- vendedores: {
-  title: "Vendedores",
-  subtitle: "Gestión de vendedores y comisiones",
-},
+  vendedores: {
+    title: "Vendedores",
+    subtitle: "Gestión de vendedores y comisiones",
+  },
 
-comisiones: {
-  title: "Comisiones",
-  subtitle: "Control de comisiones y saldos por pagar",
-},
+  comisiones: {
+    title: "Comisiones",
+    subtitle: "Control de comisiones y saldos por pagar",
+  },
 
-cuotas: {
-  title: "Cuotas",
-  subtitle: "Seguimiento de cuotas y vencimientos",
-},
+  cuotas: {
+    title: "Cuotas",
+    subtitle: "Seguimiento de cuotas y vencimientos",
+  },
 
   pagos: {
     title: "Pagos",
-    subtitle: "Registro y control de pagos",
+    subtitle: "Registro de pagos y abonos de clientes",
+  },
+
+  egresos: {
+    title: "Egresos",
+    subtitle: "Control de pagos y salidas de dinero",
   },
 
   facturas: {
     title: "Facturas",
-    subtitle: "Facturación y comprobantes",
+    subtitle: "Gestión de facturas y comprobantes",
   },
 
   maquinaria: {

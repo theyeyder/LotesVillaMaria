@@ -1,0 +1,796 @@
+/* =========================================================
+   LOTES VILLA MARÍA
+   IMPRESIÓN DE EGRESOS
+
+   Se utiliza para:
+   1. Reporte general de egresos
+   2. Comprobante individual EG-xxxx
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color: #24352c;
+
+  background: #f2efe8;
+}
+
+body {
+  padding: 28px;
+}
+
+/* =========================================================
+   BOTONES
+========================================================= */
+
+.acciones {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto 15px;
+}
+
+.acciones button {
+  min-height: 40px;
+
+  padding: 0 18px;
+
+  border-radius: 9px;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.acciones .cerrar {
+  border: 1px solid #d9d3c9;
+
+  background: #ffffff;
+
+  color: #5f6963;
+}
+
+.acciones .imprimir {
+  border: 1px solid #173f2e;
+
+  background: #173f2e;
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   REPORTE
+========================================================= */
+
+.reporte {
+  width: 100%;
+  max-width: 1180px;
+
+  margin: 0 auto;
+
+  padding: 30px;
+
+  border: 1px solid #dfdad0;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 10px 30px
+    rgba(23, 63, 46, 0.08);
+}
+
+/* =========================================================
+   CABECERA
+========================================================= */
+
+.reporte-header {
+  position: relative;
+
+  margin-bottom: 24px;
+
+  padding-bottom: 16px;
+
+  border-bottom: 3px solid #173f2e;
+
+  text-align: center;
+}
+
+.reporte-header::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  bottom: -3px;
+
+  width: 160px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #c99a4b;
+}
+
+.reporte-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 25px;
+  font-weight: 900;
+
+  letter-spacing: 0.03em;
+}
+
+.reporte-header h2 {
+  margin: 6px 0 0;
+
+  color: #9b712d;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   REPORTE GENERAL - RESUMEN
+========================================================= */
+
+.resumen-general {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.resumen-general > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 13px;
+
+  border: 1px solid #e1dbd1;
+  border-radius: 10px;
+
+  background: #faf8f3;
+}
+
+.resumen-general span {
+  color: #8a918d;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.resumen-general strong {
+  color: #173f2e;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TABLA GENERAL
+========================================================= */
+
+table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tfoot {
+  display: table-footer-group;
+}
+
+th {
+  padding: 9px 7px;
+
+  border: 1px solid #d6d1c8;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 900;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+td {
+  padding: 9px 7px;
+
+  border: 1px solid #e3ded6;
+
+  color: #3f4c45;
+
+  font-size: 8px;
+  font-weight: 700;
+
+  text-align: center;
+
+  vertical-align: middle;
+}
+
+tbody tr:nth-child(even) {
+  background: #faf8f4;
+}
+
+td.nombre {
+  min-width: 145px;
+
+  text-align: left;
+}
+
+td.nombre strong {
+  color: #173f2e;
+
+  font-weight: 900;
+}
+
+td.nombre span {
+  color: #919793;
+
+  font-size: 7px;
+}
+
+.dinero {
+  color: #8e6527;
+
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+tfoot td {
+  padding: 10px 7px;
+
+  background: #f3efe6;
+
+  color: #173f2e;
+
+  font-weight: 900;
+}
+
+tfoot td:first-child {
+  text-align: right;
+}
+
+/* =========================================================
+   COMPROBANTE INDIVIDUAL
+========================================================= */
+
+.comprobante-numero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  margin-bottom: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #dccb9f;
+  border-radius: 10px;
+
+  background: #fff8e9;
+}
+
+.comprobante-numero span {
+  color: #8d7650;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comprobante-numero strong {
+  color: #8a642a;
+
+  font-size: 20px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   GRID DATOS
+========================================================= */
+
+.comprobante-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+}
+
+.comprobante-grid.dos {
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+}
+
+.comprobante-grid > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  min-width: 0;
+
+  padding: 12px 13px;
+
+  border: 1px solid #e2ddd4;
+  border-radius: 9px;
+
+  background: #faf9f6;
+}
+
+.comprobante-grid span {
+  color: #8e9590;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comprobante-grid strong {
+  color: #173f2e;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   SECCIONES
+========================================================= */
+
+.comprobante-seccion {
+  margin-top: 18px;
+}
+
+.comprobante-seccion h3 {
+  margin: 0 0 9px;
+
+  padding-bottom: 6px;
+
+  border-bottom: 1px solid #e6e1d8;
+
+  color: #173f2e;
+
+  font-size: 11px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   DETALLE
+========================================================= */
+
+.comprobante-detalle {
+  display: grid;
+
+  grid-template-columns:
+    2fr 1fr 2fr;
+
+  gap: 10px;
+}
+
+.comprobante-detalle > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 5px;
+
+  padding: 12px 13px;
+
+  border: 1px solid #e2ddd4;
+  border-radius: 9px;
+
+  background: #ffffff;
+}
+
+.comprobante-detalle span {
+  color: #8f9691;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comprobante-detalle strong {
+  color: #35433b;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   SALDOS
+========================================================= */
+
+.comprobante-saldos {
+  display: grid;
+
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+
+  gap: 10px;
+
+  margin-top: 22px;
+}
+
+.comprobante-saldos > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+
+  padding: 14px;
+
+  border: 1px solid #ddd7ce;
+  border-radius: 10px;
+
+  background: #faf9f6;
+}
+
+.comprobante-saldos span {
+  color: #8e958f;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  text-transform: uppercase;
+}
+
+.comprobante-saldos strong {
+  color: #173f2e;
+
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.comprobante-saldos .valor-principal {
+  border-color: #d8c391;
+
+  background: #fff8e9;
+}
+
+.comprobante-saldos .valor-principal strong {
+  color: #916625;
+
+  font-size: 18px;
+}
+
+/* =========================================================
+   FIRMAS
+========================================================= */
+
+.firmas {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  gap: 80px;
+
+  margin-top: 70px;
+
+  padding: 0 45px;
+}
+
+.firmas > div {
+  text-align: center;
+}
+
+.firmas span {
+  display: block;
+
+  width: 100%;
+  height: 1px;
+
+  margin-bottom: 7px;
+
+  background: #6e756f;
+}
+
+.firmas strong {
+  color: #4f5a54;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   RESPONSIVE PREVISUALIZACIÓN
+========================================================= */
+
+@media (max-width: 850px) {
+  body {
+    padding: 15px;
+  }
+
+  .reporte {
+    padding: 20px;
+
+    overflow-x: auto;
+  }
+
+  .resumen-general {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .comprobante-grid {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .comprobante-detalle {
+    grid-template-columns: 1fr;
+  }
+
+  table {
+    min-width: 850px;
+  }
+}
+
+@media (max-width: 520px) {
+  .acciones {
+    flex-direction: column-reverse;
+
+    align-items: stretch;
+  }
+
+  .acciones button {
+    width: 100%;
+  }
+
+  .reporte {
+    padding: 15px;
+  }
+
+  .resumen-general,
+  .comprobante-grid,
+  .comprobante-grid.dos,
+  .comprobante-saldos,
+  .firmas {
+    grid-template-columns: 1fr;
+  }
+
+  .firmas {
+    gap: 45px;
+
+    padding: 0;
+  }
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
+
+@media print {
+  @page {
+    size: A4 landscape;
+
+    margin: 9mm;
+  }
+
+  html,
+  body {
+    width: 100%;
+
+    margin: 0;
+
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .acciones {
+    display: none !important;
+  }
+
+  .reporte {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    border: none;
+    border-radius: 0;
+
+    background: #ffffff;
+
+    box-shadow: none;
+  }
+
+  .reporte-header {
+    margin-bottom: 13px;
+
+    padding-bottom: 9px;
+
+    border-bottom: 2px solid #000000;
+  }
+
+  .reporte-header::after {
+    display: none;
+  }
+
+  .reporte-header h1,
+  .reporte-header h2 {
+    color: #000000 !important;
+  }
+
+  .reporte-header h1 {
+    font-size: 18px;
+  }
+
+  .reporte-header h2 {
+    font-size: 10px;
+  }
+
+  .resumen-general,
+  .comprobante-grid,
+  .comprobante-saldos {
+    gap: 5px;
+
+    margin-bottom: 10px;
+  }
+
+  .resumen-general > div,
+  .comprobante-grid > div,
+  .comprobante-detalle > div,
+  .comprobante-saldos > div,
+  .comprobante-numero {
+    padding: 7px;
+
+    border: 1px solid #999;
+
+    border-radius: 0;
+
+    background: #ffffff !important;
+  }
+
+  .resumen-general span,
+  .comprobante-grid span,
+  .comprobante-detalle span,
+  .comprobante-saldos span,
+  .comprobante-numero span {
+    color: #333333 !important;
+
+    font-size: 6.5px;
+  }
+
+  .resumen-general strong,
+  .comprobante-grid strong,
+  .comprobante-detalle strong,
+  .comprobante-saldos strong,
+  .comprobante-numero strong {
+    color: #000000 !important;
+  }
+
+  .comprobante-numero strong {
+    font-size: 13px;
+  }
+
+  .comprobante-saldos .valor-principal strong {
+    color: #000000 !important;
+
+    font-size: 12px;
+  }
+
+  table {
+    width: 100%;
+    min-width: 0 !important;
+
+    page-break-inside: auto;
+  }
+
+  tr {
+    break-inside: avoid;
+
+    page-break-inside: avoid;
+  }
+
+  th {
+    padding: 5px 4px;
+
+    border: 1px solid #666;
+
+    background: #eeeeee !important;
+
+    color: #000000 !important;
+
+    font-size: 6px;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  td {
+    padding: 5px 4px;
+
+    border: 1px solid #999;
+
+    background: #ffffff !important;
+
+    color: #000000 !important;
+
+    font-size: 6.5px;
+  }
+
+  td.nombre strong,
+  td.nombre span,
+  td.dinero {
+    color: #000000 !important;
+  }
+
+  tfoot td {
+    background: #eeeeee !important;
+
+    color: #000000 !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .firmas {
+    margin-top: 50px;
+  }
+
+  .firmas span {
+    background: #000000;
+  }
+
+  .firmas strong {
+    color: #000000;
+  }
+}

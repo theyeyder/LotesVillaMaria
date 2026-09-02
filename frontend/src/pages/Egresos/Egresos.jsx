@@ -2,6 +2,7 @@ import {
   BadgeDollarSign,
   CalendarDays,
   CircleDollarSign,
+  Printer,
   Search,
   Tractor,
   WalletCards,
@@ -83,6 +84,23 @@ const formatearFecha =
 
     return "—";
   };
+
+/* =========================================================
+   ESCAPAR HTML
+========================================================= */
+
+const escaparHTML = (
+  valor = ""
+) => {
+  return String(
+    valor ?? ""
+  )
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
 
 /* =========================================================
    COMPONENTE
@@ -167,6 +185,634 @@ export default function Egresos() {
         mensaje,
         tipo: tipoToast,
       });
+    };
+
+  /* =======================================================
+     VENTANA DE IMPRESIÓN
+  ======================================================= */
+
+  const abrirVentanaImpresion =
+    (
+      titulo,
+      contenido
+    ) => {
+      const ventana =
+        window.open(
+          "",
+          "_blank",
+          "width=1200,height=850"
+        );
+
+      if (!ventana) {
+        mostrarNotificacion(
+          "El navegador bloqueó la ventana de impresión.",
+          "error"
+        );
+
+        return;
+      }
+
+      const rutaEstilos =
+        `${window.location.origin}/styles/egresos-impresion.css`;
+
+      ventana.document.write(`
+        <!DOCTYPE html>
+
+        <html lang="es">
+
+          <head>
+
+            <meta charset="UTF-8" />
+
+            <meta
+              name="viewport"
+              content="width=device-width, initial-scale=1.0"
+            />
+
+            <title>
+              ${escaparHTML(titulo)}
+            </title>
+
+            <link
+              rel="stylesheet"
+              href="${rutaEstilos}"
+            />
+
+          </head>
+
+          <body>
+
+            <div class="acciones">
+
+              <button
+                type="button"
+                class="cerrar"
+                onclick="window.close()"
+              >
+                Cerrar
+              </button>
+
+              <button
+                type="button"
+                class="imprimir"
+                onclick="window.print()"
+              >
+                Imprimir
+              </button>
+
+            </div>
+
+            <main class="reporte">
+              ${contenido}
+            </main>
+
+          </body>
+
+        </html>
+      `);
+
+      ventana.document.close();
+
+      ventana.focus();
+    };
+
+  /* =======================================================
+     IMPRIMIR REPORTE GENERAL
+  ======================================================= */
+
+  const imprimirGeneral =
+    async () => {
+      try {
+        const datos =
+          await obtenerEgresos(
+            {}
+          );
+
+        const lista =
+          Array.isArray(
+            datos?.egresos
+          )
+            ? datos.egresos
+            : [];
+
+        if (
+          lista.length ===
+          0
+        ) {
+          mostrarNotificacion(
+            "No hay egresos para imprimir.",
+            "error"
+          );
+
+          return;
+        }
+
+        const total =
+          lista.reduce(
+            (
+              acumulado,
+              egreso
+            ) =>
+              acumulado +
+              (
+                Number(
+                  egreso.valor
+                ) || 0
+              ),
+            0
+          );
+
+        const filas =
+          lista
+            .map(
+              (
+                egreso
+              ) => `
+                <tr>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.codigo ||
+                      "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      formatearFecha(
+                        egreso.fechaPago
+                      )
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.tipo ===
+                      "Comision"
+                        ? "Comisión"
+                        : egreso.tipo ===
+                          "HorasMaquinaria"
+                        ? "Maquinaria"
+                        : "Otro"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.tipoMovimiento ===
+                      "Pago"
+                        ? "Pago total"
+                        : "Abono"
+                    )}
+                  </td>
+
+                  <td class="nombre">
+                    <strong>
+                      ${escaparHTML(
+                        egreso.beneficiarioNombre ||
+                        "—"
+                      )}
+                    </strong>
+
+                    <br />
+
+                    <span>
+                      ${escaparHTML(
+                        egreso.beneficiarioDocumento ||
+                        ""
+                      )}
+                    </span>
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.concepto ||
+                      "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.formaPago ||
+                      "—"
+                    )}
+                  </td>
+
+                  <td>
+                    ${escaparHTML(
+                      egreso.referenciaPago ||
+                      "—"
+                    )}
+                  </td>
+
+                  <td class="dinero">
+                    ${escaparHTML(
+                      formatearDinero(
+                        egreso.valor
+                      )
+                    )}
+                  </td>
+
+                </tr>
+              `
+            )
+            .join("");
+
+        const contenido = `
+          <div class="reporte-header">
+
+            <h1>
+              LOTES VILLA MARÍA
+            </h1>
+
+            <h2>
+              Reporte general de egresos
+            </h2>
+
+          </div>
+
+          <div class="resumen-general">
+
+            <div>
+              <span>
+                Movimientos
+              </span>
+
+              <strong>
+                ${lista.length}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Total egresos
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    total
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Comisiones
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    datos?.resumen
+                      ?.totalComisiones
+                  )
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Maquinaria
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  formatearDinero(
+                    datos?.resumen
+                      ?.totalMaquinaria
+                  )
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+          <table>
+
+            <thead>
+
+              <tr>
+                <th>Egreso</th>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Movimiento</th>
+                <th>Beneficiario</th>
+                <th>Concepto</th>
+                <th>Forma</th>
+                <th>Referencia</th>
+                <th>Valor</th>
+              </tr>
+
+            </thead>
+
+            <tbody>
+              ${filas}
+            </tbody>
+
+            <tfoot>
+
+              <tr>
+
+                <td colspan="8">
+                  TOTAL EGRESOS
+                </td>
+
+                <td class="dinero">
+                  ${escaparHTML(
+                    formatearDinero(
+                      total
+                    )
+                  )}
+                </td>
+
+              </tr>
+
+            </tfoot>
+
+          </table>
+        `;
+
+        abrirVentanaImpresion(
+          "Reporte general de egresos",
+          contenido
+        );
+      } catch (error) {
+        console.error(
+          "Error imprimiendo egresos:",
+          error
+        );
+
+        mostrarNotificacion(
+          "No fue posible generar el reporte de egresos.",
+          "error"
+        );
+      }
+    };
+
+  /* =======================================================
+     IMPRIMIR COMPROBANTE DE EGRESO
+  ======================================================= */
+
+  const imprimirEgreso =
+    (
+      egreso
+    ) => {
+      if (!egreso) {
+        return;
+      }
+
+      const tipo =
+        egreso.tipo ===
+        "Comision"
+          ? "Comisión"
+          : egreso.tipo ===
+            "HorasMaquinaria"
+          ? "Maquinaria"
+          : "Otro";
+
+      const movimiento =
+        egreso.tipoMovimiento ===
+        "Pago"
+          ? "Pago total"
+          : "Abono";
+
+      const contenido = `
+        <div class="reporte-header">
+
+          <h1>
+            LOTES VILLA MARÍA
+          </h1>
+
+          <h2>
+            Comprobante de egreso
+          </h2>
+
+        </div>
+
+        <div class="comprobante-numero">
+
+          <span>
+            Comprobante
+          </span>
+
+          <strong>
+            ${escaparHTML(
+              egreso.codigo ||
+              "—"
+            )}
+          </strong>
+
+        </div>
+
+        <div class="comprobante-grid">
+
+          <div>
+            <span>Fecha</span>
+
+            <strong>
+              ${escaparHTML(
+                formatearFecha(
+                  egreso.fechaPago
+                )
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>Tipo</span>
+
+            <strong>
+              ${escaparHTML(
+                tipo
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>Movimiento</span>
+
+            <strong>
+              ${escaparHTML(
+                movimiento
+              )}
+            </strong>
+          </div>
+
+          <div>
+            <span>Forma de pago</span>
+
+            <strong>
+              ${escaparHTML(
+                egreso.formaPago ||
+                "—"
+              )}
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="comprobante-seccion">
+
+          <h3>
+            Beneficiario
+          </h3>
+
+          <div class="comprobante-grid dos">
+
+            <div>
+              <span>Nombre</span>
+
+              <strong>
+                ${escaparHTML(
+                  egreso.beneficiarioNombre ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>Documento</span>
+
+              <strong>
+                ${escaparHTML(
+                  egreso.beneficiarioDocumento ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="comprobante-seccion">
+
+          <h3>
+            Detalle
+          </h3>
+
+          <div class="comprobante-detalle">
+
+            <div>
+              <span>
+                Concepto
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  egreso.concepto ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Referencia
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  egreso.referenciaPago ||
+                  "—"
+                )}
+              </strong>
+            </div>
+
+            <div>
+              <span>
+                Observaciones
+              </span>
+
+              <strong>
+                ${escaparHTML(
+                  egreso.observaciones ||
+                  "Sin observaciones"
+                )}
+              </strong>
+            </div>
+
+          </div>
+
+        </div>
+
+        <div class="comprobante-saldos">
+
+          <div>
+
+            <span>
+              Saldo antes
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  egreso.saldoAntes
+                )
+              )}
+            </strong>
+
+          </div>
+
+          <div class="valor-principal">
+
+            <span>
+              Valor pagado
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  egreso.valor
+                )
+              )}
+            </strong>
+
+          </div>
+
+          <div>
+
+            <span>
+              Saldo después
+            </span>
+
+            <strong>
+              ${escaparHTML(
+                formatearDinero(
+                  egreso.saldoDespues
+                )
+              )}
+            </strong>
+
+          </div>
+
+        </div>
+
+        <div class="firmas">
+
+          <div>
+            <span></span>
+            <strong>
+              Entregado por
+            </strong>
+          </div>
+
+          <div>
+            <span></span>
+            <strong>
+              Recibido por
+            </strong>
+          </div>
+
+        </div>
+      `;
+
+      abrirVentanaImpresion(
+        `Comprobante ${egreso.codigo}`,
+        contenido
+      );
     };
 
   /* =======================================================
@@ -375,18 +1021,36 @@ export default function Egresos() {
 
         </div>
 
-        <button
-          type="button"
-          className="egresos-refresh"
-          onClick={
-            cargarEgresos
-          }
-          disabled={
-            cargando
-          }
-        >
-          Actualizar
-        </button>
+        <div className="egresos-header-actions">
+
+          <button
+            type="button"
+            className="egresos-refresh"
+            onClick={
+              cargarEgresos
+            }
+            disabled={
+              cargando
+            }
+          >
+            Actualizar
+          </button>
+
+          <button
+            type="button"
+            className="egresos-print"
+            onClick={
+              imprimirGeneral
+            }
+          >
+            <Printer
+              size={16}
+            />
+
+            Imprimir general
+          </button>
+
+        </div>
 
       </div>
 
@@ -722,6 +1386,10 @@ export default function Egresos() {
                   Saldo después
                 </th>
 
+                <th>
+                  Acciones
+                </th>
+
               </tr>
 
             </thead>
@@ -733,7 +1401,7 @@ export default function Egresos() {
                 <tr>
 
                   <td
-                    colSpan="10"
+                    colSpan="11"
                     className="egresos-empty"
                   >
                     Cargando egresos...
@@ -747,7 +1415,7 @@ export default function Egresos() {
                 <tr>
 
                   <td
-                    colSpan="10"
+                    colSpan="11"
                     className="egresos-empty"
                   >
                     No hay egresos registrados.
@@ -864,6 +1532,29 @@ export default function Egresos() {
                         {formatearDinero(
                           egreso.saldoDespues
                         )}
+                      </td>
+
+                      <td>
+
+                        <div className="egresos-actions">
+
+                          <button
+                            type="button"
+                            className="egresos-print-one"
+                            title="Imprimir comprobante"
+                            onClick={() =>
+                              imprimirEgreso(
+                                egreso
+                              )
+                            }
+                          >
+                            <Printer
+                              size={15}
+                            />
+                          </button>
+
+                        </div>
+
                       </td>
 
                     </tr>

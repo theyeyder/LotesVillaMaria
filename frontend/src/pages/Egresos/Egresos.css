@@ -1,0 +1,925 @@
+/* =========================================================
+   EGRESOS / TESORERÍA
+========================================================= */
+
+.egresos-page {
+  display: flex;
+  flex-direction: column;
+
+  gap: 18px;
+
+  width: 100%;
+
+  padding: 6px 0 28px;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.egresos-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 18px;
+
+  padding: 0 2px;
+}
+
+.egresos-header > div:first-child {
+  min-width: 0;
+}
+
+.egresos-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b1843d;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 0.1em;
+
+  text-transform: uppercase;
+}
+
+.egresos-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 28px;
+  font-weight: 900;
+
+  line-height: 1.1;
+}
+
+.egresos-header p {
+  margin: 6px 0 0;
+
+  color: #7a847e;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   ACTUALIZAR
+========================================================= */
+
+.egresos-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 42px;
+
+  padding: 0 16px;
+
+  border: 1px solid #d9d4ca;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #46534c;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease;
+}
+
+.egresos-refresh:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #c7bcaa;
+
+  background: #faf8f3;
+}
+
+.egresos-refresh:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ESTADÍSTICAS
+========================================================= */
+
+.egresos-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 12px;
+}
+
+.egresos-stat {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 16px;
+
+  border: 1px solid #e4ded3;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 5px 18px
+    rgba(23, 63, 46, 0.04);
+}
+
+.egresos-stat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 42px;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 12px;
+
+  background: #f4efe4;
+
+  color: #a87931;
+}
+
+.egresos-stat > div:last-child {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+}
+
+.egresos-stat span {
+  color: #858d88;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+.egresos-stat strong {
+  margin-top: 4px;
+
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 17px;
+  font-weight: 900;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.egresos-stat small {
+  margin-top: 3px;
+
+  color: #9a9f9c;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.egresos-panel {
+  overflow: hidden;
+
+  border: 1px solid #e4ded3;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(23, 63, 46, 0.04);
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.egresos-toolbar {
+  display: grid;
+
+  grid-template-columns:
+    minmax(260px, 1fr)
+    190px
+    190px;
+
+  gap: 10px;
+
+  padding: 15px;
+
+  border-bottom: 1px solid #eee9e1;
+
+  background: #fbfaf7;
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.egresos-search {
+  display: flex;
+  align-items: center;
+
+  gap: 9px;
+
+  min-width: 0;
+
+  height: 42px;
+
+  padding: 0 12px;
+
+  border: 1px solid #ddd7cd;
+  border-radius: 11px;
+
+  background: #ffffff;
+
+  color: #8a918d;
+}
+
+.egresos-search:focus-within {
+  border-color: #c6a359;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(198, 163, 89, 0.1);
+}
+
+.egresos-search input {
+  width: 100%;
+  min-width: 0;
+
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #2f3d35;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.egresos-search input::placeholder {
+  color: #a1a6a3;
+}
+
+/* =========================================================
+   SELECTS
+========================================================= */
+
+.egresos-toolbar select {
+  width: 100%;
+  height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd7cd;
+  border-radius: 11px;
+
+  outline: none;
+
+  background: #ffffff;
+
+  color: #455149;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   FECHAS
+========================================================= */
+
+.egresos-fechas {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  flex-wrap: wrap;
+
+  gap: 10px;
+
+  padding: 12px 15px;
+
+  border-bottom: 1px solid #eee9e1;
+
+  background: #ffffff;
+}
+
+.egresos-fechas > div {
+  display: flex;
+  align-items: center;
+
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 10px;
+
+  border: 1px solid #e0dbd2;
+  border-radius: 10px;
+
+  background: #faf9f6;
+
+  color: #8e958f;
+}
+
+.egresos-fechas label {
+  color: #657069;
+
+  font-size: 9px;
+  font-weight: 900;
+}
+
+.egresos-fechas input {
+  border: none;
+  outline: none;
+
+  background: transparent;
+
+  color: #344139;
+
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.egresos-clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 38px;
+
+  padding: 0 13px;
+
+  border: 1px solid #dfd8cd;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #676f6a;
+
+  font-family: inherit;
+  font-size: 9px;
+  font-weight: 900;
+
+  cursor: pointer;
+}
+
+.egresos-clear:hover {
+  background: #f7f4ed;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.egresos-table-wrap {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.egresos-table {
+  width: 100%;
+
+  min-width: 1280px;
+
+  border-collapse: collapse;
+}
+
+.egresos-table thead {
+  background: #173f2e;
+}
+
+.egresos-table th {
+  padding: 11px 10px;
+
+  color: #ffffff;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  letter-spacing: 0.04em;
+
+  text-align: left;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+}
+
+.egresos-table td {
+  padding: 11px 10px;
+
+  border-bottom: 1px solid #eeeae3;
+
+  color: #445149;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  vertical-align: middle;
+}
+
+.egresos-table tbody tr {
+  transition:
+    background 0.15s ease;
+}
+
+.egresos-table tbody tr:hover {
+  background: #fbfaf6;
+}
+
+/* =========================================================
+   CÓDIGO
+========================================================= */
+
+.egresos-code {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 8px;
+
+  border: 1px solid #d9caa9;
+  border-radius: 8px;
+
+  background: #fff8e9;
+
+  color: #8a642a;
+
+  font-size: 9px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TIPO
+========================================================= */
+
+.egresos-type {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 82px;
+
+  padding: 5px 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.egresos-type-comision {
+  background: #fff4dc;
+
+  color: #946a26;
+}
+
+.egresos-type-horasmaquinaria {
+  background: #eaf4ee;
+
+  color: #2f6e4b;
+}
+
+.egresos-type-otro {
+  background: #f0f0f0;
+
+  color: #656b67;
+}
+
+/* =========================================================
+   MOVIMIENTO
+========================================================= */
+
+.egresos-movement {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 74px;
+
+  padding: 5px 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 900;
+
+  white-space: nowrap;
+}
+
+.egresos-movement.abono {
+  background: #fff6dd;
+
+  color: #9b712d;
+}
+
+.egresos-movement.pago {
+  background: #eaf6ee;
+
+  color: #2b7048;
+}
+
+/* =========================================================
+   BENEFICIARIO
+========================================================= */
+
+.egresos-beneficiary {
+  min-width: 190px;
+}
+
+.egresos-beneficiary strong {
+  display: block;
+
+  max-width: 220px;
+
+  overflow: hidden;
+
+  color: #173f2e;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.egresos-beneficiary span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #969c98;
+
+  font-size: 8px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   CONCEPTO
+========================================================= */
+
+.egresos-concept {
+  min-width: 180px;
+  max-width: 250px;
+
+  color: #5e6862 !important;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   VALORES
+========================================================= */
+
+.egresos-value {
+  color: #9c7029 !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+
+  white-space: nowrap;
+}
+
+.egresos-balance {
+  color: #a7503c !important;
+
+  font-size: 11px !important;
+  font-weight: 900 !important;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.egresos-empty {
+  height: 130px;
+
+  color: #969c98 !important;
+
+  font-size: 11px !important;
+  font-weight: 700 !important;
+
+  text-align: center !important;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.egresos-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 15px;
+
+  padding: 13px 15px;
+
+  border-top: 1px solid #e9e5de;
+
+  background: #fbfaf7;
+
+  color: #707a74;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.egresos-footer > strong {
+  color: #173f2e;
+
+  font-size: 10px;
+  font-weight: 900;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.egresos-table-wrap::-webkit-scrollbar {
+  height: 9px;
+}
+
+.egresos-table-wrap::-webkit-scrollbar-track {
+  background: #f0ece5;
+}
+
+.egresos-table-wrap::-webkit-scrollbar-thumb {
+  border-radius: 10px;
+
+  background: #c8c0b2;
+}
+
+.egresos-table-wrap::-webkit-scrollbar-thumb:hover {
+  background: #aea495;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1100px) {
+  .egresos-stats {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .egresos-toolbar {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+  .egresos-search {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .egresos-header {
+    flex-direction: column;
+  }
+
+  .egresos-refresh {
+    width: 100%;
+  }
+
+  .egresos-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .egresos-search {
+    grid-column: auto;
+  }
+
+  .egresos-fechas {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .egresos-fechas > div,
+  .egresos-clear {
+    width: 100%;
+  }
+
+  .egresos-footer {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 520px) {
+  .egresos-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .egresos-header h1 {
+    font-size: 24px;
+  }
+}
+/* =========================================================
+   HEADER - ACCIONES
+========================================================= */
+
+.egresos-header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 9px;
+
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   BOTÓN IMPRIMIR GENERAL
+========================================================= */
+
+.egresos-print {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: 1px solid #d7c79f;
+  border-radius: 11px;
+
+  background: #fff8e9;
+
+  color: #946a26;
+
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 900;
+
+  white-space: nowrap;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.egresos-print:hover:not(:disabled) {
+  transform: translateY(-1px);
+
+  border-color: #c9a55d;
+
+  background: #f7e8c5;
+
+  color: #76501b;
+}
+
+.egresos-print:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   ACCIONES DE LA TABLA
+========================================================= */
+
+.egresos-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  gap: 6px;
+}
+
+/* =========================================================
+   BOTÓN IMPRIMIR COMPROBANTE
+========================================================= */
+
+.egresos-print-one {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: 1px solid #d7c79f;
+  border-radius: 8px;
+
+  background: #fff8e9;
+
+  color: #946a26;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.egresos-print-one:hover {
+  transform: translateY(-1px);
+
+  border-color: #c9a55d;
+
+  background: #f7e8c5;
+
+  color: #76501b;
+}
+
+/* =========================================================
+   COLUMNA ACCIONES
+========================================================= */
+
+.egresos-table th:last-child,
+.egresos-table td:last-child {
+  width: 90px;
+
+  text-align: center;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 720px) {
+  .egresos-header-actions {
+    width: 100%;
+  }
+
+  .egresos-header-actions
+    .egresos-refresh,
+  .egresos-header-actions
+    .egresos-print {
+    flex: 1;
+  }
+}
+
+@media (max-width: 520px) {
+  .egresos-header-actions {
+    flex-direction: column;
+  }
+
+  .egresos-header-actions
+    .egresos-refresh,
+  .egresos-header-actions
+    .egresos-print {
+    width: 100%;
+  }
+}
