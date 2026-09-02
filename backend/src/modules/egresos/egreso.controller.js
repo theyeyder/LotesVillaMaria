@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import Egreso from "./egreso.model.js";
 import Comision from "../comisiones/comision.model.js";
+import HoraMaquinaria from "../horasMaquinaria/horaMaquinaria.model.js";
 
 import {
   generarCodigoEgreso,
@@ -62,6 +63,19 @@ const obtenerEgresoCompleto =
             },
           },
         ],
+      })
+      .populate({
+        path: "horaMaquinaria",
+
+        select:
+          "maquinaria operario fecha totalMinutos valorHora valorPagar totalPagado saldoPendiente estadoPago fechaUltimoPago observaciones",
+
+        populate: {
+          path: "maquinaria",
+
+          select:
+            "codigo nombre tipo placa marca modelo",
+        },
       });
   };
 
@@ -229,6 +243,162 @@ const obtenerUltimoMovimientoComision =
       .sort({
         createdAt: -1,
       });
+  };
+
+/* =========================================================
+   RECALCULAR HORAS DE MAQUINARIA DESDE EGRESOS
+
+   Recalcula:
+
+   - totalPagado
+   - saldoPendiente
+   - estadoPago
+   - fechaUltimoPago
+========================================================= */
+
+const recalcularHoraMaquinariaDesdeEgresos =
+  async (
+    horaMaquinariaId
+  ) => {
+    const registro =
+      await HoraMaquinaria.findById(
+        horaMaquinariaId
+      );
+
+    if (!registro) {
+      throw new Error(
+        "El registro de horas de maquinaria no fue encontrado"
+      );
+    }
+
+    const movimientos =
+      await Egreso.find({
+        tipo:
+          "HorasMaquinaria",
+
+        horaMaquinaria:
+          horaMaquinariaId,
+      })
+        .sort({
+          createdAt: 1,
+        })
+        .lean();
+
+    const valorPagar =
+      Number(
+        registro.valorPagar
+      ) || 0;
+
+    const totalPagado =
+      movimientos.reduce(
+        (
+          total,
+          movimiento
+        ) =>
+          total +
+          (
+            Number(
+              movimiento.valor
+            ) || 0
+          ),
+        0
+      );
+
+    if (
+      totalPagado >
+      valorPagar
+    ) {
+      throw new Error(
+        "Los pagos registrados superan el valor total de las horas de maquinaria"
+      );
+    }
+
+    const saldoPendiente =
+      Math.max(
+        0,
+        valorPagar -
+          totalPagado
+      );
+
+    let estadoPago =
+      "Pendiente";
+
+    if (
+      totalPagado > 0 &&
+      saldoPendiente > 0
+    ) {
+      estadoPago =
+        "Abonada";
+    }
+
+    if (
+      saldoPendiente ===
+        0 &&
+      valorPagar > 0
+    ) {
+      estadoPago =
+        "Pagada";
+    }
+
+    let fechaUltimoPago =
+      null;
+
+    if (
+      movimientos.length >
+      0
+    ) {
+      const ultimo =
+        movimientos[
+          movimientos.length -
+            1
+        ];
+
+      fechaUltimoPago =
+        ultimo.fechaPago ||
+        ultimo.createdAt ||
+        null;
+    }
+
+    registro.totalPagado =
+      totalPagado;
+
+    registro.saldoPendiente =
+      saldoPendiente;
+
+    registro.estadoPago =
+      estadoPago;
+
+    registro.fechaUltimoPago =
+      fechaUltimoPago;
+
+    await registro.save();
+
+    return HoraMaquinaria.findById(
+      registro._id
+    ).populate(
+      "maquinaria",
+      "codigo nombre tipo placa marca modelo"
+    );
+  };
+
+/* =========================================================
+   ÚLTIMO MOVIMIENTO DE MAQUINARIA
+========================================================= */
+
+const obtenerUltimoMovimientoMaquinaria =
+  async (
+    horaMaquinariaId
+  ) => {
+    return Egreso.findOne({
+      tipo:
+        "HorasMaquinaria",
+
+      horaMaquinaria:
+        horaMaquinariaId,
+    }).sort({
+      createdAt:
+        -1,
+    });
   };
 
 /* =========================================================
@@ -1817,6 +1987,1131 @@ export const obtenerPagosComision =
       ).json({
         message:
           "No fue posible obtener el historial de pagos de la comisión",
+      });
+    }
+  };
+
+/* =========================================================
+   ABONAR / PAGAR HORAS DE MAQUINARIA
+
+   POST /api/egresos/maquinaria/:horaMaquinariaId
+
+   ABONO:
+   {
+     "tipoMovimiento": "Abono",
+     "valor": 100000,
+     "formaPago": "Efectivo"
+   }
+
+   PAGO TOTAL:
+   {
+     "tipoMovimiento": "Pago",
+     "formaPago": "Transferencia"
+   }
+========================================================= */
+
+export const registrarPagoMaquinaria =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        horaMaquinariaId,
+      } = req.params;
+
+      const {
+        tipoMovimiento,
+        valor,
+        formaPago = "Efectivo",
+        referenciaPago = "",
+        fechaPago,
+        observaciones = "",
+      } = req.body;
+
+      /* =========================
+         VALIDAR ID
+      ========================= */
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          horaMaquinariaId
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El registro de horas seleccionado no es válido",
+        });
+      }
+
+      /* =========================
+         MOVIMIENTO
+      ========================= */
+
+      if (
+        ![
+          "Abono",
+          "Pago",
+        ].includes(
+          tipoMovimiento
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "Seleccione si desea realizar un Abono o un Pago",
+        });
+      }
+
+      /* =========================
+         FORMA DE PAGO
+      ========================= */
+
+      if (
+        !FORMAS_PAGO.includes(
+          formaPago
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "La forma de pago seleccionada no es válida",
+        });
+      }
+
+      /* =========================
+         SINCRONIZAR SALDO
+      ========================= */
+
+      await recalcularHoraMaquinariaDesdeEgresos(
+        horaMaquinariaId
+      );
+
+      const registro =
+        await HoraMaquinaria.findById(
+          horaMaquinariaId
+        ).populate(
+          "maquinaria",
+          "codigo nombre tipo placa marca modelo"
+        );
+
+      if (!registro) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "El registro de horas de maquinaria no fue encontrado",
+        });
+      }
+
+      /* =========================
+         SALDO
+      ========================= */
+
+      const saldoAntes =
+        Number(
+          registro.saldoPendiente
+        ) || 0;
+
+      if (
+        saldoAntes <= 0 ||
+        registro.estadoPago ===
+          "Pagada"
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "Este registro de horas ya se encuentra pagado completamente",
+        });
+      }
+
+      /* =========================
+         VALOR
+      ========================= */
+
+      let valorPago;
+
+      if (
+        tipoMovimiento ===
+        "Pago"
+      ) {
+        /*
+          PAGO TOTAL =
+          todo el saldo pendiente.
+        */
+
+        valorPago =
+          saldoAntes;
+      } else {
+        valorPago =
+          Number(
+            valor
+          );
+
+        if (
+          !Number.isFinite(
+            valorPago
+          ) ||
+          valorPago <= 0
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "Digite un valor de abono válido",
+          });
+        }
+
+        if (
+          valorPago >=
+          saldoAntes
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              `Para cancelar todo el saldo utilice Pagar saldo. El saldo actual es ${saldoAntes}.`,
+          });
+        }
+      }
+
+      /* =========================
+         FECHA
+      ========================= */
+
+      let fechaMovimiento =
+        new Date();
+
+      if (fechaPago) {
+        fechaMovimiento =
+          new Date(
+            fechaPago
+          );
+
+        if (
+          Number.isNaN(
+            fechaMovimiento.getTime()
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "La fecha del pago no es válida",
+          });
+        }
+      }
+
+      const saldoDespues =
+        Math.max(
+          0,
+          saldoAntes -
+            valorPago
+        );
+
+      /* =========================
+         CÓDIGO EG
+      ========================= */
+
+      const codigo =
+        await generarCodigoEgreso();
+
+      /* =========================
+         BENEFICIARIO
+      ========================= */
+
+      const beneficiarioNombre =
+        String(
+          registro.operario ||
+            "Operario"
+        ).trim();
+
+      /*
+        Actualmente HoraMaquinaria
+        guarda el operario como texto,
+        no tiene documento.
+      */
+
+      const beneficiarioDocumento =
+        "";
+
+      /* =========================
+         IDENTIFICAR MÁQUINA
+      ========================= */
+
+      const nombreMaquina =
+        registro.maquinaria
+          ?.codigo ||
+        registro.maquinaria
+          ?.nombre ||
+        "Maquinaria";
+
+      /* =========================
+         CONCEPTO
+      ========================= */
+
+      const concepto =
+        tipoMovimiento ===
+        "Abono"
+          ? `Abono horas maquinaria ${nombreMaquina} - ${beneficiarioNombre}`
+          : `Pago horas maquinaria ${nombreMaquina} - ${beneficiarioNombre}`;
+
+      /* =========================
+         CREAR EGRESO
+      ========================= */
+
+      let egreso;
+
+      try {
+        egreso =
+          await Egreso.create({
+            codigo,
+
+            tipo:
+              "HorasMaquinaria",
+
+            tipoMovimiento,
+
+            comision:
+              null,
+
+            horaMaquinaria:
+              registro._id,
+
+            vendedor:
+              null,
+
+            beneficiarioNombre,
+
+            beneficiarioDocumento,
+
+            concepto,
+
+            valor:
+              valorPago,
+
+            saldoAntes,
+
+            saldoDespues,
+
+            formaPago,
+
+            referenciaPago:
+              String(
+                referenciaPago ||
+                  ""
+              ).trim(),
+
+            fechaPago:
+              fechaMovimiento,
+
+            observaciones:
+              String(
+                observaciones ||
+                  ""
+              ).trim(),
+          });
+
+        /*
+          Ahora que existe el EG,
+          recalculamos el registro
+          de horas desde todos sus egresos.
+        */
+
+        await recalcularHoraMaquinariaDesdeEgresos(
+          registro._id
+        );
+      } catch (
+        errorCreandoPago
+      ) {
+        /*
+          Si se alcanzó a crear el EG
+          pero falla el recálculo,
+          eliminamos el EG recién creado.
+        */
+
+        if (
+          egreso?._id
+        ) {
+          await Egreso.findByIdAndDelete(
+            egreso._id
+          );
+        }
+
+        throw errorCreandoPago;
+      }
+
+      const egresoCompleto =
+        await obtenerEgresoCompleto(
+          egreso._id
+        );
+
+      const registroFinal =
+        await HoraMaquinaria.findById(
+          registro._id
+        ).populate(
+          "maquinaria",
+          "codigo nombre tipo placa marca modelo"
+        );
+
+      res.status(
+        201
+      ).json({
+        message:
+          tipoMovimiento ===
+          "Pago"
+            ? "Horas de maquinaria pagadas completamente."
+            : "Abono de maquinaria registrado correctamente.",
+
+        egreso:
+          egresoCompleto,
+
+        horaMaquinaria:
+          registroFinal,
+      });
+    } catch (error) {
+      console.error(
+        "Error registrando pago de maquinaria:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          error?.message ||
+          "No fue posible registrar el pago de maquinaria",
+      });
+    }
+  };
+
+/* =========================================================
+   EDITAR ABONO DE MAQUINARIA
+
+   PUT /api/egresos/maquinaria/abonos/:egresoId
+
+   ABONO:
+   ✅ editar
+
+   PAGO TOTAL:
+   ❌ editar
+========================================================= */
+
+export const editarAbonoMaquinaria =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        egresoId,
+      } = req.params;
+
+      const {
+        valor,
+        formaPago,
+        referenciaPago = "",
+        fechaPago,
+        observaciones = "",
+      } = req.body;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          egresoId
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El movimiento seleccionado no es válido",
+        });
+      }
+
+      const egreso =
+        await Egreso.findById(
+          egresoId
+        );
+
+      if (!egreso) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "El egreso no fue encontrado",
+        });
+      }
+
+      if (
+        egreso.tipo !==
+        "HorasMaquinaria"
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "Este movimiento no corresponde a horas de maquinaria",
+        });
+      }
+
+      /* =========================
+         PAGO TOTAL NO SE EDITA
+      ========================= */
+
+      if (
+        egreso.tipoMovimiento !==
+        "Abono"
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "El pago total no se puede editar. Puede eliminarlo si necesita revertirlo.",
+        });
+      }
+
+      /* =========================
+         SOLO ÚLTIMO MOVIMIENTO
+      ========================= */
+
+      const ultimoMovimiento =
+        await obtenerUltimoMovimientoMaquinaria(
+          egreso.horaMaquinaria
+        );
+
+      if (
+        !ultimoMovimiento ||
+        String(
+          ultimoMovimiento._id
+        ) !==
+          String(
+            egreso._id
+          )
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "Solo se puede editar el último movimiento registrado.",
+        });
+      }
+
+      const registro =
+        await HoraMaquinaria.findById(
+          egreso.horaMaquinaria
+        ).populate(
+          "maquinaria",
+          "codigo nombre tipo placa marca modelo"
+        );
+
+      if (!registro) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "El registro de horas relacionado no fue encontrado",
+        });
+      }
+
+      /* =========================
+         VALOR NUEVO
+      ========================= */
+
+      const nuevoValor =
+        Number(
+          valor
+        );
+
+      if (
+        !Number.isFinite(
+          nuevoValor
+        ) ||
+        nuevoValor <= 0
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "Digite un valor de abono válido",
+        });
+      }
+
+      /* =========================
+         MOVIMIENTOS ANTERIORES
+      ========================= */
+
+      const movimientosAnteriores =
+        await Egreso.find({
+          tipo:
+            "HorasMaquinaria",
+
+          horaMaquinaria:
+            egreso.horaMaquinaria,
+
+          _id: {
+            $ne:
+              egreso._id,
+          },
+        }).lean();
+
+      const totalAnterior =
+        movimientosAnteriores.reduce(
+          (
+            total,
+            movimiento
+          ) =>
+            total +
+            (
+              Number(
+                movimiento.valor
+              ) || 0
+            ),
+          0
+        );
+
+      const valorPagar =
+        Number(
+          registro.valorPagar
+        ) || 0;
+
+      const saldoDisponible =
+        Math.max(
+          0,
+          valorPagar -
+            totalAnterior
+        );
+
+      if (
+        nuevoValor >=
+        saldoDisponible
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            `El abono debe ser menor al saldo disponible. Para cancelar ${saldoDisponible}, utilice Pagar saldo.`,
+        });
+      }
+
+      /* =========================
+         FORMA
+      ========================= */
+
+      const nuevaFormaPago =
+        formaPago ||
+        egreso.formaPago ||
+        "Efectivo";
+
+      if (
+        !FORMAS_PAGO.includes(
+          nuevaFormaPago
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "La forma de pago seleccionada no es válida",
+        });
+      }
+
+      /* =========================
+         FECHA
+      ========================= */
+
+      let nuevaFecha =
+        egreso.fechaPago;
+
+      if (fechaPago) {
+        nuevaFecha =
+          new Date(
+            fechaPago
+          );
+
+        if (
+          Number.isNaN(
+            nuevaFecha.getTime()
+          )
+        ) {
+          return res.status(
+            400
+          ).json({
+            message:
+              "La fecha del abono no es válida",
+          });
+        }
+      }
+
+      const saldoAntes =
+        saldoDisponible;
+
+      const saldoDespues =
+        saldoDisponible -
+        nuevoValor;
+
+      /* =========================
+         RESPALDO
+      ========================= */
+
+      const datosAnteriores = {
+        valor:
+          egreso.valor,
+
+        saldoAntes:
+          egreso.saldoAntes,
+
+        saldoDespues:
+          egreso.saldoDespues,
+
+        formaPago:
+          egreso.formaPago,
+
+        referenciaPago:
+          egreso.referenciaPago,
+
+        fechaPago:
+          egreso.fechaPago,
+
+        observaciones:
+          egreso.observaciones,
+
+        concepto:
+          egreso.concepto,
+      };
+
+      const nombreMaquina =
+        registro.maquinaria
+          ?.codigo ||
+        registro.maquinaria
+          ?.nombre ||
+        "Maquinaria";
+
+      /* =========================
+         ACTUALIZAR
+      ========================= */
+
+      egreso.valor =
+        nuevoValor;
+
+      egreso.saldoAntes =
+        saldoAntes;
+
+      egreso.saldoDespues =
+        saldoDespues;
+
+      egreso.formaPago =
+        nuevaFormaPago;
+
+      egreso.referenciaPago =
+        String(
+          referenciaPago ||
+            ""
+        ).trim();
+
+      egreso.fechaPago =
+        nuevaFecha;
+
+      egreso.observaciones =
+        String(
+          observaciones ||
+            ""
+        ).trim();
+
+      egreso.concepto =
+        `Abono horas maquinaria ${nombreMaquina} - ${registro.operario}`;
+
+      await egreso.save();
+
+      try {
+        await recalcularHoraMaquinariaDesdeEgresos(
+          egreso.horaMaquinaria
+        );
+      } catch (
+        errorRecalculo
+      ) {
+        /*
+          Restauramos el EG si el
+          recálculo falla.
+        */
+
+        Object.assign(
+          egreso,
+          datosAnteriores
+        );
+
+        await egreso.save();
+
+        throw errorRecalculo;
+      }
+
+      const egresoCompleto =
+        await obtenerEgresoCompleto(
+          egreso._id
+        );
+
+      const registroFinal =
+        await HoraMaquinaria.findById(
+          egreso.horaMaquinaria
+        ).populate(
+          "maquinaria",
+          "codigo nombre tipo placa marca modelo"
+        );
+
+      res.status(
+        200
+      ).json({
+        message:
+          "Abono de maquinaria actualizado correctamente.",
+
+        egreso:
+          egresoCompleto,
+
+        horaMaquinaria:
+          registroFinal,
+      });
+    } catch (error) {
+      console.error(
+        "Error editando abono de maquinaria:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          error?.message ||
+          "No fue posible editar el abono de maquinaria",
+      });
+    }
+  };
+
+/* =========================================================
+   ELIMINAR MOVIMIENTO DE MAQUINARIA
+
+   DELETE
+   /api/egresos/maquinaria/movimientos/:egresoId
+
+   ABONO:
+   ✅ eliminar
+
+   PAGO:
+   ✅ eliminar
+
+   Solo el último movimiento.
+========================================================= */
+
+export const eliminarMovimientoMaquinaria =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        egresoId,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          egresoId
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El movimiento seleccionado no es válido",
+        });
+      }
+
+      const egreso =
+        await Egreso.findById(
+          egresoId
+        );
+
+      if (!egreso) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "El movimiento no fue encontrado",
+        });
+      }
+
+      if (
+        egreso.tipo !==
+        "HorasMaquinaria"
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "Este movimiento no corresponde a horas de maquinaria",
+        });
+      }
+
+      const ultimoMovimiento =
+        await obtenerUltimoMovimientoMaquinaria(
+          egreso.horaMaquinaria
+        );
+
+      if (
+        !ultimoMovimiento ||
+        String(
+          ultimoMovimiento._id
+        ) !==
+          String(
+            egreso._id
+          )
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "Solo se puede eliminar el último movimiento registrado.",
+        });
+      }
+
+      const tipoMovimiento =
+        egreso.tipoMovimiento;
+
+      const codigoMovimiento =
+        egreso.codigo;
+
+      const valorEliminado =
+        Number(
+          egreso.valor
+        ) || 0;
+
+      const horaMaquinariaId =
+        egreso.horaMaquinaria;
+
+      /*
+        Guardamos una copia por seguridad.
+      */
+
+      const respaldo =
+        egreso.toObject();
+
+      await Egreso.findByIdAndDelete(
+        egreso._id
+      );
+
+      let registroActualizado;
+
+      try {
+        registroActualizado =
+          await recalcularHoraMaquinariaDesdeEgresos(
+            horaMaquinariaId
+          );
+      } catch (
+        errorRecalculo
+      ) {
+        /*
+          Restaurar movimiento si algo falla.
+        */
+
+        await Egreso.create(
+          respaldo
+        );
+
+        throw errorRecalculo;
+      }
+
+      res.status(
+        200
+      ).json({
+        message:
+          tipoMovimiento ===
+          "Pago"
+            ? "Pago total de maquinaria eliminado correctamente. El registro volvió a tener saldo pendiente."
+            : "Abono de maquinaria eliminado correctamente.",
+
+        movimientoEliminado: {
+          codigo:
+            codigoMovimiento,
+
+          tipoMovimiento,
+
+          valor:
+            valorEliminado,
+        },
+
+        horaMaquinaria:
+          registroActualizado,
+      });
+    } catch (error) {
+      console.error(
+        "Error eliminando movimiento de maquinaria:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          error?.message ||
+          "No fue posible eliminar el movimiento de maquinaria",
+      });
+    }
+  };
+
+/* =========================================================
+   HISTORIAL DE PAGOS DE MAQUINARIA
+
+   GET /api/egresos/maquinaria/:horaMaquinariaId
+========================================================= */
+
+export const obtenerPagosMaquinaria =
+  async (
+    req,
+    res
+  ) => {
+    try {
+      const {
+        horaMaquinariaId,
+      } = req.params;
+
+      if (
+        !mongoose.Types.ObjectId.isValid(
+          horaMaquinariaId
+        )
+      ) {
+        return res.status(
+          400
+        ).json({
+          message:
+            "El registro de horas seleccionado no es válido",
+        });
+      }
+
+      await recalcularHoraMaquinariaDesdeEgresos(
+        horaMaquinariaId
+      );
+
+      const registro =
+        await HoraMaquinaria.findById(
+          horaMaquinariaId
+        ).populate(
+          "maquinaria",
+          "codigo nombre tipo placa marca modelo"
+        );
+
+      if (!registro) {
+        return res.status(
+          404
+        ).json({
+          message:
+            "El registro de horas no fue encontrado",
+        });
+      }
+
+      const egresos =
+        await Egreso.find({
+          tipo:
+            "HorasMaquinaria",
+
+          horaMaquinaria:
+            horaMaquinariaId,
+        })
+          .sort({
+            createdAt:
+              -1,
+          })
+          .lean();
+
+      const ultimoMovimientoId =
+        egresos.length >
+        0
+          ? String(
+              egresos[0]._id
+            )
+          : null;
+
+      const movimientos =
+        egresos.map(
+          (
+            egreso
+          ) => {
+            const esUltimoMovimiento =
+              String(
+                egreso._id
+              ) ===
+              ultimoMovimientoId;
+
+            const puedeEditar =
+              esUltimoMovimiento &&
+              egreso.tipoMovimiento ===
+                "Abono";
+
+            const puedeEliminar =
+              esUltimoMovimiento &&
+              [
+                "Abono",
+                "Pago",
+              ].includes(
+                egreso.tipoMovimiento
+              );
+
+            return {
+              ...egreso,
+
+              esUltimoMovimiento,
+
+              puedeEditar,
+
+              puedeEliminar,
+            };
+          }
+        );
+
+      res.status(
+        200
+      ).json({
+        horaMaquinaria:
+          registro,
+
+        movimientos,
+
+        resumen: {
+          valorPagar:
+            Number(
+              registro.valorPagar
+            ) || 0,
+
+          totalPagado:
+            Number(
+              registro.totalPagado
+            ) || 0,
+
+          saldoPendiente:
+            Number(
+              registro.saldoPendiente
+            ) || 0,
+
+          estado:
+            registro.estadoPago,
+
+          cantidadMovimientos:
+            movimientos.length,
+        },
+      });
+    } catch (error) {
+      console.error(
+        "Error obteniendo historial de maquinaria:",
+        error
+      );
+
+      res.status(
+        500
+      ).json({
+        message:
+          error?.message ||
+          "No fue posible obtener el historial de pagos de maquinaria",
       });
     }
   };

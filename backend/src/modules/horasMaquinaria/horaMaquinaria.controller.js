@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 import HoraMaquinaria from "./horaMaquinaria.model.js";
 import Maquinaria from "../maquinaria/maquinaria.model.js";
+import Egreso from "../egresos/egreso.model.js";
 
 /* =========================================================
    FUNCIONES AUXILIARES
@@ -1069,6 +1070,22 @@ export const crearHoraMaquinaria =
 
           valorPagar,
 
+          /* =========================
+             CONTROL DE PAGOS
+          ========================= */
+
+          totalPagado:
+            0,
+
+          saldoPendiente:
+            valorPagar,
+
+          estadoPago:
+            "Pendiente",
+
+          fechaUltimoPago:
+            null,
+
           observaciones:
             String(
               observaciones ||
@@ -1379,6 +1396,32 @@ export const actualizarHoraMaquinaria =
           validacionValor.valorHora
         );
 
+      /* =====================================================
+         PROTEGER REGISTROS QUE YA TIENEN PAGOS
+
+         Podemos modificar las horas o valor de hora,
+         siempre que el nuevo valor total NO quede
+         por debajo de lo que ya se ha pagado.
+      ===================================================== */
+
+      const totalPagadoActual =
+        Number(
+          registro.totalPagado ||
+            0
+        );
+
+      if (
+        valorPagar <
+        totalPagadoActual
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            `No puede reducir el valor de las horas a ${valorPagar} porque ya se han pagado ${totalPagadoActual}.`,
+        });
+      }
+
       /* =========================
          ACTUALIZAR ESTE REGISTRO
       ========================= */
@@ -1571,6 +1614,42 @@ export const eliminarHoraMaquinaria =
         ).json({
           message:
             "Registro de horas no encontrado",
+        });
+      }
+
+      /* =====================================================
+         VALIDAR PAGOS / EGRESOS
+
+         No permitimos borrar un registro de horas si ya
+         produjo movimientos financieros.
+
+         Primero deben eliminarse/revertirse sus egresos.
+      ===================================================== */
+
+      const egresosRegistrados =
+        await Egreso.countDocuments({
+          tipo:
+            "HorasMaquinaria",
+
+          horaMaquinaria:
+            registro._id,
+        });
+
+      const totalPagado =
+        Number(
+          registro.totalPagado ||
+            0
+        );
+
+      if (
+        egresosRegistrados > 0 ||
+        totalPagado > 0
+      ) {
+        return res.status(
+          409
+        ).json({
+          message:
+            "Este registro de horas tiene pagos registrados. Primero debe eliminar los movimientos de pago correspondientes antes de eliminar las horas.",
         });
       }
 

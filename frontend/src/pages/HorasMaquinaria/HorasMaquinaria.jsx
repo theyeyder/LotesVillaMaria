@@ -11,6 +11,10 @@ import {
   Tractor,
   RefreshCw,
   Printer,
+  HandCoins,
+  History,
+  Save,
+  X,
 } from "lucide-react";
 
 import HoraModal from "./HoraModal";
@@ -27,6 +31,14 @@ import {
 } from "../../services/horaMaquinaria.service";
 
 import { obtenerMaquinarias } from "../../services/maquinaria.service";
+
+import {
+  abonarMaquinaria,
+  pagarSaldoMaquinaria,
+  obtenerPagosMaquinaria,
+  editarAbonoMaquinaria,
+  eliminarMovimientoMaquinaria,
+} from "../../services/egreso.service";
 
 const formatearMinutos = (minutos = 0) => {
   const valor = Number(minutos) || 0;
@@ -77,6 +89,168 @@ const obtenerFechaLocal = () => {
   const local = new Date(hoy.getTime() - hoy.getTimezoneOffset() * 60000);
 
   return local.toISOString().slice(0, 10);
+};
+
+/* =========================================================
+   FORMATEAR VALOR INPUT
+
+   1000000
+   ↓
+   1.000.000
+========================================================= */
+
+const formatearValorInput = (valor = "") => {
+  const limpio = String(valor ?? "").replace(/\D/g, "");
+
+  if (!limpio) {
+    return "";
+  }
+
+  return new Intl.NumberFormat("es-CO").format(
+    Number(limpio)
+  );
+};
+
+/* =========================================================
+   FECHA PARA INPUT
+========================================================= */
+
+const obtenerFechaInput = (fecha) => {
+  if (!fecha) {
+    return obtenerFechaLocal();
+  }
+
+  const texto = String(fecha);
+
+  if (/^\d{4}-\d{2}-\d{2}/.test(texto)) {
+    return texto.slice(0, 10);
+  }
+
+  return obtenerFechaLocal();
+};
+
+/* =========================================================
+   VALORES FINANCIEROS DEL REGISTRO
+
+   Estos fallbacks también sirven para registros antiguos
+   creados antes de agregar totalPagado y saldoPendiente.
+========================================================= */
+
+const obtenerTotalPagadoRegistro = (registro) => {
+  return Math.max(
+    0,
+    Number(registro?.totalPagado) || 0
+  );
+};
+
+const obtenerSaldoRegistro = (registro) => {
+  const valorPagar =
+    Math.max(
+      0,
+      Number(
+        registro?.valorPagar
+      ) || 0
+    );
+
+  const totalPagado =
+    obtenerTotalPagadoRegistro(
+      registro
+    );
+
+  const saldoGuardado =
+    Number(
+      registro?.saldoPendiente
+    );
+
+  /* =====================================================
+     REGISTROS ANTIGUOS
+
+     Antes de implementar pagos, los registros no tenían:
+
+     - totalPagado
+     - saldoPendiente
+     - estadoPago
+
+     Al leerlos con el nuevo modelo, Mongoose puede mostrar:
+
+     totalPagado: 0
+     saldoPendiente: 0
+     estadoPago: "Pendiente"
+
+     Aunque realmente el saldo debe ser igual
+     al valor total a pagar.
+
+     Ejemplo:
+
+     Valor a pagar: $600.000
+     Pagado:        $0
+     Saldo viejo:   $0
+
+     Saldo correcto:
+     $600.000
+  ===================================================== */
+
+  if (
+    valorPagar > 0 &&
+    totalPagado === 0 &&
+    (
+      !Number.isFinite(
+        saldoGuardado
+      ) ||
+      saldoGuardado === 0
+    ) &&
+    registro?.estadoPago !==
+      "Pagada"
+  ) {
+    return valorPagar;
+  }
+
+  /* =====================================================
+     REGISTRO ACTUAL
+  ===================================================== */
+
+  if (
+    Number.isFinite(
+      saldoGuardado
+    )
+  ) {
+    return Math.max(
+      0,
+      saldoGuardado
+    );
+  }
+
+  /* =====================================================
+     FALLBACK
+  ===================================================== */
+
+  return Math.max(
+    0,
+    valorPagar -
+      totalPagado
+  );
+};
+
+const obtenerEstadoPagoRegistro = (registro) => {
+  if (registro?.estadoPago) {
+    return registro.estadoPago;
+  }
+
+  const pagado =
+    obtenerTotalPagadoRegistro(registro);
+
+  const saldo =
+    obtenerSaldoRegistro(registro);
+
+  if (pagado <= 0) {
+    return "Pendiente";
+  }
+
+  if (saldo > 0) {
+    return "Abonada";
+  }
+
+  return "Pagada";
 };
 
 const fechaUTC = (fecha) => {
@@ -183,6 +357,89 @@ export default function HorasMaquinaria() {
   const [modalAbierto, setModalAbierto] = useState(false);
 
   const [registroEditar, setRegistroEditar] = useState(null);
+
+  /* =========================================================
+     PAGAR / ABONAR
+  ========================================================= */
+
+  const [modalPagoAbierto, setModalPagoAbierto] =
+    useState(false);
+
+  const [
+    registroPagoSeleccionado,
+    setRegistroPagoSeleccionado,
+  ] = useState(null);
+
+  const [tipoOperacion, setTipoOperacion] =
+    useState("Abono");
+
+  const [formularioPago, setFormularioPago] =
+    useState({
+      valor: "",
+      formaPago: "Efectivo",
+      fechaPago: obtenerFechaLocal(),
+      referenciaPago: "",
+      observaciones: "",
+    });
+
+  const [guardandoPago, setGuardandoPago] =
+    useState(false);
+
+  /* =========================================================
+     HISTORIAL
+  ========================================================= */
+
+  const [modalHistorialAbierto, setModalHistorialAbierto] =
+    useState(false);
+
+  const [historial, setHistorial] =
+    useState(null);
+
+  const [cargandoHistorial, setCargandoHistorial] =
+    useState(false);
+
+  /* =========================================================
+     EDITAR ABONO
+  ========================================================= */
+
+  const [
+    modalEditarAbonoAbierto,
+    setModalEditarAbonoAbierto,
+  ] = useState(false);
+
+  const [
+    movimientoSeleccionado,
+    setMovimientoSeleccionado,
+  ] = useState(null);
+
+  const [
+    formularioEditarAbono,
+    setFormularioEditarAbono,
+  ] = useState({
+    valor: "",
+    formaPago: "Efectivo",
+    fechaPago: obtenerFechaLocal(),
+    referenciaPago: "",
+    observaciones: "",
+  });
+
+  const [guardandoEdicion, setGuardandoEdicion] =
+    useState(false);
+
+  /* =========================================================
+     ELIMINAR MOVIMIENTO
+  ========================================================= */
+
+  const [
+    modalEliminarMovimientoAbierto,
+    setModalEliminarMovimientoAbierto,
+  ] = useState(false);
+
+  const [movimientoEliminar, setMovimientoEliminar] =
+    useState(null);
+
+  const [eliminandoMovimiento, setEliminandoMovimiento] =
+    useState(false);
 
   const [notificacion, setNotificacion] = useState({
     visible: false,
@@ -403,6 +660,491 @@ export default function HorasMaquinaria() {
       setPaginaActual(totalPaginas);
     }
   }, [paginaActual, totalPaginas]);
+
+  /* =========================================================
+     ABRIR ABONO
+  ========================================================= */
+
+  const abrirAbono = (registro) => {
+    const saldo =
+      obtenerSaldoRegistro(registro);
+
+    if (saldo <= 0) {
+      mostrarNotificacion(
+        "Este registro ya se encuentra pagado.",
+        "error"
+      );
+
+      return;
+    }
+
+    setRegistroPagoSeleccionado(registro);
+
+    setTipoOperacion("Abono");
+
+    setFormularioPago({
+      valor: "",
+      formaPago: "Efectivo",
+      fechaPago: obtenerFechaLocal(),
+      referenciaPago: "",
+      observaciones: "",
+    });
+
+    setModalPagoAbierto(true);
+  };
+
+  /* =========================================================
+     ABRIR PAGO TOTAL
+  ========================================================= */
+
+  const abrirPagoTotal = (registro) => {
+    const saldo =
+      obtenerSaldoRegistro(registro);
+
+    if (saldo <= 0) {
+      mostrarNotificacion(
+        "Este registro ya se encuentra pagado.",
+        "error"
+      );
+
+      return;
+    }
+
+    setRegistroPagoSeleccionado(registro);
+
+    setTipoOperacion("Pago");
+
+    setFormularioPago({
+      valor: String(saldo),
+      formaPago: "Efectivo",
+      fechaPago: obtenerFechaLocal(),
+      referenciaPago: "",
+      observaciones: "",
+    });
+
+    setModalPagoAbierto(true);
+  };
+
+  /* =========================================================
+     CERRAR PAGO
+  ========================================================= */
+
+  const cerrarModalPago = () => {
+    if (guardandoPago) {
+      return;
+    }
+
+    setModalPagoAbierto(false);
+
+    setRegistroPagoSeleccionado(null);
+  };
+
+  /* =========================================================
+     CAMBIAR FORMULARIO PAGO
+  ========================================================= */
+
+  const cambiarFormularioPago = (e) => {
+    const {
+      name,
+      value,
+    } = e.target;
+
+    if (name === "valor") {
+      const limpio =
+        String(value).replace(/\D/g, "");
+
+      setFormularioPago((anterior) => ({
+        ...anterior,
+        valor: limpio,
+      }));
+
+      return;
+    }
+
+    setFormularioPago((anterior) => ({
+      ...anterior,
+      [name]: value,
+    }));
+  };
+
+  /* =========================================================
+     GUARDAR PAGO
+  ========================================================= */
+
+  const guardarPago = async (e) => {
+    e.preventDefault();
+
+    if (!registroPagoSeleccionado?._id) {
+      return;
+    }
+
+    const saldo =
+      obtenerSaldoRegistro(
+        registroPagoSeleccionado
+      );
+
+    const valor =
+      Number(formularioPago.valor);
+
+    if (tipoOperacion === "Abono") {
+      if (
+        !Number.isFinite(valor) ||
+        valor <= 0
+      ) {
+        mostrarNotificacion(
+          "Digite un valor de abono válido.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (valor >= saldo) {
+        mostrarNotificacion(
+          "Para cancelar todo el saldo utilice Pagar saldo.",
+          "error"
+        );
+
+        return;
+      }
+    }
+
+    try {
+      setGuardandoPago(true);
+
+      let respuesta;
+
+      if (tipoOperacion === "Pago") {
+        respuesta =
+          await pagarSaldoMaquinaria(
+            registroPagoSeleccionado._id,
+            formularioPago
+          );
+      } else {
+        respuesta =
+          await abonarMaquinaria(
+            registroPagoSeleccionado._id,
+            {
+              ...formularioPago,
+              valor,
+            }
+          );
+      }
+
+      mostrarNotificacion(
+        respuesta?.message ||
+          "Pago registrado correctamente."
+      );
+
+      await cargarRegistros();
+
+      setModalPagoAbierto(false);
+
+      setRegistroPagoSeleccionado(null);
+    } catch (error) {
+      console.error(
+        "Error registrando pago de maquinaria:",
+        error
+      );
+
+      mostrarNotificacion(
+        error?.response?.data?.message ||
+          "No fue posible registrar el pago.",
+        "error"
+      );
+    } finally {
+      setGuardandoPago(false);
+    }
+  };
+
+  /* =========================================================
+     ABRIR HISTORIAL
+  ========================================================= */
+
+  const abrirHistorial = async (registro) => {
+    try {
+      setRegistroPagoSeleccionado(registro);
+
+      setModalHistorialAbierto(true);
+
+      setHistorial(null);
+
+      setCargandoHistorial(true);
+
+      const datos =
+        await obtenerPagosMaquinaria(
+          registro._id
+        );
+
+      setHistorial(datos);
+    } catch (error) {
+      console.error(
+        "Error obteniendo historial:",
+        error
+      );
+
+      mostrarNotificacion(
+        error?.response?.data?.message ||
+          "No fue posible cargar el historial.",
+        "error"
+      );
+    } finally {
+      setCargandoHistorial(false);
+    }
+  };
+
+  const cerrarHistorial = () => {
+    setModalHistorialAbierto(false);
+
+    setHistorial(null);
+
+    setRegistroPagoSeleccionado(null);
+  };
+
+  /* =========================================================
+     EDITAR ABONO
+  ========================================================= */
+
+  const abrirEditarAbono = (movimiento) => {
+    if (
+      movimiento.tipoMovimiento !==
+      "Abono"
+    ) {
+      mostrarNotificacion(
+        "El pago total no se puede editar.",
+        "error"
+      );
+
+      return;
+    }
+
+    if (!movimiento.puedeEditar) {
+      mostrarNotificacion(
+        "Solo se puede editar el último abono registrado.",
+        "error"
+      );
+
+      return;
+    }
+
+    setMovimientoSeleccionado(movimiento);
+
+    setFormularioEditarAbono({
+      valor:
+        String(
+          Number(movimiento.valor) || ""
+        ),
+
+      formaPago:
+        movimiento.formaPago ||
+        "Efectivo",
+
+      fechaPago:
+        obtenerFechaInput(
+          movimiento.fechaPago
+        ),
+
+      referenciaPago:
+        movimiento.referenciaPago ||
+        "",
+
+      observaciones:
+        movimiento.observaciones ||
+        "",
+    });
+
+    setModalEditarAbonoAbierto(true);
+  };
+
+  const cerrarEditarAbono = () => {
+    if (guardandoEdicion) {
+      return;
+    }
+
+    setModalEditarAbonoAbierto(false);
+
+    setMovimientoSeleccionado(null);
+  };
+
+  const cambiarFormularioEditarAbono = (e) => {
+    const {
+      name,
+      value,
+    } = e.target;
+
+    if (name === "valor") {
+      const limpio =
+        String(value).replace(/\D/g, "");
+
+      setFormularioEditarAbono(
+        (anterior) => ({
+          ...anterior,
+          valor: limpio,
+        })
+      );
+
+      return;
+    }
+
+    setFormularioEditarAbono(
+      (anterior) => ({
+        ...anterior,
+        [name]: value,
+      })
+    );
+  };
+
+  const guardarEdicionAbono = async (e) => {
+    e.preventDefault();
+
+    if (!movimientoSeleccionado?._id) {
+      return;
+    }
+
+    const valor =
+      Number(
+        formularioEditarAbono.valor
+      );
+
+    if (
+      !Number.isFinite(valor) ||
+      valor <= 0
+    ) {
+      mostrarNotificacion(
+        "Digite un valor de abono válido.",
+        "error"
+      );
+
+      return;
+    }
+
+    try {
+      setGuardandoEdicion(true);
+
+      const respuesta =
+        await editarAbonoMaquinaria(
+          movimientoSeleccionado._id,
+          {
+            ...formularioEditarAbono,
+            valor,
+          }
+        );
+
+      mostrarNotificacion(
+        respuesta?.message ||
+          "Abono actualizado correctamente."
+      );
+
+      if (
+        registroPagoSeleccionado?._id
+      ) {
+        const datos =
+          await obtenerPagosMaquinaria(
+            registroPagoSeleccionado._id
+          );
+
+        setHistorial(datos);
+      }
+
+      await cargarRegistros();
+
+      setModalEditarAbonoAbierto(false);
+
+      setMovimientoSeleccionado(null);
+    } catch (error) {
+      console.error(
+        "Error editando abono:",
+        error
+      );
+
+      mostrarNotificacion(
+        error?.response?.data?.message ||
+          "No fue posible editar el abono.",
+        "error"
+      );
+    } finally {
+      setGuardandoEdicion(false);
+    }
+  };
+
+  /* =========================================================
+     ELIMINAR MOVIMIENTO
+  ========================================================= */
+
+  const abrirEliminarMovimiento = (movimiento) => {
+    if (!movimiento.puedeEliminar) {
+      mostrarNotificacion(
+        "Solo se puede eliminar el último movimiento registrado.",
+        "error"
+      );
+
+      return;
+    }
+
+    setMovimientoEliminar(movimiento);
+
+    setModalEliminarMovimientoAbierto(true);
+  };
+
+  const cerrarEliminarMovimiento = () => {
+    if (eliminandoMovimiento) {
+      return;
+    }
+
+    setModalEliminarMovimientoAbierto(false);
+
+    setMovimientoEliminar(null);
+  };
+
+  const confirmarEliminarMovimiento = async () => {
+    if (!movimientoEliminar?._id) {
+      return;
+    }
+
+    try {
+      setEliminandoMovimiento(true);
+
+      const respuesta =
+        await eliminarMovimientoMaquinaria(
+          movimientoEliminar._id
+        );
+
+      mostrarNotificacion(
+        respuesta?.message ||
+          "Movimiento eliminado correctamente."
+      );
+
+      if (
+        registroPagoSeleccionado?._id
+      ) {
+        const datos =
+          await obtenerPagosMaquinaria(
+            registroPagoSeleccionado._id
+          );
+
+        setHistorial(datos);
+      }
+
+      await cargarRegistros();
+
+      setModalEliminarMovimientoAbierto(false);
+
+      setMovimientoEliminar(null);
+    } catch (error) {
+      console.error(
+        "Error eliminando movimiento:",
+        error
+      );
+
+      mostrarNotificacion(
+        error?.response?.data?.message ||
+          "No fue posible eliminar el movimiento.",
+        "error"
+      );
+    } finally {
+      setEliminandoMovimiento(false);
+    }
+  };
 
   // ============================================================
   // handleImprimir - VERSIÓN CON INYECCIÓN AUTOMÁTICA DE ESTILOS
@@ -990,6 +1732,9 @@ export default function HorasMaquinaria() {
                 <th>Horas realizadas</th>
                 <th>Valor hora</th>
                 <th>Valor a pagar</th>
+                <th>Pagado</th>
+                <th>Saldo</th>
+                <th>Estado</th>
                 <th>Observaciones</th>
                 <th className="horas-actions-title">Acciones</th>
               </tr>
@@ -998,7 +1743,7 @@ export default function HorasMaquinaria() {
             <tbody>
               {cargando ? (
                 <tr>
-                  <td colSpan="11" className="horas-empty">
+                  <td colSpan="14" className="horas-empty">
                     <RefreshCw size={24} className="horas-spin" />
 
                     <span>Cargando registros...</span>
@@ -1006,7 +1751,7 @@ export default function HorasMaquinaria() {
                 </tr>
               ) : registrosPaginados.length === 0 ? (
                 <tr>
-                  <td colSpan="11" className="horas-empty">
+                  <td colSpan="14" className="horas-empty">
                     <Clock3 size={32} />
 
                     <strong>No hay horas registradas</strong>
@@ -1102,6 +1847,44 @@ export default function HorasMaquinaria() {
                       )}
                     </td>
 
+                    {/* TOTAL PAGADO */}
+
+                    <td>
+                      <strong className="horas-pagado">
+                        {formatearDinero(
+                          obtenerTotalPagadoRegistro(
+                            registro
+                          )
+                        )}
+                      </strong>
+                    </td>
+
+                    {/* SALDO PENDIENTE */}
+
+                    <td>
+                      <strong className="horas-saldo">
+                        {formatearDinero(
+                          obtenerSaldoRegistro(
+                            registro
+                          )
+                        )}
+                      </strong>
+                    </td>
+
+                    {/* ESTADO */}
+
+                    <td>
+                      <span
+                        className={`horas-estado-pago ${obtenerEstadoPagoRegistro(
+                          registro
+                        ).toLowerCase()}`}
+                      >
+                        {obtenerEstadoPagoRegistro(
+                          registro
+                        )}
+                      </span>
+                    </td>
+
                     {/* OBSERVACIONES */}
 
                     <td>
@@ -1118,23 +1901,91 @@ export default function HorasMaquinaria() {
 
                     <td>
                       <div className="horas-actions">
+                        {/* HISTORIAL */}
+
+                        <button
+                          type="button"
+                          className="horas-action-button history"
+                          onClick={() =>
+                            abrirHistorial(
+                              registro
+                            )
+                          }
+                          title="Historial de pagos"
+                        >
+                          <History size={16} />
+                        </button>
+
+                        {/* ABONAR */}
+
+                        {obtenerSaldoRegistro(
+                          registro
+                        ) > 0 && (
+                          <button
+                            type="button"
+                            className="horas-action-button abono"
+                            onClick={() =>
+                              abrirAbono(
+                                registro
+                              )
+                            }
+                            title="Abonar"
+                          >
+                            <HandCoins size={16} />
+                          </button>
+                        )}
+
+                        {/* PAGAR TODO */}
+
+                        {obtenerSaldoRegistro(
+                          registro
+                        ) > 0 && (
+                          <button
+                            type="button"
+                            className="horas-action-button pagar"
+                            onClick={() =>
+                              abrirPagoTotal(
+                                registro
+                              )
+                            }
+                            title="Pagar saldo"
+                          >
+                            <span className="horas-pagar-symbol">
+                              $
+                            </span>
+                          </button>
+                        )}
+
+                        {/* EDITAR JORNADA */}
+
                         <button
                           type="button"
                           className="horas-action-button edit"
-                          onClick={() => abrirEditarRegistro(registro)}
+                          onClick={() =>
+                            abrirEditarRegistro(
+                              registro
+                            )
+                          }
                           title="Editar registro"
                         >
                           <Pencil size={17} />
                         </button>
 
+                        {/* ELIMINAR JORNADA */}
+
                         <button
                           type="button"
                           className="horas-action-button delete"
-                          onClick={() => handleEliminar(registro)}
+                          onClick={() =>
+                            handleEliminar(
+                              registro
+                            )
+                          }
                           title="Eliminar registro"
                         >
                           <Trash2 size={17} />
                         </button>
+
                       </div>
                     </td>
                   </tr>
@@ -1191,6 +2042,873 @@ export default function HorasMaquinaria() {
         guardando={guardando}
         maquinarias={maquinarias}
       />
+
+      {/* =====================================================
+          ABONAR / PAGAR MAQUINARIA
+      ===================================================== */}
+
+      {modalPagoAbierto &&
+        registroPagoSeleccionado && (
+
+        <div className="horas-pago-backdrop">
+
+          <div className="horas-pago-modal">
+
+            <div className="horas-pago-header">
+
+              <div>
+
+                <span>
+                  {registroPagoSeleccionado
+                    .maquinaria
+                    ?.codigo ||
+                    "Maquinaria"}
+                </span>
+
+                <h2>
+                  {tipoOperacion ===
+                  "Pago"
+                    ? "Pagar saldo"
+                    : "Registrar abono"}
+                </h2>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  cerrarModalPago
+                }
+                disabled={
+                  guardandoPago
+                }
+              >
+                <X size={19} />
+              </button>
+
+            </div>
+
+            <form onSubmit={guardarPago}>
+
+              <div className="horas-pago-body">
+
+                <div className="horas-pago-resumen">
+
+                  <div>
+                    <span>
+                      Operario
+                    </span>
+
+                    <strong>
+                      {
+                        registroPagoSeleccionado
+                          .operario
+                      }
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Valor total
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        registroPagoSeleccionado
+                          .valorPagar
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Pagado
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        obtenerTotalPagadoRegistro(
+                          registroPagoSeleccionado
+                        )
+                      )}
+                    </strong>
+                  </div>
+
+                  <div>
+                    <span>
+                      Saldo
+                    </span>
+
+                    <strong>
+                      {formatearDinero(
+                        obtenerSaldoRegistro(
+                          registroPagoSeleccionado
+                        )
+                      )}
+                    </strong>
+                  </div>
+
+                </div>
+
+                <div className="horas-pago-grid">
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      {tipoOperacion ===
+                      "Pago"
+                        ? "Valor del pago"
+                        : "Valor del abono *"}
+                    </label>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      name="valor"
+                      value={
+                        tipoOperacion ===
+                        "Pago"
+                          ? formatearValorInput(
+                              obtenerSaldoRegistro(
+                                registroPagoSeleccionado
+                              )
+                            )
+                          : formatearValorInput(
+                              formularioPago.valor
+                            )
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      disabled={
+                        tipoOperacion ===
+                          "Pago" ||
+                        guardandoPago
+                      }
+                      placeholder="Ej: 500.000"
+                    />
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Forma de pago *
+                    </label>
+
+                    <select
+                      name="formaPago"
+                      value={
+                        formularioPago.formaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      disabled={
+                        guardandoPago
+                      }
+                    >
+                      <option value="Efectivo">
+                        Efectivo
+                      </option>
+
+                      <option value="Transferencia">
+                        Transferencia
+                      </option>
+
+                      <option value="Consignacion">
+                        Consignación
+                      </option>
+
+                      <option value="Otro">
+                        Otro
+                      </option>
+                    </select>
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Fecha *
+                    </label>
+
+                    <input
+                      type="date"
+                      name="fechaPago"
+                      value={
+                        formularioPago.fechaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      disabled={
+                        guardandoPago
+                      }
+                    />
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Referencia
+                    </label>
+
+                    <input
+                      type="text"
+                      name="referenciaPago"
+                      value={
+                        formularioPago.referenciaPago
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      placeholder="Ej: TRX-001"
+                      disabled={
+                        guardandoPago
+                      }
+                    />
+
+                  </div>
+
+                  <div className="horas-pago-field horas-pago-field-full">
+
+                    <label>
+                      Observaciones
+                    </label>
+
+                    <textarea
+                      name="observaciones"
+                      rows="3"
+                      value={
+                        formularioPago.observaciones
+                      }
+                      onChange={
+                        cambiarFormularioPago
+                      }
+                      disabled={
+                        guardandoPago
+                      }
+                    />
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="horas-pago-footer">
+
+                <button
+                  type="button"
+                  className="cancelar"
+                  onClick={
+                    cerrarModalPago
+                  }
+                  disabled={
+                    guardandoPago
+                  }
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="guardar"
+                  disabled={
+                    guardandoPago
+                  }
+                >
+                  <Save size={16} />
+
+                  {guardandoPago
+                    ? "Guardando..."
+                    : tipoOperacion ===
+                      "Pago"
+                    ? "Pagar saldo"
+                    : "Registrar abono"}
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* =====================================================
+          HISTORIAL DE PAGOS
+      ===================================================== */}
+
+      {modalHistorialAbierto &&
+        registroPagoSeleccionado && (
+
+        <div className="horas-pago-backdrop">
+
+          <div className="horas-historial-modal">
+
+            <div className="horas-pago-header">
+
+              <div>
+
+                <span>
+                  {
+                    registroPagoSeleccionado
+                      .operario
+                  }
+                </span>
+
+                <h2>
+                  Historial de pagos
+                </h2>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  cerrarHistorial
+                }
+              >
+                <X size={19} />
+              </button>
+
+            </div>
+
+            <div className="horas-historial-body">
+
+              {cargandoHistorial ? (
+
+                <div className="horas-historial-empty">
+                  Cargando historial...
+                </div>
+
+              ) : historial ? (
+
+                <>
+
+                  <div className="horas-pago-resumen">
+
+                    <div>
+                      <span>
+                        Valor total
+                      </span>
+
+                      <strong>
+                        {formatearDinero(
+                          historial.resumen
+                            ?.valorPagar
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Pagado
+                      </span>
+
+                      <strong>
+                        {formatearDinero(
+                          historial.resumen
+                            ?.totalPagado
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Pendiente
+                      </span>
+
+                      <strong>
+                        {formatearDinero(
+                          historial.resumen
+                            ?.saldoPendiente
+                        )}
+                      </strong>
+                    </div>
+
+                    <div>
+                      <span>
+                        Estado
+                      </span>
+
+                      <strong>
+                        {
+                          historial.resumen
+                            ?.estado ||
+                          "Pendiente"
+                        }
+                      </strong>
+                    </div>
+
+                  </div>
+
+                  <div className="horas-historial-table-wrap">
+
+                    <table className="horas-historial-table">
+
+                      <thead>
+                        <tr>
+                          <th>Egreso</th>
+                          <th>Fecha</th>
+                          <th>Movimiento</th>
+                          <th>Forma</th>
+                          <th>Valor</th>
+                          <th>Saldo después</th>
+                          <th>Referencia</th>
+                          <th>Acciones</th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+
+                        {historial.movimientos
+                          ?.length > 0 ? (
+
+                          historial.movimientos.map(
+                            (movimiento) => (
+
+                            <tr key={movimiento._id}>
+
+                              <td>
+                                <strong>
+                                  {movimiento.codigo}
+                                </strong>
+                              </td>
+
+                              <td>
+                                {formatearFecha(
+                                  movimiento.fechaPago
+                                )}
+                              </td>
+
+                              <td>
+                                {movimiento.tipoMovimiento ===
+                                "Pago"
+                                  ? "Pago total"
+                                  : "Abono"}
+                              </td>
+
+                              <td>
+                                {movimiento.formaPago ||
+                                  "—"}
+                              </td>
+
+                              <td>
+                                <strong>
+                                  {formatearDinero(
+                                    movimiento.valor
+                                  )}
+                                </strong>
+                              </td>
+
+                              <td>
+                                {formatearDinero(
+                                  movimiento.saldoDespues
+                                )}
+                              </td>
+
+                              <td>
+                                {movimiento.referenciaPago ||
+                                  "—"}
+                              </td>
+
+                              <td>
+
+                                <div className="horas-historial-actions">
+
+                                  {movimiento.puedeEditar && (
+
+                                    <button
+                                      type="button"
+                                      className="edit"
+                                      title="Editar abono"
+                                      onClick={() =>
+                                        abrirEditarAbono(
+                                          movimiento
+                                        )
+                                      }
+                                    >
+                                      <Pencil size={14} />
+                                    </button>
+
+                                  )}
+
+                                  {movimiento.puedeEliminar && (
+
+                                    <button
+                                      type="button"
+                                      className="delete"
+                                      title={
+                                        movimiento.tipoMovimiento ===
+                                        "Pago"
+                                          ? "Eliminar pago total"
+                                          : "Eliminar abono"
+                                      }
+                                      onClick={() =>
+                                        abrirEliminarMovimiento(
+                                          movimiento
+                                        )
+                                      }
+                                    >
+                                      <Trash2 size={14} />
+                                    </button>
+
+                                  )}
+
+                                  {!movimiento.puedeEditar &&
+                                    !movimiento.puedeEliminar && (
+                                      <span>—</span>
+                                    )}
+
+                                </div>
+
+                              </td>
+
+                            </tr>
+
+                          ))
+                        ) : (
+
+                          <tr>
+                            <td
+                              colSpan="8"
+                              className="horas-historial-empty"
+                            >
+                              No hay pagos registrados.
+                            </td>
+                          </tr>
+
+                        )}
+
+                      </tbody>
+
+                    </table>
+
+                  </div>
+
+                </>
+
+              ) : null}
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* =====================================================
+          EDITAR ABONO
+      ===================================================== */}
+      {modalEditarAbonoAbierto &&
+        movimientoSeleccionado && (
+
+        <div className="horas-pago-backdrop">
+
+          <div className="horas-pago-modal horas-editar-abono-modal">
+
+            <div className="horas-pago-header">
+
+              <div>
+                <span>
+                  {
+                    movimientoSeleccionado.codigo
+                  }
+                </span>
+
+                <h2>
+                  Editar abono
+                </h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  cerrarEditarAbono
+                }
+                disabled={
+                  guardandoEdicion
+                }
+              >
+                <X size={19} />
+              </button>
+
+            </div>
+
+            <form onSubmit={guardarEdicionAbono}>
+
+              <div className="horas-pago-body">
+
+                <div className="horas-pago-grid">
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Valor del abono *
+                    </label>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      name="valor"
+                      value={
+                        formatearValorInput(
+                          formularioEditarAbono.valor
+                        )
+                      }
+                      onChange={
+                        cambiarFormularioEditarAbono
+                      }
+                    />
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Forma de pago
+                    </label>
+
+                    <select
+                      name="formaPago"
+                      value={
+                        formularioEditarAbono.formaPago
+                      }
+                      onChange={
+                        cambiarFormularioEditarAbono
+                      }
+                    >
+                      <option value="Efectivo">
+                        Efectivo
+                      </option>
+
+                      <option value="Transferencia">
+                        Transferencia
+                      </option>
+
+                      <option value="Consignacion">
+                        Consignación
+                      </option>
+
+                      <option value="Otro">
+                        Otro
+                      </option>
+                    </select>
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Fecha
+                    </label>
+
+                    <input
+                      type="date"
+                      name="fechaPago"
+                      value={
+                        formularioEditarAbono.fechaPago
+                      }
+                      onChange={
+                        cambiarFormularioEditarAbono
+                      }
+                    />
+
+                  </div>
+
+                  <div className="horas-pago-field">
+
+                    <label>
+                      Referencia
+                    </label>
+
+                    <input
+                      type="text"
+                      name="referenciaPago"
+                      value={
+                        formularioEditarAbono.referenciaPago
+                      }
+                      onChange={
+                        cambiarFormularioEditarAbono
+                      }
+                    />
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <div className="horas-pago-footer">
+
+                <button
+                  type="button"
+                  className="cancelar"
+                  onClick={
+                    cerrarEditarAbono
+                  }
+                >
+                  Cancelar
+                </button>
+
+                <button
+                  type="submit"
+                  className="guardar"
+                  disabled={
+                    guardandoEdicion
+                  }
+                >
+                  <Save size={16} />
+
+                  {guardandoEdicion
+                    ? "Guardando..."
+                    : "Guardar cambios"}
+                </button>
+
+              </div>
+
+            </form>
+
+          </div>
+
+        </div>
+      )}
+
+      {/* =====================================================
+          ELIMINAR MOVIMIENTO
+      ===================================================== */}
+      {modalEliminarMovimientoAbierto &&
+        movimientoEliminar && (
+
+        <div className="horas-pago-backdrop">
+
+          <div className="horas-pago-modal horas-eliminar-modal">
+
+            <div className="horas-pago-header">
+
+              <div>
+
+                <span>
+                  {
+                    movimientoEliminar.codigo
+                  }
+                </span>
+
+                <h2>
+                  {movimientoEliminar.tipoMovimiento ===
+                  "Pago"
+                    ? "Eliminar pago total"
+                    : "Eliminar abono"}
+                </h2>
+
+              </div>
+
+              <button
+                type="button"
+                onClick={
+                  cerrarEliminarMovimiento
+                }
+              >
+                <X size={19} />
+              </button>
+
+            </div>
+
+            <div className="horas-pago-body">
+
+              <div className="horas-eliminar-alerta">
+
+                <Trash2 size={25} />
+
+                <div>
+
+                  <strong>
+                    ¿Desea eliminar este movimiento?
+                  </strong>
+
+                  <p>
+                    {movimientoEliminar.tipoMovimiento ===
+                    "Pago"
+                      ? "Al eliminar el pago total, las horas volverán a tener saldo pendiente."
+                      : "Al eliminar este abono, el saldo será recalculado automáticamente."}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div className="horas-pago-resumen">
+
+                <div>
+                  <span>Egreso</span>
+                  <strong>
+                    {movimientoEliminar.codigo}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Movimiento</span>
+                  <strong>
+                    {movimientoEliminar.tipoMovimiento ===
+                    "Pago"
+                      ? "Pago total"
+                      : "Abono"}
+                  </strong>
+                </div>
+
+                <div>
+                  <span>Valor</span>
+                  <strong>
+                    {formatearDinero(
+                      movimientoEliminar.valor
+                    )}
+                  </strong>
+                </div>
+
+              </div>
+
+            </div>
+
+            <div className="horas-pago-footer">
+
+              <button
+                type="button"
+                className="cancelar"
+                onClick={
+                  cerrarEliminarMovimiento
+                }
+              >
+                Cancelar
+              </button>
+
+              <button
+                type="button"
+                className="eliminar"
+                onClick={
+                  confirmarEliminarMovimiento
+                }
+                disabled={
+                  eliminandoMovimiento
+                }
+              >
+                <Trash2 size={16} />
+
+                {eliminandoMovimiento
+                  ? "Eliminando..."
+                  : "Sí, eliminar"}
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+      )}
 
       <Toast
         visible={notificacion.visible}

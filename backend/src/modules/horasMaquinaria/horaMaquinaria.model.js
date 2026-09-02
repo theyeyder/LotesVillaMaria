@@ -31,14 +31,10 @@ const turnoSchema = new mongoose.Schema(
       default: "",
     },
 
-    /*
-      Minutos trabajados solamente
-      dentro de este turno.
-    */
-
     totalMinutos: {
       type: Number,
       default: 0,
+
       min: [
         0,
         "Los minutos del turno no pueden ser negativos",
@@ -166,13 +162,7 @@ const horaMaquinariaSchema =
       },
 
       /* ===================================================
-         TOTAL MINUTOS TRABAJADOS
-
-         Ejemplo:
-
-         2 horas 30 minutos
-         =
-         150 minutos
+         TOTAL MINUTOS
       =================================================== */
 
       totalMinutos: {
@@ -190,10 +180,7 @@ const horaMaquinariaSchema =
       },
 
       /* ===================================================
-         VALOR DE UNA HORA
-
-         Ejemplo:
-         $40.000
+         VALOR DE LA HORA
       =================================================== */
 
       valorHora: {
@@ -211,17 +198,7 @@ const horaMaquinariaSchema =
       /* ===================================================
          VALOR TOTAL A PAGAR
 
-         Se calcula automáticamente:
-
          totalMinutos / 60 × valorHora
-
-         Ejemplo:
-
-         150 / 60 = 2,5 horas
-
-         2,5 × $40.000
-         =
-         $100.000
       =================================================== */
 
       valorPagar: {
@@ -234,6 +211,79 @@ const horaMaquinariaSchema =
           0,
           "El valor a pagar no puede ser negativo",
         ],
+      },
+
+      /* ===================================================
+         TOTAL PAGADO
+
+         Se actualiza mediante EGRESOS.
+
+         Ejemplo:
+
+         Valor a pagar:
+         $500.000
+
+         EG-0002:
+         Abono $200.000
+
+         totalPagado:
+         $200.000
+      =================================================== */
+
+      totalPagado: {
+        type: Number,
+
+        default:
+          0,
+
+        min: [
+          0,
+          "El total pagado no puede ser negativo",
+        ],
+      },
+
+      /* ===================================================
+         SALDO PENDIENTE
+      =================================================== */
+
+      saldoPendiente: {
+        type: Number,
+
+        default:
+          0,
+
+        min: [
+          0,
+          "El saldo pendiente no puede ser negativo",
+        ],
+      },
+
+      /* ===================================================
+         ESTADO DEL PAGO
+      =================================================== */
+
+      estadoPago: {
+        type: String,
+
+        enum: [
+          "Pendiente",
+          "Abonada",
+          "Pagada",
+        ],
+
+        default:
+          "Pendiente",
+      },
+
+      /* ===================================================
+         ÚLTIMA FECHA DE PAGO
+      =================================================== */
+
+      fechaUltimoPago: {
+        type: Date,
+
+        default:
+          null,
       },
 
       /* ===================================================
@@ -259,50 +309,33 @@ const horaMaquinariaSchema =
   );
 
 /* =========================================================
-   CALCULAR VALOR A PAGAR AUTOMÁTICAMENTE
-
-   IMPORTANTE:
-
-   El dinero NO se calcula solamente
-   por horas completas.
-
-   También se pagan los minutos.
+   CALCULAR VALORES AUTOMÁTICAMENTE
 
    Ejemplo:
 
-   1 hora 30 minutos
-   =
    90 minutos
-
-   90 / 60
    =
    1,5 horas
 
-   Si la hora vale $50.000:
+   Hora:
+   $50.000
 
-   1,5 × 50.000
-   =
+   Total:
    $75.000
 ========================================================= */
 
 horaMaquinariaSchema.pre(
   "validate",
   function (next) {
+    /* =====================================================
+       NORMALIZAR MINUTOS
+    ===================================================== */
+
     const minutos =
       Number(
         this.totalMinutos ||
           0
       );
-
-    const valorHora =
-      Number(
-        this.valorHora ||
-          0
-      );
-
-    /* =========================
-       NORMALIZAR
-    ========================= */
 
     this.totalMinutos =
       Number.isFinite(
@@ -314,6 +347,16 @@ horaMaquinariaSchema.pre(
           )
         : 0;
 
+    /* =====================================================
+       NORMALIZAR VALOR HORA
+    ===================================================== */
+
+    const valorHora =
+      Number(
+        this.valorHora ||
+          0
+      );
+
     this.valorHora =
       Number.isFinite(
         valorHora
@@ -324,9 +367,9 @@ horaMaquinariaSchema.pre(
           )
         : 0;
 
-    /* =========================
-       CALCULAR VALOR
-    ========================= */
+    /* =====================================================
+       CALCULAR VALOR TOTAL
+    ===================================================== */
 
     const horasDecimales =
       this.totalMinutos /
@@ -336,15 +379,76 @@ horaMaquinariaSchema.pre(
       horasDecimales *
       this.valorHora;
 
-    /*
-      Como trabajamos en pesos COP,
-      redondeamos al peso completo.
-    */
-
     this.valorPagar =
       Math.round(
         valorCalculado
       );
+
+    /* =====================================================
+       NORMALIZAR TOTAL PAGADO
+    ===================================================== */
+
+    const totalPagado =
+      Number(
+        this.totalPagado ||
+          0
+      );
+
+    this.totalPagado =
+      Number.isFinite(
+        totalPagado
+      )
+        ? Math.max(
+            0,
+            totalPagado
+          )
+        : 0;
+
+    /* =====================================================
+       EVITAR PAGOS MAYORES AL VALOR DEL TRABAJO
+    ===================================================== */
+
+    if (
+      this.totalPagado >
+      this.valorPagar
+    ) {
+      return next(
+        new Error(
+          "El valor pagado no puede superar el valor total de las horas de maquinaria"
+        )
+      );
+    }
+
+    /* =====================================================
+       CALCULAR SALDO
+    ===================================================== */
+
+    this.saldoPendiente =
+      Math.max(
+        0,
+        this.valorPagar -
+          this.totalPagado
+      );
+
+    /* =====================================================
+       ESTADO DEL PAGO
+    ===================================================== */
+
+    if (
+      this.totalPagado <= 0
+    ) {
+      this.estadoPago =
+        "Pendiente";
+    } else if (
+      this.saldoPendiente >
+      0
+    ) {
+      this.estadoPago =
+        "Abonada";
+    } else {
+      this.estadoPago =
+        "Pagada";
+    }
 
     next();
   }
@@ -373,6 +477,18 @@ horaMaquinariaSchema.index({
 
   fecha:
     1,
+});
+
+/* =========================================================
+   CONTROL DE PAGOS
+========================================================= */
+
+horaMaquinariaSchema.index({
+  estadoPago:
+    1,
+
+  fecha:
+    -1,
 });
 
 /* =========================================================
