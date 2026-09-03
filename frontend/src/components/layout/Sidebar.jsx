@@ -53,11 +53,16 @@ const menuItems = [
     icon: WalletCards,
   },
   {
-    id: "pagos",
-    label: "Pagos",
-    icon: CreditCard,
-  },
- {
+  id: "pagos",
+  label: "Pagos",
+  icon: CreditCard,
+},
+{
+  id: "cartera",
+  label: "Cartera",
+  icon: WalletCards,
+},
+{
   id: "egresos",
   label: "Egresos",
   icon: WalletCards,

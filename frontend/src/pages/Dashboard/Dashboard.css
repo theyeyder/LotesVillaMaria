@@ -1,26 +1,789 @@
-.dashboard-hero { display:flex; align-items:flex-end; justify-content:space-between; gap:24px; padding:29px 31px; border-radius:26px; background:#173f2e; color:#fff; box-shadow:0 18px 38px rgba(23,63,46,.12); }
-.dashboard-hero p { margin:0; color:#e3c47d; text-transform:uppercase; font-size:10px; font-weight:900; letter-spacing:.25em; }
-.dashboard-hero h1 { margin:7px 0; font-size:35px; }
-.dashboard-hero span { color:rgba(255,255,255,.65); font-size:13px; }
-.dashboard-hero button { display:flex; align-items:center; gap:8px; flex:none; padding:11px 15px; border:0; border-radius:11px; background:#d9aa58; color:#173526; font-weight:800; }
-.dashboard-hero button svg { width:16px; }
-.dashboard-metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:15px; }
-.dashboard-metric { padding:20px; display:flex; justify-content:space-between; gap:18px; }
-.dashboard-metric small { display:block; color:var(--muted-foreground); font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:.12em; }
-.dashboard-metric strong { display:block; margin-top:10px; font-size:23px; }
-.dashboard-metric span { display:block; margin-top:7px; color:var(--muted-foreground); font-size:11px; }
-.dashboard-metric i { width:42px; height:42px; display:grid; place-items:center; border-radius:12px; background:#edf6f0; color:var(--primary); font-style:normal; }
-.dashboard-metric i svg { width:20px; }
-.dashboard-grid { display:grid; grid-template-columns:1.35fr .9fr; gap:16px; }
-.dashboard-panel { padding:20px; }
-.dashboard-panel-title { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-.dashboard-panel-title h3 { margin:0; font-size:16px; }
-.dashboard-panel-title > svg { width:19px; color:var(--primary); }
-.due-row { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:14px 3px; border-top:1px solid #ece8de; }
-.due-row strong { display:block; font-size:13px; }
-.due-row span { display:block; margin-top:4px; color:var(--muted-foreground); font-size:11px; }
-.activity { display:flex; gap:12px; padding:14px 3px; border-top:1px solid #ece8de; }
-.activity-dot { width:9px; height:9px; margin-top:5px; flex:none; border-radius:50%; background:var(--gold); box-shadow:0 0 0 4px var(--gold-soft); }
-.activity strong { font-size:13px; }.activity p{margin:4px 0 0;color:var(--muted-foreground);font-size:11px;}
-@media(max-width:1200px){.dashboard-metrics{grid-template-columns:repeat(2,1fr)}.dashboard-grid{grid-template-columns:1fr}}
-@media(max-width:650px){.dashboard-hero{align-items:flex-start;flex-direction:column}.dashboard-metrics{grid-template-columns:1fr}.dashboard-hero h1{font-size:30px}}
+/* =========================================================
+   DASHBOARD
+   LOTES VILLA MARÍA
+========================================================= */
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HERO
+========================================================= */
+
+.dashboard-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+
+  padding: 29px 31px;
+
+  border-radius: 26px;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 18px 38px
+    rgba(23, 63, 46, 0.12);
+
+  overflow: hidden;
+}
+
+.dashboard-hero > div:first-child {
+  min-width: 0;
+}
+
+.dashboard-hero p {
+  margin: 0;
+
+  color: #e3c47d;
+
+  text-transform: uppercase;
+
+  font-size: 10px;
+  font-weight: 900;
+
+  letter-spacing: 0.25em;
+}
+
+.dashboard-hero h1 {
+  margin: 7px 0;
+
+  color: #ffffff;
+
+  font-size: 35px;
+  line-height: 1.15;
+}
+
+.dashboard-hero > div:first-child > span {
+  display: block;
+
+  max-width: 720px;
+
+  color: rgba(255, 255, 255, 0.68);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   ACCIONES HERO
+========================================================= */
+
+.dashboard-hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  flex-shrink: 0;
+}
+
+.dashboard-hero-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: 0;
+  border-radius: 11px;
+
+  background: #d9aa58;
+
+  color: #173526;
+
+  font-size: 12px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.dashboard-hero-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.dashboard-hero-actions button svg {
+  width: 16px;
+}
+
+.dashboard-hero-actions
+  button.secondary {
+  border: 1px solid
+    rgba(255, 255, 255, 0.18);
+
+  background:
+    rgba(255, 255, 255, 0.1);
+
+  color: #ffffff;
+}
+
+.dashboard-hero-actions
+  button.secondary:hover {
+  background:
+    rgba(255, 255, 255, 0.16);
+}
+
+/* =========================================================
+   MÉTRICAS
+
+   Ahora son 8 tarjetas reales
+========================================================= */
+
+.dashboard-metrics {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 15px;
+}
+
+.dashboard-metric {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+
+  min-width: 0;
+
+  padding: 19px;
+
+  border: 1px solid #e7e2d7;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 22px
+    rgba(44, 57, 49, 0.05);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.dashboard-metric:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 27px
+    rgba(44, 57, 49, 0.08);
+}
+
+.dashboard-metric > div {
+  min-width: 0;
+}
+
+.dashboard-metric small {
+  display: block;
+
+  color: var(
+    --muted-foreground,
+    #78817b
+  );
+
+  font-size: 9px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.09em;
+}
+
+.dashboard-metric strong {
+  display: block;
+
+  margin-top: 9px;
+
+  color: #20352a;
+
+  font-size: 19px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.dashboard-metric span {
+  display: block;
+
+  margin-top: 7px;
+
+  color: var(
+    --muted-foreground,
+    #818a84
+  );
+
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.dashboard-metric i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #edf6f0;
+
+  color: var(
+    --primary,
+    #173f2e
+  );
+
+  font-style: normal;
+}
+
+.dashboard-metric i svg {
+  width: 20px;
+}
+
+/* =========================================================
+   VARIANTES MÉTRICAS
+========================================================= */
+
+.dashboard-metric.ventas i {
+  background: #edf2ec;
+  color: #315f46;
+}
+
+.dashboard-metric.pagado i {
+  background: #e4f2e8;
+  color: #247347;
+}
+
+.dashboard-metric.cartera i {
+  background: #f5ead4;
+  color: #987126;
+}
+
+.dashboard-metric.vencido i {
+  background: #f9e6e3;
+  color: #a33f35;
+}
+
+.dashboard-metric.egresos i {
+  background: #f5e5e2;
+  color: #a5453b;
+}
+
+.dashboard-metric.balance i {
+  background: #eee8d8;
+  color: #8f6e29;
+}
+
+.dashboard-metric.lotes i {
+  background: #e8efe9;
+  color: #356349;
+}
+
+.dashboard-metric.maquinaria i {
+  background: #ecefe9;
+  color: #4e654f;
+}
+
+/* =========================================================
+   GRID INFERIOR
+========================================================= */
+
+.dashboard-grid {
+  display: grid;
+
+  grid-template-columns:
+    1.25fr
+    1fr;
+
+  gap: 16px;
+
+  align-items: start;
+}
+
+.dashboard-panel {
+  min-width: 0;
+
+  padding: 20px;
+
+  border: 1px solid #e7e2d7;
+  border-radius: 17px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 22px
+    rgba(44, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TÍTULOS DE PANEL
+========================================================= */
+
+.dashboard-panel-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 10px;
+}
+
+.dashboard-panel-title
+  .page-eyebrow {
+  margin: 0 0 4px;
+
+  color: #a78036;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.12em;
+}
+
+.dashboard-panel-title h3 {
+  margin: 0;
+
+  color: #26382e;
+
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.dashboard-panel-title > svg {
+  width: 19px;
+
+  flex-shrink: 0;
+
+  color: var(
+    --primary,
+    #173f2e
+  );
+}
+
+/* =========================================================
+   VENCIMIENTOS
+========================================================= */
+
+.due-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  min-height: 61px;
+
+  padding: 13px 3px;
+
+  border-top: 1px solid #ece8de;
+}
+
+.due-row > div {
+  min-width: 0;
+}
+
+.due-row strong {
+  display: block;
+
+  color: #324138;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+.due-row span {
+  display: block;
+
+  margin-top: 4px;
+
+  color: var(
+    --muted-foreground,
+    #818a84
+  );
+
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+/* =========================================================
+   BADGES
+========================================================= */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.badge-warning {
+  background: #f5ead5;
+
+  color: #926c22;
+}
+
+.badge-danger {
+  background: #f7e4e1;
+
+  color: #a33f35;
+}
+
+.badge-success {
+  background: #e4f2e8;
+
+  color: #26764a;
+}
+
+/* =========================================================
+   ACTIVIDAD
+========================================================= */
+
+.activity {
+  display: flex;
+  gap: 12px;
+
+  min-height: 61px;
+
+  padding: 13px 3px;
+
+  border-top: 1px solid #ece8de;
+}
+
+.activity-dot {
+  width: 9px;
+  height: 9px;
+
+  margin-top: 5px;
+
+  flex-shrink: 0;
+
+  border-radius: 50%;
+
+  background: #d9aa58;
+
+  box-shadow:
+    0 0 0 4px
+    #f4ead5;
+}
+
+.activity-dot.ingreso {
+  background: #2d7a4c;
+
+  box-shadow:
+    0 0 0 4px
+    #e3f0e7;
+}
+
+.activity-dot.egreso {
+  background: #ac493e;
+
+  box-shadow:
+    0 0 0 4px
+    #f8e5e2;
+}
+
+.activity-dot.venta {
+  background: #b38734;
+
+  box-shadow:
+    0 0 0 4px
+    #f4ead7;
+}
+
+.activity > div {
+  min-width: 0;
+}
+
+.activity strong {
+  display: block;
+
+  color: #314039;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.activity p {
+  margin: 4px 0 0;
+
+  color: var(
+    --muted-foreground,
+    #818a84
+  );
+
+  font-size: 10px;
+  line-height: 1.35;
+}
+
+.activity small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #a0a6a2;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   LINK INFERIOR DE PANELES
+========================================================= */
+
+.dashboard-panel-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 34px;
+
+  margin-top: 11px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd8c9;
+  border-radius: 9px;
+
+  background: #f8f6ef;
+
+  color: #526158;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.dashboard-panel-link:hover {
+  transform: translateY(-1px);
+
+  background: #f1ede2;
+}
+
+/* =========================================================
+   PANEL VACÍO
+========================================================= */
+
+.dashboard-panel-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 180px;
+
+  padding: 25px;
+
+  border-top: 1px solid #ece8de;
+
+  color: #858e88;
+
+  text-align: center;
+}
+
+.dashboard-panel-empty strong {
+  margin-bottom: 4px;
+
+  color: #536158;
+
+  font-size: 12px;
+}
+
+.dashboard-panel-empty span {
+  max-width: 330px;
+
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.dashboard-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+
+  min-height: 420px;
+
+  padding: 30px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 18px;
+
+  background: #ffffff;
+
+  color: #7e8881;
+
+  font-size: 12px;
+}
+
+.dashboard-spin {
+  animation:
+    dashboard-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes dashboard-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.dashboard-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #efc4bd;
+  border-radius: 11px;
+
+  background: #fff0ee;
+
+  color: #993c32;
+
+  font-size: 11px;
+}
+
+.dashboard-error button {
+  min-height: 32px;
+
+  padding: 0 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #993c32;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width:
+    1250px
+) {
+  .dashboard-metrics {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .dashboard-grid {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (
+  max-width:
+    780px
+) {
+  .dashboard-hero {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .dashboard-hero-actions {
+    width: 100%;
+  }
+
+  .dashboard-hero-actions button {
+    flex: 1;
+  }
+}
+
+@media (
+  max-width:
+    650px
+) {
+  .dashboard-hero {
+    padding: 24px;
+  }
+
+  .dashboard-hero h1 {
+    font-size: 29px;
+  }
+
+  .dashboard-hero-actions {
+    flex-direction: column;
+  }
+
+  .dashboard-hero-actions button {
+    width: 100%;
+  }
+
+  .dashboard-metrics {
+    grid-template-columns:
+      1fr;
+  }
+
+  .due-row {
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    gap: 8px;
+  }
+}

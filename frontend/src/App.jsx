@@ -19,6 +19,7 @@ import Vendedores from "./pages/Vendedores/Vendedores";
 import Comisiones from "./pages/Comisiones/Comisiones";
 import Egresos from "./pages/Egresos/Egresos";
 import Comprobantes from "./pages/Comprobantes/Comprobantes";
+import Cartera from "./pages/Cartera/Cartera";
 
 const pages = {
   dashboard: Dashboard,
@@ -29,6 +30,7 @@ const pages = {
   comisiones: Comisiones,
   cuotas: Cuotas,
   pagos: Pagos,
+  cartera: Cartera,
   egresos: Egresos,
   comprobantes: Comprobantes,
   facturas: Facturas,

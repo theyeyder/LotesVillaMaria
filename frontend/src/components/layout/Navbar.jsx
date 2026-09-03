@@ -42,12 +42,17 @@ const titles = {
     subtitle: "Seguimiento de cuotas y vencimientos",
   },
 
-  pagos: {
-    title: "Pagos",
-    subtitle: "Registro de pagos y abonos de clientes",
-  },
+ pagos: {
+  title: "Pagos",
+  subtitle: "Registro de pagos y abonos de clientes",
+},
 
- egresos: {
+cartera: {
+  title: "Cartera",
+  subtitle: "Control de saldos, deuda y vencimientos de clientes",
+},
+
+egresos: {
   title: "Egresos",
   subtitle: "Control de pagos y salidas de dinero",
 },
