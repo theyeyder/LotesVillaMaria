@@ -3057,3 +3057,708 @@
     font-size: 17px;
   }
 }
+/* =========================================================
+   REPORTE DE HORAS DE MAQUINARIA
+   AJUSTE FINANCIERO DE IMPRESIÓN
+
+   Incluye:
+   - Total pagado
+   - Saldo pendiente
+   - Estado
+   - Tablas optimizadas para A4 horizontal
+========================================================= */
+
+body.horas-reporte-window {
+  margin: 0;
+  padding: 0;
+
+  background: #f4f1e8;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  color: #1f2d25;
+}
+
+/* =========================================================
+   CONTENEDOR DEL REPORTE
+========================================================= */
+
+body.horas-reporte-window
+  .reporte-contenedor {
+  width: calc(100% - 32px);
+
+  max-width: 1500px;
+
+  margin: 20px auto 35px;
+
+  padding: 22px;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HACER VISIBLES LOS ELEMENTOS DE IMPRESIÓN
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-header,
+body.horas-reporte-window
+  .horas-print-operarios,
+body.horas-reporte-window
+  .horas-print-detalle {
+  display: block !important;
+}
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-header {
+  margin-bottom: 22px;
+
+  text-align: center;
+}
+
+body.horas-reporte-window
+  .horas-print-header h1 {
+  margin: 0;
+
+  font-size: 25px;
+
+  font-weight: 800;
+
+  color: #173d2b;
+
+  text-transform: uppercase;
+
+  letter-spacing: 0.7px;
+}
+
+body.horas-reporte-window
+  .horas-print-header h2 {
+  margin: 5px 0 18px;
+
+  font-size: 15px;
+
+  font-weight: 600;
+
+  color: #58655d;
+}
+
+/* =========================================================
+   INFORMACIÓN DEL REPORTE
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-top: 15px;
+}
+
+body.horas-reporte-window
+  .horas-print-info p {
+  margin: 0;
+
+  padding: 9px 12px;
+
+  border: 1px solid #ddd8c9;
+
+  border-radius: 9px;
+
+  background: #faf8f2;
+
+  font-size: 11px;
+
+  text-align: left;
+}
+
+body.horas-reporte-window
+  .horas-print-info strong {
+  color: #173d2b;
+}
+
+/* =========================================================
+   TÍTULOS DE SECCIONES
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-operarios,
+body.horas-reporte-window
+  .horas-print-detalle {
+  margin-top: 22px;
+}
+
+body.horas-reporte-window
+  .horas-print-operarios h3,
+body.horas-reporte-window
+  .horas-print-detalle h3 {
+  margin:
+    0
+    0
+    9px;
+
+  padding-left: 9px;
+
+  border-left: 4px solid #b99545;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  color: #173d2b;
+}
+
+/* =========================================================
+   TABLAS GENERALES
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+
+  background: #ffffff;
+}
+
+body.horas-reporte-window
+  .horas-print-table th {
+  padding:
+    7px
+    4px;
+
+  border: 1px solid #d3d5d1;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  line-height: 1.2;
+
+  text-align: center;
+
+  text-transform: uppercase;
+
+  vertical-align: middle;
+}
+
+body.horas-reporte-window
+  .horas-print-table td {
+  padding:
+    7px
+    4px;
+
+  border: 1px solid #dedfdc;
+
+  font-size: 8px;
+
+  line-height: 1.25;
+
+  text-align: center;
+
+  vertical-align: middle;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   RESUMEN POR OPERARIO
+   9 COLUMNAS
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(1),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(1) {
+  width: 18%;
+
+  text-align: left;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(2),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(2) {
+  width: 8%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(3),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(3) {
+  width: 8%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(4),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(4) {
+  width: 8%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(5),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(5) {
+  width: 8%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(6),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(6) {
+  width: 12%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(7),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(7) {
+  width: 13%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(8),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(8) {
+  width: 12%;
+}
+
+body.horas-reporte-window
+  .horas-print-table-resumen
+  th:nth-child(9),
+body.horas-reporte-window
+  .horas-print-table-resumen
+  td:nth-child(9) {
+  width: 13%;
+}
+
+/* =========================================================
+   FILA TOTAL GENERAL
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-total-row td {
+  background: #f3efe4;
+
+  border-top: 2px solid #b99545;
+
+  color: #173d2b;
+
+  font-weight: 800;
+}
+
+/* =========================================================
+   DETALLE DE JORNADAS
+   13 COLUMNAS
+========================================================= */
+
+/* MÁQUINA */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(1),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(1) {
+  width: 8%;
+}
+
+/* OPERARIO */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(2),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(2) {
+  width: 8%;
+}
+
+/* FECHA */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(3),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(3) {
+  width: 6%;
+}
+
+/* MAÑANA */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(4),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(4) {
+  width: 7%;
+}
+
+/* TARDE */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(5),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(5) {
+  width: 7%;
+}
+
+/* NOCHE */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(6),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(6) {
+  width: 7%;
+}
+
+/* HORAS REALIZADAS */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(7),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(7) {
+  width: 7%;
+}
+
+/* VALOR HORA */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(8),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(8) {
+  width: 7%;
+}
+
+/* VALOR A PAGAR */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(9),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(9) {
+  width: 8%;
+}
+
+/* PAGADO */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(10),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(10) {
+  width: 7%;
+}
+
+/* SALDO PENDIENTE */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(11),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(11) {
+  width: 8%;
+}
+
+/* ESTADO */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(12),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(12) {
+  width: 7%;
+}
+
+/* OBSERVACIÓN */
+
+body.horas-reporte-window
+  .horas-print-table-detalle
+  th:nth-child(13),
+body.horas-reporte-window
+  .horas-print-table-detalle
+  td:nth-child(13) {
+  width: 13%;
+}
+
+/* =========================================================
+   MÁQUINA
+========================================================= */
+
+body.horas-reporte-window
+  .print-maquina {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+body.horas-reporte-window
+  .print-maquina strong {
+  color: #173d2b;
+
+  font-size: 8px;
+}
+
+body.horas-reporte-window
+  .print-maquina span {
+  font-size: 7px;
+
+  color: #667168;
+}
+
+/* =========================================================
+   OPERARIO
+========================================================= */
+
+body.horas-reporte-window
+  .print-operario {
+  color: #173d2b;
+
+  font-size: 8px;
+}
+
+/* =========================================================
+   TURNOS
+========================================================= */
+
+body.horas-reporte-window
+  .print-turno {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+}
+
+body.horas-reporte-window
+  .print-turno strong {
+  font-size: 7px;
+
+  white-space: nowrap;
+}
+
+body.horas-reporte-window
+  .print-turno span {
+  font-size: 7px;
+
+  color: #67736b;
+}
+
+body.horas-reporte-window
+  .print-sin-turno {
+  color: #9a9f9b;
+}
+
+/* =========================================================
+   TOTAL HORAS
+========================================================= */
+
+body.horas-reporte-window
+  .print-total-horas {
+  font-weight: 800;
+
+  color: #173d2b;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   BOTONES DE LA VENTANA DE IMPRESIÓN
+========================================================= */
+
+body.horas-reporte-window
+  .acciones-impresion {
+  display: flex;
+
+  justify-content: flex-end;
+
+  gap: 10px;
+
+  width: calc(100% - 32px);
+
+  max-width: 1500px;
+
+  margin: 18px auto 0;
+}
+
+body.horas-reporte-window
+  .acciones-impresion button {
+  min-height: 38px;
+
+  padding:
+    0
+    17px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+body.horas-reporte-window
+  .btn-cerrar {
+  background: #e8e8e8;
+
+  color: #333333;
+}
+
+body.horas-reporte-window
+  .btn-imprimir {
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+/* =========================================================
+   EVITAR QUE UNA FILA SE PARTA ENTRE DOS HOJAS
+========================================================= */
+
+body.horas-reporte-window
+  .horas-print-table tr {
+  break-inside: avoid;
+
+  page-break-inside: avoid;
+}
+
+/* =========================================================
+   IMPRESIÓN REAL
+========================================================= */
+
+@media print {
+
+  @page {
+    size: A4 landscape;
+
+    margin: 7mm;
+  }
+
+  body.horas-reporte-window {
+    background: #ffffff !important;
+
+    -webkit-print-color-adjust: exact;
+
+    print-color-adjust: exact;
+  }
+
+  body.horas-reporte-window
+    .acciones-impresion {
+    display: none !important;
+  }
+
+  body.horas-reporte-window
+    .reporte-contenedor {
+    width: 100%;
+
+    max-width: none;
+
+    margin: 0;
+
+    padding: 0;
+
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  body.horas-reporte-window
+    .horas-print-header {
+    margin-bottom: 12px;
+  }
+
+  body.horas-reporte-window
+    .horas-print-operarios,
+  body.horas-reporte-window
+    .horas-print-detalle {
+    margin-top: 14px;
+  }
+
+  body.horas-reporte-window
+    .horas-print-table th {
+    padding:
+      5px
+      3px;
+
+    font-size: 7px;
+  }
+
+  body.horas-reporte-window
+    .horas-print-table td {
+    padding:
+      5px
+      3px;
+
+    font-size: 7px;
+  }
+
+  body.horas-reporte-window
+    .horas-print-table thead {
+    display: table-header-group;
+  }
+
+  body.horas-reporte-window
+    .horas-print-table tfoot {
+    display: table-footer-group;
+  }
+}

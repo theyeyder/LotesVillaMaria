@@ -70,17 +70,37 @@ const formatearDinero = (valor = 0) => {
 
 const formatearFecha = (fecha) => {
   if (!fecha) {
-    return "";
+    return "—";
+  }
+
+  const texto = String(fecha);
+
+  const coincidencia = texto.match(
+    /^(\d{4})-(\d{2})-(\d{2})/
+  );
+
+  if (coincidencia) {
+    const [, anio, mes, dia] =
+      coincidencia;
+
+    return `${dia}/${mes}/${anio}`;
   }
 
   const date = new Date(fecha);
 
-  return date.toLocaleDateString("es-CO", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString(
+    "es-CO",
+    {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      timeZone: "UTC",
+    }
+  );
 };
 
 const obtenerFechaLocal = () => {
@@ -345,6 +365,9 @@ export default function HorasMaquinaria() {
 
     total: 0,
     valorTotal: 0,
+
+    totalPagado: 0,
+    saldoPendiente: 0,
   });
 
   const [cargando, setCargando] = useState(true);
@@ -593,6 +616,9 @@ export default function HorasMaquinaria() {
 
           total: 0,
           valorTotal: 0,
+
+          totalPagado: 0,
+          saldoPendiente: 0,
         }
       );
     } catch (error) {
@@ -836,7 +862,11 @@ export default function HorasMaquinaria() {
           "Pago registrado correctamente."
       );
 
-      await cargarRegistros();
+      await Promise.all([
+        cargarRegistros(),
+        cargarResumen(),
+        cargarResumenOperarios(),
+      ]);
 
       setModalPagoAbierto(false);
 
@@ -1046,7 +1076,11 @@ export default function HorasMaquinaria() {
         setHistorial(datos);
       }
 
-      await cargarRegistros();
+      await Promise.all([
+        cargarRegistros(),
+        cargarResumen(),
+        cargarResumenOperarios(),
+      ]);
 
       setModalEditarAbonoAbierto(false);
 
@@ -1125,7 +1159,11 @@ export default function HorasMaquinaria() {
         setHistorial(datos);
       }
 
-      await cargarRegistros();
+      await Promise.all([
+        cargarRegistros(),
+        cargarResumen(),
+        cargarResumenOperarios(),
+      ]);
 
       setModalEliminarMovimientoAbierto(false);
 
@@ -1396,7 +1434,7 @@ export default function HorasMaquinaria() {
 
           <p>
             <strong>Fecha de referencia:</strong>{" "}
-            {formatearFecha(`${fechaReferencia}T00:00:00.000Z`)}
+            {formatearFecha(fechaReferencia)}
           </p>
 
           <p>
@@ -1522,6 +1560,8 @@ export default function HorasMaquinaria() {
               <th>Año</th>
               <th>Total trabajado</th>
               <th>Total a pagar</th>
+              <th>Total pagado</th>
+              <th>Saldo pendiente</th>
             </tr>
           </thead>
 
@@ -1544,6 +1584,14 @@ export default function HorasMaquinaria() {
 
                 <td>
                   <strong>{formatearDinero(operario.valorTotal)}</strong>
+                </td>
+
+                <td>
+                  <strong>{formatearDinero(operario.totalPagado)}</strong>
+                </td>
+
+                <td>
+                  <strong>{formatearDinero(operario.saldoPendiente)}</strong>
                 </td>
               </tr>
             ))}
@@ -1576,6 +1624,14 @@ export default function HorasMaquinaria() {
               <td>
                 <strong>{formatearDinero(totalOperarios.valorTotal)}</strong>
               </td>
+
+              <td>
+                <strong>{formatearDinero(totalOperarios.totalPagado)}</strong>
+              </td>
+
+              <td>
+                <strong>{formatearDinero(totalOperarios.saldoPendiente)}</strong>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -1599,6 +1655,9 @@ export default function HorasMaquinaria() {
               <th>Horas realizadas</th>
               <th>Valor hora</th>
               <th>Valor a pagar</th>
+              <th>Pagado</th>
+              <th>Saldo pendiente</th>
+              <th>Estado</th>
               <th>Observación</th>
             </tr>
           </thead>
@@ -1671,6 +1730,40 @@ export default function HorasMaquinaria() {
                           registro.valorPagar
                         )
                       : "—"}
+                  </strong>
+                </td>
+
+                {/* TOTAL PAGADO */}
+
+                <td>
+                  <strong>
+                    {formatearDinero(
+                      obtenerTotalPagadoRegistro(
+                        registro
+                      )
+                    )}
+                  </strong>
+                </td>
+
+                {/* SALDO PENDIENTE */}
+
+                <td>
+                  <strong>
+                    {formatearDinero(
+                      obtenerSaldoRegistro(
+                        registro
+                      )
+                    )}
+                  </strong>
+                </td>
+
+                {/* ESTADO */}
+
+                <td>
+                  <strong>
+                    {obtenerEstadoPagoRegistro(
+                      registro
+                    )}
                   </strong>
                 </td>
 

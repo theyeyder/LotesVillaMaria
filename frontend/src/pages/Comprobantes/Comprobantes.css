@@ -1,0 +1,1624 @@
+/* =========================================================
+   COMPROBANTES
+   LOTES VILLA MARÍA
+========================================================= */
+
+.comprobantes-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.comprobantes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding: 4px 0;
+}
+
+.comprobantes-header > div:first-child {
+  min-width: 0;
+}
+
+.comprobantes-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.comprobantes-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 31px;
+  line-height: 1.1;
+
+  font-weight: 850;
+}
+
+.comprobantes-header p {
+  margin: 8px 0 0;
+
+  color: #66736b;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.comprobantes-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  flex-shrink: 0;
+}
+
+.comprobantes-print-button,
+.comprobantes-refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: none;
+  border-radius: 11px;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+}
+
+.comprobantes-print-button {
+  background: #f0e7d0;
+
+  color: #765b22;
+
+  border: 1px solid #dbc797;
+}
+
+.comprobantes-refresh-button {
+  background: #173d2b;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 7px 18px
+    rgba(23, 61, 43, 0.16);
+}
+
+.comprobantes-print-button:hover,
+.comprobantes-refresh-button:hover {
+  transform: translateY(-1px);
+}
+
+.comprobantes-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   STATS
+========================================================= */
+
+.comprobantes-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.comprobantes-stat-card {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  min-width: 0;
+
+  padding: 17px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  box-shadow:
+    0 7px 22px
+    rgba(44, 57, 49, 0.055);
+}
+
+.comprobantes-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+}
+
+.comprobantes-stat-card > div:last-child {
+  min-width: 0;
+}
+
+.comprobantes-stat-card span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #68736c;
+
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.comprobantes-stat-card strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 19px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.comprobantes-stat-card small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #949b96;
+
+  font-size: 10px;
+}
+
+.comprobantes-stat-card.ingresos
+  .comprobantes-stat-icon {
+  background: #e6f2ea;
+  color: #237547;
+}
+
+.comprobantes-stat-card.egresos
+  .comprobantes-stat-icon {
+  background: #fbe9e7;
+  color: #a83d32;
+}
+
+.comprobantes-stat-card.balance
+  .comprobantes-stat-icon {
+  background: #eee7d4;
+  color: #9a762e;
+}
+
+.comprobantes-stat-card.documentos
+  .comprobantes-stat-icon {
+  background: #e8ece9;
+  color: #315a46;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.comprobantes-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(260px, 1.8fr)
+    minmax(145px, 0.8fr)
+    minmax(140px, 0.7fr)
+    minmax(140px, 0.7fr)
+    auto;
+
+  gap: 11px;
+
+  align-items: end;
+
+  padding: 16px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.045);
+}
+
+.comprobantes-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.comprobantes-search svg {
+  position: absolute;
+
+  left: 13px;
+
+  color: #8c958f;
+
+  pointer-events: none;
+}
+
+.comprobantes-search input {
+  width: 100%;
+  height: 42px;
+
+  padding:
+    0
+    13px
+    0
+    40px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 10px;
+
+  background: #faf9f5;
+
+  color: #24332a;
+
+  font-size: 13px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.comprobantes-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.comprobantes-filter-field label {
+  color: #59645d;
+
+  font-size: 11px;
+  font-weight: 750;
+}
+
+.comprobantes-filter-field select,
+.comprobantes-filter-field input {
+  width: 100%;
+  height: 42px;
+
+  padding:
+    0
+    11px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 10px;
+
+  background: #faf9f5;
+
+  color: #26352b;
+
+  font-size: 12px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.comprobantes-search input:focus,
+.comprobantes-filter-field select:focus,
+.comprobantes-filter-field input:focus {
+  border-color: #b99a54;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.11);
+
+  background: #ffffff;
+}
+
+.comprobantes-clear-button {
+  height: 42px;
+
+  padding:
+    0
+    15px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 10px;
+
+  background: #f6f4ee;
+
+  color: #5f675f;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.comprobantes-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.055);
+}
+
+.comprobantes-error {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  margin: 14px;
+
+  padding:
+    11px
+    13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 12px;
+}
+
+.comprobantes-error button {
+  border: none;
+  border-radius: 8px;
+
+  padding:
+    7px
+    11px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.comprobantes-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.comprobantes-table {
+  width: 100%;
+  min-width: 1300px;
+
+  border-collapse: collapse;
+}
+
+.comprobantes-table thead {
+  background: #f5f2e9;
+}
+
+.comprobantes-table th {
+  padding:
+    13px
+    12px;
+
+  border-bottom: 1px solid #ded9cb;
+
+  color: #5a645e;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.comprobantes-table td {
+  padding:
+    13px
+    12px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #344039;
+
+  font-size: 12px;
+
+  vertical-align: middle;
+}
+
+.comprobantes-table tbody tr {
+  transition:
+    background 0.16s ease;
+}
+
+.comprobantes-table tbody tr:hover {
+  background: #fbfaf6;
+}
+
+.comprobantes-codigo {
+  color: #173d2b;
+
+  font-size: 12px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   MOVIMIENTO
+========================================================= */
+
+.comprobantes-movimiento {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+
+  padding:
+    5px
+    8px;
+
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.comprobantes-movimiento.ingreso {
+  background: #e7f4eb;
+  color: #26764a;
+}
+
+.comprobantes-movimiento.egreso {
+  background: #fae8e5;
+  color: #a23e34;
+}
+
+/* =========================================================
+   TIPO DOCUMENTO
+========================================================= */
+
+.comprobantes-tipo-documento {
+  display: inline-block;
+
+  max-width: 155px;
+
+  padding:
+    5px
+    8px;
+
+  border: 1px solid #ded6c3;
+  border-radius: 8px;
+
+  background: #f5f0e4;
+
+  color: #735d2d;
+
+  font-size: 10px;
+  font-weight: 700;
+}
+
+/* =========================================================
+   TERCERO
+========================================================= */
+
+.comprobantes-tercero {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 150px;
+}
+
+.comprobantes-tercero strong {
+  color: #28362d;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.comprobantes-tercero span {
+  color: #8b938e;
+
+  font-size: 10px;
+}
+
+/* =========================================================
+   CONCEPTO
+========================================================= */
+
+.comprobantes-concepto {
+  display: block;
+
+  max-width: 280px;
+
+  color: #58635c;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   VALOR
+========================================================= */
+
+.comprobantes-valor {
+  font-size: 12px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.comprobantes-valor.ingreso {
+  color: #247247;
+}
+
+.comprobantes-valor.egreso {
+  color: #a13e33;
+}
+
+/* =========================================================
+   ACCIONES
+========================================================= */
+
+.comprobantes-actions-title {
+  text-align: center !important;
+}
+
+.comprobantes-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.comprobantes-actions button {
+  display: inline-grid;
+  place-items: center;
+
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 9px;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.comprobantes-actions button:hover {
+  transform: translateY(-1px);
+}
+
+.comprobantes-actions .view {
+  background: #e9efe9;
+  color: #315f46;
+}
+
+.comprobantes-actions .print {
+  background: #eee7d6;
+  color: #846724;
+}
+
+/* =========================================================
+   VACÍO / CARGANDO
+========================================================= */
+
+.comprobantes-empty {
+  height: 220px;
+
+  text-align: center !important;
+
+  color: #89918c !important;
+}
+
+.comprobantes-empty svg {
+  display: block;
+
+  margin:
+    0
+    auto
+    8px;
+}
+
+.comprobantes-empty strong,
+.comprobantes-empty span {
+  display: block;
+}
+
+.comprobantes-empty strong {
+  margin-bottom: 4px;
+
+  color: #526058;
+
+  font-size: 13px;
+}
+
+/* =========================================================
+   FOOTER / PAGINACIÓN
+========================================================= */
+
+.comprobantes-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding:
+    13px
+    15px;
+
+  border-top: 1px solid #ebe7dd;
+
+  background: #faf9f5;
+}
+
+.comprobantes-pagination-info {
+  color: #707a73;
+
+  font-size: 11px;
+}
+
+.comprobantes-pagination {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: #68716b;
+
+  font-size: 11px;
+}
+
+.comprobantes-pagination button {
+  min-height: 33px;
+
+  padding:
+    0
+    11px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #48544c;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.comprobantes-pagination button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   MODAL
+========================================================= */
+
+.comprobantes-modal-backdrop {
+  position: fixed;
+  inset: 0;
+
+  z-index: 1000;
+
+  display: grid;
+  place-items: center;
+
+  padding: 20px;
+
+  background:
+    rgba(
+      17,
+      34,
+      25,
+      0.46
+    );
+
+  backdrop-filter: blur(4px);
+}
+
+.comprobantes-modal {
+  width: min(
+    680px,
+    100%
+  );
+
+  max-height: 90vh;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 24px 60px
+    rgba(16, 31, 23, 0.22);
+}
+
+.comprobantes-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+
+  padding:
+    18px
+    20px;
+
+  border-bottom: 1px solid #e7e2d8;
+
+  background: #f8f6ef;
+}
+
+.comprobantes-modal-header span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #b18a39;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.comprobantes-modal-header h2 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 20px;
+}
+
+.comprobantes-modal-header > button {
+  display: grid;
+  place-items: center;
+
+  width: 34px;
+  height: 34px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #ece9e1;
+
+  color: #4f5a53;
+
+  cursor: pointer;
+}
+
+.comprobantes-modal-body {
+  overflow-y: auto;
+
+  max-height: 62vh;
+
+  padding: 20px;
+}
+
+.comprobantes-modal-movimiento {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  margin-bottom: 18px;
+
+  padding:
+    13px
+    14px;
+
+  border: 1px solid #e4dfd3;
+  border-radius: 12px;
+
+  background: #faf8f2;
+}
+
+.comprobantes-modal-movimiento > strong {
+  color: #173d2b;
+
+  font-size: 20px;
+  font-weight: 850;
+}
+
+.comprobantes-detalle-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 11px;
+}
+
+.comprobantes-detalle-grid > div {
+  padding: 12px;
+
+  border: 1px solid #e4e0d6;
+  border-radius: 11px;
+
+  background: #fbfaf7;
+}
+
+.comprobantes-detalle-grid span,
+.comprobantes-detalle-concepto > span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #7c857f;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.comprobantes-detalle-grid strong {
+  color: #344238;
+
+  font-size: 12px;
+}
+
+.comprobantes-detalle-concepto {
+  margin-top: 12px;
+
+  padding: 13px;
+
+  border: 1px solid #e4e0d6;
+  border-radius: 11px;
+
+  background: #fbfaf7;
+}
+
+.comprobantes-detalle-concepto p {
+  margin: 0;
+
+  color: #3e4942;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.comprobantes-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+
+  padding:
+    14px
+    20px;
+
+  border-top: 1px solid #e5e1d7;
+
+  background: #faf9f5;
+}
+
+.comprobantes-modal-footer button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 39px;
+
+  padding:
+    0
+    14px;
+
+  border: none;
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.comprobantes-modal-footer .cerrar {
+  background: #e9e7e1;
+  color: #525c56;
+}
+
+.comprobantes-modal-footer .imprimir {
+  background: #173d2b;
+  color: #ffffff;
+}
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.comprobantes-spin {
+  animation:
+    comprobantes-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes comprobantes-spin {
+  to {
+    transform:
+      rotate(
+        360deg
+      );
+  }
+}
+
+/* =========================================================
+   VENTANA DE IMPRESIÓN
+========================================================= */
+
+body.comprobantes-print-window {
+  margin: 0;
+  padding: 0;
+
+  background: #eeeae0;
+
+  color: #25332a;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+.comprobantes-print-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+
+  width: min(
+    920px,
+    calc(
+      100% - 32px
+    )
+  );
+
+  margin:
+    18px
+    auto
+    0;
+}
+
+.comprobantes-print-actions button {
+  min-height: 38px;
+
+  padding:
+    0
+    15px;
+
+  border: none;
+  border-radius: 9px;
+
+  background: #deddd8;
+
+  color: #354039;
+
+  font-size: 12px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.comprobantes-print-actions
+  .principal {
+  background: #173d2b;
+  color: #ffffff;
+}
+
+/* =========================================================
+   COMPROBANTE INDIVIDUAL
+========================================================= */
+
+.comprobantes-print-contenedor {
+  width: min(
+    850px,
+    calc(
+      100% - 32px
+    )
+  );
+
+  margin:
+    15px
+    auto
+    30px;
+}
+
+.comprobante-documento {
+  padding: 30px;
+
+  background: #ffffff;
+
+  border: 1px solid #d9d4c7;
+  border-radius: 16px;
+
+  box-sizing: border-box;
+}
+
+.comprobante-documento-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+
+  padding-bottom: 17px;
+
+  border-bottom: 2px solid #173d2b;
+}
+
+.comprobante-documento-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 24px;
+
+  letter-spacing: 0.05em;
+}
+
+.comprobante-documento-header p {
+  margin: 5px 0 0;
+
+  color: #8c6f2f;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+}
+
+.comprobante-documento-codigo {
+  min-width: 150px;
+
+  padding: 11px;
+
+  border: 1px solid #d7cfba;
+  border-radius: 10px;
+
+  background: #f6f0e3;
+
+  text-align: center;
+}
+
+.comprobante-documento-codigo span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #7e7258;
+
+  font-size: 10px;
+
+  text-transform: uppercase;
+}
+
+.comprobante-documento-codigo strong {
+  color: #173d2b;
+
+  font-size: 17px;
+}
+
+.comprobante-documento-info {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-top: 19px;
+}
+
+.comprobante-documento-info > div,
+.comprobante-documento-secundario > div {
+  padding: 11px;
+
+  border: 1px solid #e0dbcf;
+  border-radius: 9px;
+
+  background: #faf9f5;
+}
+
+.comprobante-documento-info span,
+.comprobante-documento-secundario span,
+.comprobante-documento-concepto span,
+.comprobante-documento-valor span,
+.comprobante-documento-observaciones span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #7b847e;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  text-transform: uppercase;
+}
+
+.comprobante-documento-info strong,
+.comprobante-documento-secundario strong {
+  color: #2d3a31;
+
+  font-size: 12px;
+}
+
+.comprobante-documento-concepto {
+  margin-top: 11px;
+
+  padding: 13px;
+
+  border: 1px solid #e0dbcf;
+  border-radius: 9px;
+
+  background: #faf9f5;
+}
+
+.comprobante-documento-concepto strong {
+  color: #2f3d33;
+
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.comprobante-documento-valor {
+  margin-top: 14px;
+
+  padding:
+    15px
+    17px;
+
+  border: 1px solid #cdb87f;
+  border-radius: 11px;
+
+  background: #f6f0e0;
+}
+
+.comprobante-documento-valor strong {
+  color: #173d2b;
+
+  font-size: 27px;
+  font-weight: 900;
+}
+
+.comprobante-documento-secundario {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+
+  margin-top: 11px;
+}
+
+.comprobante-documento-observaciones {
+  margin-top: 11px;
+
+  padding: 13px;
+
+  border: 1px solid #e0dbcf;
+  border-radius: 9px;
+
+  background: #faf9f5;
+}
+
+.comprobante-documento-observaciones p {
+  margin: 0;
+
+  color: #455048;
+
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.comprobante-documento-footer {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 55px;
+
+  margin-top: 55px;
+}
+
+.comprobante-documento-footer span {
+  color: #68726c;
+
+  font-size: 10px;
+}
+
+.firma-linea {
+  height: 35px;
+
+  border-bottom: 1px solid #696f6b;
+}
+
+/* =========================================================
+   REPORTE GENERAL
+========================================================= */
+
+.comprobantes-reporte {
+  width: min(
+    1150px,
+    calc(
+      100% - 32px
+    )
+  );
+
+  margin:
+    15px
+    auto
+    30px;
+
+  padding: 25px;
+
+  background: #ffffff;
+
+  border-radius: 15px;
+
+  box-sizing: border-box;
+}
+
+.comprobantes-reporte-header {
+  margin-bottom: 16px;
+
+  text-align: center;
+}
+
+.comprobantes-reporte-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 23px;
+}
+
+.comprobantes-reporte-header h2 {
+  margin: 4px 0 14px;
+
+  color: #646f68;
+
+  font-size: 14px;
+}
+
+.comprobantes-reporte-filtros {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+}
+
+.comprobantes-reporte-filtros span {
+  padding: 8px;
+
+  border: 1px solid #e0dbcf;
+  border-radius: 8px;
+
+  background: #faf9f5;
+
+  color: #657068;
+
+  font-size: 9px;
+}
+
+.comprobantes-reporte-filtros strong {
+  display: block;
+
+  margin-top: 2px;
+
+  color: #24352b;
+}
+
+.comprobantes-reporte-resumen {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 9px;
+
+  margin-bottom: 14px;
+}
+
+.comprobantes-reporte-resumen > div {
+  padding: 10px;
+
+  border: 1px solid #dcd7ca;
+  border-radius: 8px;
+
+  background: #f7f4eb;
+}
+
+.comprobantes-reporte-resumen span {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #788078;
+
+  font-size: 9px;
+}
+
+.comprobantes-reporte-resumen strong {
+  color: #173d2b;
+
+  font-size: 14px;
+}
+
+.comprobantes-reporte-tabla {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  table-layout: fixed;
+}
+
+.comprobantes-reporte-tabla th {
+  padding:
+    7px
+    5px;
+
+  border: 1px solid #d7d9d5;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 8px;
+
+  text-transform: uppercase;
+}
+
+.comprobantes-reporte-tabla td {
+  padding:
+    7px
+    5px;
+
+  border: 1px solid #dddfdc;
+
+  color: #364238;
+
+  font-size: 8px;
+
+  vertical-align: top;
+
+  overflow-wrap: anywhere;
+}
+
+.comprobantes-reporte-tabla
+  .dinero {
+  font-weight: 800;
+
+  white-space: nowrap;
+
+  text-align: right;
+}
+
+/* =========================================================
+   PRINT REAL
+========================================================= */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body.comprobantes-print-window {
+    background: #ffffff !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .comprobantes-print-actions {
+    display: none !important;
+  }
+
+  .comprobantes-print-contenedor,
+  .comprobantes-reporte {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+
+    padding: 0;
+
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .comprobante-documento {
+    border-radius: 0;
+  }
+
+  .comprobantes-reporte-tabla
+    thead {
+    display: table-header-group;
+  }
+
+  .comprobantes-reporte-tabla
+    tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width:
+    1250px
+) {
+  .comprobantes-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .comprobantes-filtros {
+    grid-template-columns:
+      1fr
+      1fr
+      1fr;
+  }
+
+  .comprobantes-search {
+    grid-column:
+      1
+      / -1;
+  }
+}
+
+@media (
+  max-width:
+    760px
+) {
+  .comprobantes-header {
+    flex-direction: column;
+  }
+
+  .comprobantes-header-actions {
+    width: 100%;
+  }
+
+  .comprobantes-header-actions
+    button {
+    flex: 1;
+  }
+
+  .comprobantes-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .comprobantes-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .comprobantes-search {
+    grid-column: auto;
+  }
+
+  .comprobantes-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .comprobantes-pagination {
+    justify-content: space-between;
+  }
+
+  .comprobantes-detalle-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .comprobantes-modal-movimiento {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .comprobante-documento-info,
+  .comprobante-documento-secundario,
+  .comprobante-documento-footer {
+    grid-template-columns:
+      1fr;
+  }
+}

@@ -57,16 +57,21 @@ const menuItems = [
     label: "Pagos",
     icon: CreditCard,
   },
-  {
-    id: "egresos",
-    label: "Egresos",
-    icon: WalletCards,
-  },
-  {
-    id: "facturas",
-    label: "Facturas",
-    icon: ReceiptText,
-  },
+ {
+  id: "egresos",
+  label: "Egresos",
+  icon: WalletCards,
+},
+{
+  id: "comprobantes",
+  label: "Comprobantes",
+  icon: ReceiptText,
+},
+{
+  id: "facturas",
+  label: "Facturas",
+  icon: ReceiptText,
+},
   {
     id: "maquinaria",
     label: "Maquinaria",

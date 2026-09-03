@@ -1858,6 +1858,8 @@ export const obtenerResumenHoras =
    Ahora incluye:
    - Minutos
    - Valores a pagar
+   - Total pagado
+   - Saldo pendiente
 ========================================================= */
 
 export const obtenerResumenOperarios =
@@ -2258,6 +2260,56 @@ export const obtenerResumenOperarios =
                   ],
                 },
               },
+
+              /* =====================
+                 TOTAL PAGADO
+              ===================== */
+
+              totalPagado: {
+                $sum: {
+                  $ifNull: [
+                    "$totalPagado",
+                    0,
+                  ],
+                },
+              },
+
+              /* =====================
+                 SALDO PENDIENTE
+
+                 Se calcula directamente:
+
+                 valorPagar - totalPagado
+
+                 Esto también sirve para los
+                 registros antiguos.
+              ===================== */
+
+              saldoPendiente: {
+                $sum: {
+                  $max: [
+                    {
+                      $subtract: [
+                        {
+                          $ifNull: [
+                            "$valorPagar",
+                            0,
+                          ],
+                        },
+
+                        {
+                          $ifNull: [
+                            "$totalPagado",
+                            0,
+                          ],
+                        },
+                      ],
+                    },
+
+                    0,
+                  ],
+                },
+              },
             },
           },
 
@@ -2316,6 +2368,14 @@ export const obtenerResumenOperarios =
             valorTotal:
               operario.valorTotal ||
               0,
+
+            totalPagado:
+              operario.totalPagado ||
+              0,
+
+            saldoPendiente:
+              operario.saldoPendiente ||
+              0,
           })
         );
 
@@ -2368,6 +2428,14 @@ export const obtenerResumenOperarios =
             valorTotal:
               acumulado.valorTotal +
               operario.valorTotal,
+
+            totalPagado:
+              acumulado.totalPagado +
+              operario.totalPagado,
+
+            saldoPendiente:
+              acumulado.saldoPendiente +
+              operario.saldoPendiente,
           }),
 
           {
@@ -2399,6 +2467,12 @@ export const obtenerResumenOperarios =
               0,
 
             valorTotal:
+              0,
+
+            totalPagado:
+              0,
+
+            saldoPendiente:
               0,
           }
         );

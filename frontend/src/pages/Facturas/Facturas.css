@@ -1,1 +1,751 @@
-.facturas-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.factura-card{padding:20px}.factura-head{display:flex;align-items:center;gap:12px}.factura-head>span{width:45px;height:45px;display:grid;place-items:center;border-radius:12px;background:var(--primary-soft);color:var(--primary)}.factura-head>span svg{width:20px}.factura-head>div{flex:1}.factura-head small,.factura-head p{display:block;margin:0;color:var(--muted-foreground);font-size:10px}.factura-head strong{display:block;margin:3px 0;font-size:14px}.factura-head .ui-button{width:39px;padding:0}.factura-values{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:18px 0;padding:14px;border-radius:12px;background:#f6f3eb}.factura-values small{display:block;color:var(--muted-foreground);font-size:10px}.factura-values b{display:block;margin-top:4px;font-size:12px}.factura-progress{height:7px;border-radius:999px;background:#e8e4d9;overflow:hidden}.factura-progress i{display:block;height:100%;background:var(--primary);border-radius:inherit}@media(max-width:900px){.facturas-grid{grid-template-columns:1fr}}
+/* =========================================================
+   FACTURAS
+   LOTES VILLA MARÍA
+========================================================= */
+
+.facturas-page {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.facturas-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.facturas-header > div:first-child {
+  min-width: 0;
+}
+
+.facturas-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.facturas-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 31px;
+  line-height: 1.1;
+
+  font-weight: 850;
+}
+
+.facturas-header p {
+  margin: 8px 0 0;
+
+  color: #66736b;
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.facturas-refresh-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+
+  padding: 0 15px;
+
+  border: none;
+  border-radius: 11px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 750;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 7px 18px
+    rgba(23, 61, 43, 0.16);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.facturas-refresh-button:hover {
+  transform: translateY(-1px);
+}
+
+.facturas-refresh-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS DE RESUMEN
+========================================================= */
+
+.facturas-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 14px;
+}
+
+.facturas-stat {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+
+  min-width: 0;
+
+  padding: 17px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  box-shadow:
+    0 7px 22px
+    rgba(44, 57, 49, 0.055);
+}
+
+.facturas-stat-icon {
+  display: grid;
+  place-items: center;
+
+  width: 43px;
+  height: 43px;
+
+  flex-shrink: 0;
+
+  border-radius: 13px;
+
+  background: #e9efe9;
+
+  color: #315f46;
+}
+
+.facturas-stat > div:last-child {
+  min-width: 0;
+}
+
+.facturas-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #68736c;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.facturas-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 18px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.facturas-stat.pagado
+  .facturas-stat-icon {
+  background: #e6f2ea;
+  color: #26764a;
+}
+
+.facturas-stat.pendiente
+  .facturas-stat-icon {
+  background: #f5ead5;
+  color: #9b7124;
+}
+
+/* =========================================================
+   TOOLBAR
+========================================================= */
+
+.facturas-toolbar {
+  display: grid;
+
+  grid-template-columns:
+    minmax(280px, 1fr)
+    minmax(180px, 220px);
+
+  gap: 12px;
+
+  align-items: center;
+
+  padding: 15px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.045);
+}
+
+.facturas-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.facturas-search svg {
+  position: absolute;
+
+  left: 13px;
+
+  color: #8c958f;
+
+  pointer-events: none;
+}
+
+.facturas-search input {
+  width: 100%;
+  height: 42px;
+
+  padding:
+    0
+    13px
+    0
+    40px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 10px;
+
+  background: #faf9f5;
+
+  color: #24332a;
+
+  font-size: 13px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.facturas-status-filter {
+  width: 100%;
+  height: 42px;
+
+  padding: 0 11px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 10px;
+
+  background: #faf9f5;
+
+  color: #26352b;
+
+  font-size: 12px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.facturas-search input:focus,
+.facturas-status-filter:focus {
+  border-color: #b99a54;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.11);
+
+  background: #ffffff;
+}
+
+/* =========================================================
+   GRID DE FACTURAS
+========================================================= */
+
+.facturas-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 16px;
+}
+
+/* =========================================================
+   TARJETA
+========================================================= */
+
+.factura-card {
+  display: flex;
+  flex-direction: column;
+
+  min-width: 0;
+
+  padding: 20px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 17px;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.055);
+
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.factura-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 12px 28px
+    rgba(43, 57, 49, 0.085);
+}
+
+/* =========================================================
+   HEADER DE TARJETA
+========================================================= */
+
+.factura-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.factura-icon {
+  display: grid;
+  place-items: center;
+
+  width: 45px;
+  height: 45px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #e9efe9;
+
+  color: #315f46;
+}
+
+.factura-title {
+  flex: 1;
+  min-width: 0;
+}
+
+.factura-title small {
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: #a47f35;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 0.03em;
+}
+
+.factura-title strong {
+  display: block;
+
+  color: #27372d;
+
+  font-size: 14px;
+  font-weight: 850;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.factura-title p {
+  margin: 4px 0 0;
+
+  color: #838d87;
+
+  font-size: 10px;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.factura-print-button {
+  display: grid;
+  place-items: center;
+
+  width: 37px;
+  height: 37px;
+
+  flex-shrink: 0;
+
+  padding: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #f0e9d8;
+
+  color: #846724;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.factura-print-button:hover {
+  transform: translateY(-1px);
+
+  background: #e8ddc2;
+}
+
+/* =========================================================
+   META
+========================================================= */
+
+.factura-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+
+  margin-top: 14px;
+}
+
+.factura-meta > span {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 25px;
+
+  padding:
+    0
+    8px;
+
+  border-radius: 999px;
+
+  background: #f4f2ec;
+
+  color: #717a74;
+
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.factura-status {
+  font-weight: 800 !important;
+}
+
+.factura-status.activa {
+  background: #f5ead6 !important;
+
+  color: #957126 !important;
+}
+
+.factura-status.pagada {
+  background: #e6f2ea !important;
+
+  color: #26764a !important;
+}
+
+/* =========================================================
+   VALORES
+========================================================= */
+
+.factura-values {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+
+  margin: 18px 0 14px;
+
+  padding: 14px;
+
+  border: 1px solid #ebe7dc;
+  border-radius: 12px;
+
+  background: #f8f6f0;
+}
+
+.factura-values > div {
+  min-width: 0;
+}
+
+.factura-values small {
+  display: block;
+
+  color: #858e88;
+
+  font-size: 9px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.factura-values b {
+  display: block;
+
+  margin-top: 5px;
+
+  color: #27372d;
+
+  font-size: 12px;
+  font-weight: 850;
+
+  overflow-wrap: anywhere;
+}
+
+.factura-values
+  .factura-paid {
+  color: #26764a;
+}
+
+.factura-values
+  .factura-balance {
+  color: #9b7124;
+}
+
+/* =========================================================
+   PROGRESO
+========================================================= */
+
+.factura-progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+
+  color: #747e77;
+
+  font-size: 10px;
+}
+
+.factura-progress-info strong {
+  color: #173d2b;
+
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.factura-progress {
+  width: 100%;
+  height: 8px;
+
+  border-radius: 999px;
+
+  background: #e8e4d9;
+
+  overflow: hidden;
+}
+
+.factura-progress i {
+  display: block;
+
+  height: 100%;
+
+  background: #2f6b4c;
+
+  border-radius: inherit;
+
+  transition:
+    width 0.3s ease;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.facturas-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 240px;
+
+  padding: 30px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  color: #818a84;
+
+  font-size: 12px;
+}
+
+/* =========================================================
+   VACÍO
+========================================================= */
+
+.facturas-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 250px;
+
+  padding: 30px;
+
+  background: #ffffff;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  color: #89918c;
+
+  text-align: center;
+}
+
+.facturas-empty svg {
+  margin-bottom: 9px;
+}
+
+.facturas-empty strong {
+  margin-bottom: 4px;
+
+  color: #526058;
+
+  font-size: 14px;
+}
+
+.facturas-empty span {
+  font-size: 11px;
+}
+
+/* =========================================================
+   SPINNER
+========================================================= */
+
+.facturas-spin {
+  animation:
+    facturas-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes facturas-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width:
+    1150px
+) {
+  .facturas-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (
+  max-width:
+    900px
+) {
+  .facturas-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .facturas-toolbar {
+    grid-template-columns:
+      1fr;
+  }
+}
+
+@media (
+  max-width:
+    700px
+) {
+  .facturas-header {
+    flex-direction: column;
+  }
+
+  .facturas-refresh-button {
+    width: 100%;
+  }
+
+  .facturas-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .factura-values {
+    grid-template-columns:
+      1fr;
+  }
+
+  .factura-values > div {
+    padding:
+      7px
+      0;
+  }
+
+  .factura-values > div:not(:last-child) {
+    border-bottom:
+      1px solid
+      #e5e1d7;
+  }
+}

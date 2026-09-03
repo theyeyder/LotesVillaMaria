@@ -47,15 +47,20 @@ const titles = {
     subtitle: "Registro de pagos y abonos de clientes",
   },
 
-  egresos: {
-    title: "Egresos",
-    subtitle: "Control de pagos y salidas de dinero",
-  },
+ egresos: {
+  title: "Egresos",
+  subtitle: "Control de pagos y salidas de dinero",
+},
 
-  facturas: {
-    title: "Facturas",
-    subtitle: "Gestión de facturas y comprobantes",
-  },
+comprobantes: {
+  title: "Comprobantes",
+  subtitle: "Consulta de ingresos, egresos y documentos de movimiento",
+},
+
+facturas: {
+  title: "Facturas",
+  subtitle: "Gestión de facturas y comprobantes",
+},
 
   maquinaria: {
     title: "Maquinaria",

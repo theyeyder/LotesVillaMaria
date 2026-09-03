@@ -18,6 +18,7 @@ import HorasMaquinaria from "./pages/HorasMaquinaria/HorasMaquinaria";
 import Vendedores from "./pages/Vendedores/Vendedores";
 import Comisiones from "./pages/Comisiones/Comisiones";
 import Egresos from "./pages/Egresos/Egresos";
+import Comprobantes from "./pages/Comprobantes/Comprobantes";
 
 const pages = {
   dashboard: Dashboard,
@@ -29,6 +30,7 @@ const pages = {
   cuotas: Cuotas,
   pagos: Pagos,
   egresos: Egresos,
+  comprobantes: Comprobantes,
   facturas: Facturas,
   maquinaria: Maquinaria,
   horas: HorasMaquinaria,
