@@ -8,6 +8,7 @@ import {
   WalletCards,
   CreditCard,
   ReceiptText,
+  BarChart3,
   Tractor,
   Clock3,
   LogOut,
@@ -76,6 +77,11 @@ const menuItems = [
   id: "facturas",
   label: "Facturas",
   icon: ReceiptText,
+},
+{
+  id: "reportes",
+  label: "Reportes",
+  icon: BarChart3,
 },
   {
     id: "maquinaria",

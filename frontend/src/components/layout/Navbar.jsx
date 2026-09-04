@@ -57,14 +57,9 @@ egresos: {
   subtitle: "Control de pagos y salidas de dinero",
 },
 
-comprobantes: {
-  title: "Comprobantes",
-  subtitle: "Consulta de ingresos, egresos y documentos de movimiento",
-},
-
-facturas: {
-  title: "Facturas",
-  subtitle: "Gestión de facturas y comprobantes",
+reportes: {
+  title: "Reportes",
+  subtitle: "Generación de informes en PDF, Excel y HTML",
 },
 
   maquinaria: {

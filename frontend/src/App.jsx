@@ -20,6 +20,7 @@ import Comisiones from "./pages/Comisiones/Comisiones";
 import Egresos from "./pages/Egresos/Egresos";
 import Comprobantes from "./pages/Comprobantes/Comprobantes";
 import Cartera from "./pages/Cartera/Cartera";
+import Reportes from "./pages/Reportes/Reportes";
 
 const pages = {
   dashboard: Dashboard,
@@ -34,9 +35,10 @@ const pages = {
   egresos: Egresos,
   comprobantes: Comprobantes,
   facturas: Facturas,
+  reportes: Reportes,
   maquinaria: Maquinaria,
   horas: HorasMaquinaria,
-};
+};;
 
 export default function App() {
   const [logged, setLogged] = useState(() => {

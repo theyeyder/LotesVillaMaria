@@ -15,6 +15,7 @@ import comisionRoutes from "./modules/comisiones/comision.routes.js";
 import egresoRoutes from "./modules/egresos/egreso.routes.js";
 import comprobanteRoutes from "./modules/comprobantes/comprobante.routes.js";
 import carteraRoutes from "./modules/cartera/cartera.routes.js";
+import reporteRoutes from "./modules/reportes/reporte.routes.js";
 
 
 const app = express();
@@ -109,6 +110,11 @@ app.use(
 app.use(
   "/api/cartera",
   carteraRoutes
+);
+
+app.use(
+  "/api/reportes",
+  reporteRoutes
 );
 
 /* =========================================================
