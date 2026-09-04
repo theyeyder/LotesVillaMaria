@@ -1,0 +1,1075 @@
+/* =========================================================
+   INFORME CLIENTES POR LOTES VENDIDOS
+   LOTES VILLA MARÍA
+========================================================= */
+
+.clientes-lotes-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.clientes-lotes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.clientes-lotes-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.clientes-lotes-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.clientes-lotes-back:hover {
+  transform: translateY(-1px);
+
+  background: #f5f2e9;
+}
+
+.clientes-lotes-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.clientes-lotes-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.clientes-lotes-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.clientes-lotes-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.clientes-lotes-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS DE RESUMEN
+========================================================= */
+
+.clientes-lotes-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.clientes-lotes-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.clientes-lotes-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 41px;
+  height: 41px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #e8f0ea;
+
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.clientes-lotes-stat i.azul {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.clientes-lotes-stat i.verde {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.clientes-lotes-stat i.dorado {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.clientes-lotes-stat i.rojo {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.clientes-lotes-stat > div {
+  min-width: 0;
+}
+
+.clientes-lotes-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.clientes-lotes-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.clientes-lotes-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.clientes-lotes-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.clientes-lotes-stat .texto-dorado {
+  color: #8a6827;
+}
+
+.clientes-lotes-stat .texto-rojo {
+  color: #a33f35;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.clientes-lotes-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(240px, 1.5fr)
+    minmax(135px, 0.6fr)
+    minmax(135px, 0.6fr)
+    minmax(130px, 0.6fr)
+    minmax(170px, 0.8fr)
+    minmax(140px, 0.65fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BÚSQUEDA
+========================================================= */
+
+.clientes-lotes-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.clientes-lotes-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.clientes-lotes-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.clientes-lotes-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.clientes-lotes-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.clientes-lotes-field select,
+.clientes-lotes-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.clientes-lotes-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.clientes-lotes-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.clientes-lotes-date input {
+  padding-left: 31px;
+}
+
+.clientes-lotes-search input:focus,
+.clientes-lotes-field select:focus,
+.clientes-lotes-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTRO
+========================================================= */
+
+.clientes-lotes-aplicar,
+.clientes-lotes-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.clientes-lotes-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.clientes-lotes-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.clientes-lotes-aplicar:disabled,
+.clientes-lotes-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.clientes-lotes-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.clientes-lotes-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.clientes-lotes-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.clientes-lotes-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.clientes-lotes-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.clientes-lotes-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.clientes-lotes-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.clientes-lotes-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.clientes-lotes-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.clientes-lotes-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.clientes-lotes-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.clientes-lotes-error span {
+  flex: 1;
+}
+
+.clientes-lotes-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.clientes-lotes-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.clientes-lotes-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.clientes-lotes-table {
+  width: 100%;
+  min-width: 2100px;
+
+  border-collapse: collapse;
+}
+
+.clientes-lotes-table thead {
+  background: #173d2b;
+}
+
+.clientes-lotes-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.clientes-lotes-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.clientes-lotes-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.clientes-lotes-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGO
+========================================================= */
+
+.clientes-lotes-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CLIENTE
+========================================================= */
+
+.clientes-lotes-cliente {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 150px;
+}
+
+.clientes-lotes-cliente strong {
+  color: #324138;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.clientes-lotes-cliente span {
+  color: #8c948f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   VENDEDOR
+========================================================= */
+
+.clientes-lotes-vendedor {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 145px;
+}
+
+.clientes-lotes-vendedor strong {
+  color: #344139;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.clientes-lotes-vendedor span {
+  color: #9b7a36;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.clientes-lotes-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.clientes-lotes-money.pagado {
+  color: #2f6b4a;
+}
+
+.clientes-lotes-money.pendiente {
+  color: #8a6827;
+}
+
+.clientes-lotes-money.vencido {
+  color: #a33f35;
+}
+
+/* =========================================================
+   CUOTAS
+========================================================= */
+
+.clientes-lotes-cuotas {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 25px;
+  height: 23px;
+
+  padding: 0 6px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #58645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.clientes-lotes-cuotas.vencidas {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.clientes-lotes-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.clientes-lotes-estado.pagada {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.clientes-lotes-estado.pendiente {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.clientes-lotes-estado.vencida {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.clientes-lotes-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.clientes-lotes-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.clientes-lotes-loading svg {
+  color: #315f46;
+}
+
+.clientes-lotes-spin {
+  animation:
+    clientes-lotes-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes clientes-lotes-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER TABLA
+========================================================= */
+
+.clientes-lotes-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.clientes-lotes-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.clientes-lotes-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.clientes-lotes-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.clientes-lotes-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR TABLA
+========================================================= */
+
+.clientes-lotes-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.clientes-lotes-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.clientes-lotes-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.clientes-lotes-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1450px
+) {
+  .clientes-lotes-filtros {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
+  }
+
+  .clientes-lotes-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (
+  max-width: 1150px
+) {
+  .clientes-lotes-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .clientes-lotes-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .clientes-lotes-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .clientes-lotes-header {
+    flex-direction: column;
+  }
+
+  .clientes-lotes-refresh {
+    width: 100%;
+  }
+
+  .clientes-lotes-export {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .clientes-lotes-export-buttons {
+    width: 100%;
+  }
+
+  .clientes-lotes-export-buttons button {
+    flex: 1;
+  }
+
+  .clientes-lotes-table-footer {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .clientes-lotes-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (
+  max-width: 600px
+) {
+  .clientes-lotes-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .clientes-lotes-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .clientes-lotes-search {
+    grid-column: auto;
+  }
+
+  .clientes-lotes-export-buttons {
+    flex-direction: column;
+  }
+
+  .clientes-lotes-export-buttons button {
+    width: 100%;
+  }
+
+  .clientes-lotes-header h1 {
+    font-size: 24px;
+  }
+}
