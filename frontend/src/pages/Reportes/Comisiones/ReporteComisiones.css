@@ -1,0 +1,1188 @@
+/* =========================================================
+   INFORME DE COMISIONES
+   LOTES VILLA MARÍA
+========================================================= */
+
+.reporte-comisiones {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.reporte-comisiones-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.reporte-comisiones-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.reporte-comisiones-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.reporte-comisiones-back:hover {
+  transform: translateY(-1px);
+  background: #f5f2e9;
+}
+
+.reporte-comisiones-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.reporte-comisiones-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.reporte-comisiones-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reporte-comisiones-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.reporte-comisiones-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESUMEN
+========================================================= */
+
+.reporte-comisiones-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.reporte-comisiones-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.reporte-comisiones-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+
+  font-style: normal;
+}
+
+.reporte-comisiones-stat i.azul {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.reporte-comisiones-stat i.verde {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.reporte-comisiones-stat i.dorado {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.reporte-comisiones-stat > div {
+  min-width: 0;
+}
+
+.reporte-comisiones-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.reporte-comisiones-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.reporte-comisiones-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.reporte-comisiones-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.reporte-comisiones-stat .texto-dorado {
+  color: #8a6827;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.reporte-comisiones-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(135px, 0.65fr)
+    minmax(135px, 0.65fr)
+    minmax(190px, 0.9fr)
+    minmax(140px, 0.65fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.reporte-comisiones-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.reporte-comisiones-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.reporte-comisiones-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.reporte-comisiones-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reporte-comisiones-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.reporte-comisiones-field select,
+.reporte-comisiones-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.reporte-comisiones-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.reporte-comisiones-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.reporte-comisiones-date input {
+  padding-left: 31px;
+}
+
+.reporte-comisiones-search input:focus,
+.reporte-comisiones-field select:focus,
+.reporte-comisiones-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTRO
+========================================================= */
+
+.reporte-comisiones-aplicar,
+.reporte-comisiones-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.reporte-comisiones-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.reporte-comisiones-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.reporte-comisiones-aplicar:disabled,
+.reporte-comisiones-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.reporte-comisiones-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.reporte-comisiones-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.reporte-comisiones-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.reporte-comisiones-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.reporte-comisiones-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(0, 0, 0, 0.06);
+
+  font-size: 8px;
+}
+
+.reporte-comisiones-vistas button.active span {
+  background:
+    rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.reporte-comisiones-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.reporte-comisiones-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.reporte-comisiones-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.reporte-comisiones-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.reporte-comisiones-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.reporte-comisiones-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.reporte-comisiones-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.reporte-comisiones-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.reporte-comisiones-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.reporte-comisiones-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.reporte-comisiones-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.reporte-comisiones-error span {
+  flex: 1;
+}
+
+.reporte-comisiones-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.reporte-comisiones-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.reporte-comisiones-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.reporte-comisiones-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.reporte-comisiones-table.detalle {
+  min-width: 2050px;
+}
+
+.reporte-comisiones-table.vendedores {
+  min-width: 1450px;
+}
+
+.reporte-comisiones-table thead {
+  background: #173d2b;
+}
+
+.reporte-comisiones-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.reporte-comisiones-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.reporte-comisiones-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.reporte-comisiones-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGOS
+========================================================= */
+
+.reporte-comisiones-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-comisiones-venta {
+  color: #8a6827;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PERSONAS
+========================================================= */
+
+.reporte-comisiones-persona {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 145px;
+}
+
+.reporte-comisiones-persona strong {
+  color: #334139;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.reporte-comisiones-persona span {
+  color: #8d958f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.reporte-comisiones-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-comisiones-money.generado {
+  color: #8a6827;
+}
+
+.reporte-comisiones-money.pagado {
+  color: #2f6b4a;
+}
+
+.reporte-comisiones-money.pendiente {
+  color: #9a742b;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.reporte-comisiones-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 28px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+/* =========================================================
+   MINI ESTADOS
+========================================================= */
+
+.reporte-comisiones-mini {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 28px;
+  height: 24px;
+
+  padding: 0 6px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.reporte-comisiones-mini.estado-pendiente {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.reporte-comisiones-mini.estado-abonada {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.reporte-comisiones-mini.estado-pagada {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   PORCENTAJE
+========================================================= */
+
+.reporte-comisiones-porcentaje {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 56px;
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  background: #edf2ee;
+
+  color: #486052;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.reporte-comisiones-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-comisiones-estado.pendiente {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.reporte-comisiones-estado.abonada {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.reporte-comisiones-estado.pagada {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.reporte-comisiones-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.reporte-comisiones-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.reporte-comisiones-loading svg {
+  color: #315f46;
+}
+
+.reporte-comisiones-spin {
+  animation:
+    reporte-comisiones-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes reporte-comisiones-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER TABLA
+========================================================= */
+
+.reporte-comisiones-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.reporte-comisiones-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reporte-comisiones-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.reporte-comisiones-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.reporte-comisiones-pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+.reporte-comisiones-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.reporte-comisiones-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.reporte-comisiones-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.reporte-comisiones-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1350px
+) {
+  .reporte-comisiones-filtros {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-comisiones-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (
+  max-width: 1100px
+) {
+  .reporte-comisiones-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-comisiones-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-comisiones-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .reporte-comisiones-header {
+    flex-direction: column;
+  }
+
+  .reporte-comisiones-refresh {
+    width: 100%;
+  }
+
+  .reporte-comisiones-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-comisiones-vistas button {
+    justify-content: space-between;
+  }
+
+  .reporte-comisiones-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-comisiones-export-buttons {
+    width: 100%;
+  }
+
+  .reporte-comisiones-export-buttons button {
+    flex: 1;
+  }
+
+  .reporte-comisiones-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-comisiones-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (
+  max-width: 600px
+) {
+  .reporte-comisiones-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte-comisiones-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte-comisiones-search {
+    grid-column: auto;
+  }
+
+  .reporte-comisiones-export-buttons {
+    flex-direction: column;
+  }
+
+  .reporte-comisiones-export-buttons button {
+    width: 100%;
+  }
+
+  .reporte-comisiones-header h1 {
+    font-size: 24px;
+  }
+}

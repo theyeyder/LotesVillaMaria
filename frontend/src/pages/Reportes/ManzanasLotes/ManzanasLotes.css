@@ -1,0 +1,1120 @@
+/* =========================================================
+   INFORME DE MANZANAS Y LOTES
+   LOTES VILLA MARÍA
+========================================================= */
+
+.manzanas-lotes-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.manzanas-lotes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.manzanas-lotes-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.manzanas-lotes-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.manzanas-lotes-back:hover {
+  transform: translateY(-1px);
+
+  background: #f5f2e9;
+}
+
+.manzanas-lotes-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.manzanas-lotes-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.manzanas-lotes-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.manzanas-lotes-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.manzanas-lotes-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESUMEN
+========================================================= */
+
+.manzanas-lotes-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.manzanas-lotes-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.manzanas-lotes-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+
+  font-style: normal;
+}
+
+.manzanas-lotes-stat i.azul {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.manzanas-lotes-stat i.verde {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.manzanas-lotes-stat i.dorado {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.manzanas-lotes-stat > div {
+  min-width: 0;
+}
+
+.manzanas-lotes-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.manzanas-lotes-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.manzanas-lotes-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.manzanas-lotes-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.manzanas-lotes-stat .texto-dorado {
+  color: #8a6827;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.manzanas-lotes-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(160px, 0.7fr)
+    minmax(150px, 0.7fr)
+    minmax(150px, 0.7fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.manzanas-lotes-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.manzanas-lotes-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.manzanas-lotes-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.manzanas-lotes-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.manzanas-lotes-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.manzanas-lotes-field select,
+.manzanas-lotes-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.manzanas-lotes-search input:focus,
+.manzanas-lotes-field select:focus,
+.manzanas-lotes-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTRO
+========================================================= */
+
+.manzanas-lotes-aplicar,
+.manzanas-lotes-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.manzanas-lotes-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.manzanas-lotes-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.manzanas-lotes-aplicar:disabled,
+.manzanas-lotes-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.manzanas-lotes-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.manzanas-lotes-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease;
+}
+
+.manzanas-lotes-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.manzanas-lotes-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.manzanas-lotes-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(0, 0, 0, 0.06);
+
+  font-size: 8px;
+}
+
+.manzanas-lotes-vistas button.active span {
+  background:
+    rgba(255, 255, 255, 0.15);
+}
+
+/* =========================================================
+   EXPORTACIÓN
+========================================================= */
+
+.manzanas-lotes-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.manzanas-lotes-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.manzanas-lotes-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.manzanas-lotes-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.manzanas-lotes-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.manzanas-lotes-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.manzanas-lotes-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.manzanas-lotes-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.manzanas-lotes-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.manzanas-lotes-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.manzanas-lotes-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.manzanas-lotes-error span {
+  flex: 1;
+}
+
+.manzanas-lotes-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.manzanas-lotes-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.manzanas-lotes-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.manzanas-lotes-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.manzanas-lotes-table.manzanas {
+  min-width: 1400px;
+}
+
+.manzanas-lotes-table.lotes {
+  min-width: 900px;
+}
+
+.manzanas-lotes-table thead {
+  background: #173d2b;
+}
+
+.manzanas-lotes-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.manzanas-lotes-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.manzanas-lotes-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.manzanas-lotes-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGOS
+========================================================= */
+
+.manzanas-lotes-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.manzanas-lotes-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 28px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.manzanas-lotes-contador.disponible {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.manzanas-lotes-contador.vendido {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   TIPO
+========================================================= */
+
+.manzanas-lotes-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  background: #eef1ee;
+
+  color: #56645b;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.manzanas-lotes-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.manzanas-lotes-money.disponible {
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   DIFERENCIA DE ÁREA
+========================================================= */
+
+.manzanas-lotes-diferencia {
+  color: #8a6827;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.manzanas-lotes-diferencia.negativa {
+  color: #a33f35;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.manzanas-lotes-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.manzanas-lotes-estado.disponible {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.manzanas-lotes-estado.vendido {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.manzanas-lotes-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.manzanas-lotes-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.manzanas-lotes-loading svg {
+  color: #315f46;
+}
+
+.manzanas-lotes-spin {
+  animation:
+    manzanas-lotes-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes manzanas-lotes-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.manzanas-lotes-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.manzanas-lotes-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.manzanas-lotes-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.manzanas-lotes-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.manzanas-lotes-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLL
+========================================================= */
+
+.manzanas-lotes-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.manzanas-lotes-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.manzanas-lotes-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.manzanas-lotes-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1250px
+) {
+  .manzanas-lotes-filtros {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .manzanas-lotes-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (
+  max-width: 1100px
+) {
+  .manzanas-lotes-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .manzanas-lotes-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .manzanas-lotes-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .manzanas-lotes-header {
+    flex-direction: column;
+  }
+
+  .manzanas-lotes-refresh {
+    width: 100%;
+  }
+
+  .manzanas-lotes-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manzanas-lotes-vistas button {
+    justify-content: space-between;
+  }
+
+  .manzanas-lotes-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manzanas-lotes-export-buttons {
+    width: 100%;
+  }
+
+  .manzanas-lotes-export-buttons button {
+    flex: 1;
+  }
+
+  .manzanas-lotes-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .manzanas-lotes-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (
+  max-width: 600px
+) {
+  .manzanas-lotes-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .manzanas-lotes-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .manzanas-lotes-search {
+    grid-column: auto;
+  }
+
+  .manzanas-lotes-export-buttons {
+    flex-direction: column;
+  }
+
+  .manzanas-lotes-export-buttons button {
+    width: 100%;
+  }
+
+  .manzanas-lotes-header h1 {
+    font-size: 24px;
+  }
+}

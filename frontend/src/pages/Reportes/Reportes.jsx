@@ -22,6 +22,12 @@ import {
 import ClientesLotesVendidos
   from "./ClientesLotesVendidos/ClientesLotesVendidos";
 
+import ReporteComisiones
+  from "./Comisiones/ReporteComisiones";
+
+import ManzanasLotes
+  from "./ManzanasLotes/ManzanasLotes";
+
 import "./Reportes.css";
 
 /* =========================================================
@@ -63,7 +69,7 @@ const INFORMES = [
       BadgeDollarSign,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Vendedores",
@@ -83,7 +89,7 @@ const INFORMES = [
       MapPinned,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Inventario",
@@ -239,6 +245,12 @@ const INFORMES = [
 const COMPONENTES_INFORMES = {
   "clientes-lotes-vendidos":
     ClientesLotesVendidos,
+
+  "comisiones":
+    ReporteComisiones,
+
+  "manzanas-lotes":
+    ManzanasLotes,
 };
 
 /* =========================================================
