@@ -5,22 +5,15 @@ import Lote from "../lotes/lote.model.js";
    UTILIDADES
 ========================================================= */
 
-const numero = (
-  valor = 0
-) => {
-  const resultado =
-    Number(valor);
+const numero = (valor = 0) => {
+  const resultado = Number(valor);
 
-  return Number.isFinite(
-    resultado
-  )
+  return Number.isFinite(resultado)
     ? resultado
     : 0;
 };
 
-const texto = (
-  valor = ""
-) => {
+const texto = (valor = "") => {
   return String(
     valor ?? ""
   ).trim();
@@ -39,7 +32,7 @@ const normalizarTexto = (
 };
 
 /* =========================================================
-   OBTENER CÓDIGO DE MANZANA
+   CÓDIGO DE MANZANA
 ========================================================= */
 
 const obtenerCodigoManzana = (
@@ -57,82 +50,293 @@ const obtenerCodigoManzana = (
 };
 
 /* =========================================================
-   METROS TOTALES DE MANZANA
+   ÁREA TOTAL OFICIAL DE LA MANZANA
 
-   Se dejan varias opciones para soportar posibles registros
-   antiguos.
+   IMPORTANTE:
+   - areaM2 puede ser null porque es opcional.
+   - null NO significa 0.
 ========================================================= */
 
-const obtenerMetrosManzana = (
+const obtenerAreaManzana = (
   manzana
 ) => {
-  return numero(
-    manzana?.metrosTotales ??
-      manzana?.area ??
-      manzana?.areaTotal ??
-      manzana?.metrosCuadrados ??
-      0
-  );
+  const valor =
+    manzana?.areaM2;
+
+  if (
+    valor === null ||
+    valor === undefined ||
+    valor === ""
+  ) {
+    return null;
+  }
+
+  const area =
+    Number(valor);
+
+  return Number.isFinite(area)
+    ? area
+    : null;
 };
 
 /* =========================================================
-   ÁREA DEL LOTE
+   ÁREA OFICIAL DEL LOTE
 ========================================================= */
 
 const obtenerAreaLote = (
   lote
 ) => {
   return numero(
-    lote?.area ??
-      lote?.metros ??
-      lote?.metrosCuadrados ??
-      lote?.areaTotal ??
-      0
+    lote?.areaM2
   );
 };
 
 /* =========================================================
-   VALOR DEL LOTE
+   TIPO REAL DEL LOTE
+========================================================= */
+
+const obtenerTipoLote = (
+  lote
+) => {
+  return (
+    texto(
+      lote?.tipoLote
+    ) ||
+    "Regular"
+  );
+};
+
+/* =========================================================
+   VALOR REAL DEL LOTE
 ========================================================= */
 
 const obtenerValorLote = (
   lote
 ) => {
   return numero(
-    lote?.valor ??
-      lote?.valorLote ??
-      lote?.precio ??
-      lote?.valorVenta ??
-      0
+    lote?.valorLote
   );
 };
 
 /* =========================================================
-   ESTADO DEL LOTE
+   ESTADO REAL DEL LOTE
 ========================================================= */
 
 const obtenerEstadoLote = (
   lote
 ) => {
-  const estado =
+  return (
     texto(
       lote?.estado
-    );
-
-  return estado ||
-    "Disponible";
+    ) ||
+    "Disponible"
+  );
 };
 
 /* =========================================================
-   INFORME MANZANAS Y LOTES
+   CONVERTIR LOTE A FORMATO DE REPORTE
+========================================================= */
+
+const construirLoteDetalle = (
+  lote
+) => {
+  const estado =
+    obtenerEstadoLote(
+      lote
+    );
+
+  const estadoNormalizado =
+    normalizarTexto(
+      estado
+    );
+
+  return {
+    _id:
+      lote._id,
+
+    codigo:
+      texto(
+        lote.codigo
+      ) ||
+      "—",
+
+    numeroLote:
+      texto(
+        lote.numeroLote
+      ) ||
+      "—",
+
+    tipo:
+      obtenerTipoLote(
+        lote
+      ),
+
+    area:
+      obtenerAreaLote(
+        lote
+      ),
+
+    valor:
+      obtenerValorLote(
+        lote
+      ),
+
+    estado,
+
+    disponible:
+      estadoNormalizado ===
+      "disponible",
+
+    reservado:
+      estadoNormalizado ===
+      "reservado",
+
+    vendido:
+      estadoNormalizado ===
+      "vendido",
+  };
+};
+
+/* =========================================================
+   RECALCULAR DATOS DE UNA MANZANA
+========================================================= */
+
+const calcularDatosManzana = ({
+  manzana,
+  lotes,
+}) => {
+  const areaTotalManzana =
+    obtenerAreaManzana(
+      manzana
+    );
+
+  const cantidadLotes =
+    lotes.length;
+
+  const lotesDisponibles =
+    lotes.filter(
+      (lote) =>
+        lote.disponible
+    ).length;
+
+  const lotesReservados =
+    lotes.filter(
+      (lote) =>
+        lote.reservado
+    ).length;
+
+  const lotesVendidos =
+    lotes.filter(
+      (lote) =>
+        lote.vendido
+    ).length;
+
+  const areaLotes =
+    Number(
+      lotes
+        .reduce(
+          (
+            total,
+            lote
+          ) =>
+            total +
+            numero(
+              lote.area
+            ),
+          0
+        )
+        .toFixed(2)
+    );
+
+  const valorTotalLotes =
+    lotes.reduce(
+      (
+        total,
+        lote
+      ) =>
+        total +
+        numero(
+          lote.valor
+        ),
+      0
+    );
+
+  const valorInventarioDisponible =
+    lotes
+      .filter(
+        (lote) =>
+          lote.disponible
+      )
+      .reduce(
+        (
+          total,
+          lote
+        ) =>
+          total +
+          numero(
+            lote.valor
+          ),
+        0
+      );
+
+  /*
+    Si el área de la manzana no está registrada,
+    NO podemos calcular el área restante.
+  */
+
+  const diferenciaArea =
+    areaTotalManzana ===
+    null
+      ? null
+      : Number(
+          (
+            areaTotalManzana -
+            areaLotes
+          ).toFixed(2)
+        );
+
+  return {
+    areaTotalManzana,
+
+    /*
+      Conservamos temporalmente metrosTotales
+      para no romper el frontend existente.
+
+      Su valor ahora proviene del campo correcto:
+      manzana.areaM2.
+    */
+
+    metrosTotales:
+      areaTotalManzana,
+
+    cantidadLotes,
+
+    lotesDisponibles,
+
+    lotesReservados,
+
+    lotesVendidos,
+
+    areaLotes,
+
+    diferenciaArea,
+
+    valorTotalLotes,
+
+    valorInventarioDisponible,
+  };
+};
+
+/* =========================================================
+   INFORME DE MANZANAS Y LOTES
 
    GET /api/reportes/manzanas-lotes
 
-   Filtros:
-   ?buscar=Mz 1
-   &estado=Disponible
-   &tipo=Regular
-   &manzana=<id>
+   FILTROS:
+   ?buscar=
+   &estado=
+   &tipo=
+   &manzana=
 ========================================================= */
 
 export const obtenerReporteManzanasLotes =
@@ -175,7 +379,7 @@ export const obtenerReporteManzanasLotes =
               "manzana",
 
             select:
-              "codigo nombre metrosTotales area areaTotal metrosCuadrados",
+              "codigo nombre areaM2 estado",
           })
           .sort({
             codigo: 1,
@@ -191,12 +395,9 @@ export const obtenerReporteManzanasLotes =
         new Map();
 
       lotes.forEach(
-        (
-          lote
-        ) => {
+        (lote) => {
           const manzanaId =
-            lote.manzana
-              ?._id
+            lote.manzana?._id
               ? String(
                   lote.manzana._id
                 )
@@ -228,7 +429,7 @@ export const obtenerReporteManzanasLotes =
       );
 
       /* =====================================================
-         CONSTRUIR MANZANAS
+         CONSTRUIR REGISTROS
       ===================================================== */
 
       let registros =
@@ -248,118 +449,17 @@ export const obtenerReporteManzanasLotes =
 
             const lotesDetalle =
               lotesManzana.map(
-                (
-                  lote
-                ) => ({
-                  _id:
-                    lote._id,
-
-                  codigo:
-                    texto(
-                      lote.codigo
-                    ) ||
-                    "—",
-
-                  tipo:
-                    texto(
-                      lote.tipo
-                    ) ||
-                    "—",
-
-                  area:
-                    obtenerAreaLote(
-                      lote
-                    ),
-
-                  valor:
-                    obtenerValorLote(
-                      lote
-                    ),
-
-                  estado:
-                    obtenerEstadoLote(
-                      lote
-                    ),
-
-                  vendido:
-                    normalizarTexto(
-                      obtenerEstadoLote(
-                        lote
-                      )
-                    ) ===
-                    "vendido",
-
-                  disponible:
-                    normalizarTexto(
-                      obtenerEstadoLote(
-                        lote
-                      )
-                    ) ===
-                    "disponible",
-                })
+                construirLoteDetalle
               );
 
-            const lotesDisponibles =
-              lotesDetalle.filter(
-                (
-                  lote
-                ) =>
-                  lote.disponible
-              ).length;
+            const datos =
+              calcularDatosManzana({
+                manzana:
+                  manzanaRegistro,
 
-            const lotesVendidos =
-              lotesDetalle.filter(
-                (
-                  lote
-                ) =>
-                  lote.vendido
-              ).length;
-
-            const areaLotes =
-              lotesDetalle.reduce(
-                (
-                  total,
-                  lote
-                ) =>
-                  total +
-                  numero(
-                    lote.area
-                  ),
-                0
-              );
-
-            const valorInventario =
-              lotesDetalle
-                .filter(
-                  (
-                    lote
-                  ) =>
-                    lote.disponible
-                )
-                .reduce(
-                  (
-                    total,
-                    lote
-                  ) =>
-                    total +
-                    numero(
-                      lote.valor
-                    ),
-                  0
-                );
-
-            const valorLotes =
-              lotesDetalle.reduce(
-                (
-                  total,
-                  lote
-                ) =>
-                  total +
-                  numero(
-                    lote.valor
-                  ),
-                0
-              );
+                lotes:
+                  lotesDetalle,
+              });
 
             return {
               _id:
@@ -370,35 +470,19 @@ export const obtenerReporteManzanasLotes =
                   manzanaRegistro
                 ),
 
-              metrosTotales:
-                obtenerMetrosManzana(
-                  manzanaRegistro
-                ),
+              nombre:
+                texto(
+                  manzanaRegistro.nombre
+                ) ||
+                "—",
 
-              cantidadLotes:
-                lotesDetalle.length,
+              estado:
+                texto(
+                  manzanaRegistro.estado
+                ) ||
+                "—",
 
-              lotesDisponibles,
-
-              lotesVendidos,
-
-              areaLotes,
-
-              diferenciaArea:
-                obtenerMetrosManzana(
-                  manzanaRegistro
-                ) > 0
-                  ? obtenerMetrosManzana(
-                      manzanaRegistro
-                    ) -
-                    areaLotes
-                  : 0,
-
-              valorTotalLotes:
-                valorLotes,
-
-              valorInventarioDisponible:
-                valorInventario,
+              ...datos,
 
               createdAt:
                 manzanaRegistro.createdAt ||
@@ -415,9 +499,9 @@ export const obtenerReporteManzanasLotes =
         );
 
       /* =====================================================
-         INCLUIR LOTES SIN MANZANA
+         LOTES SIN MANZANA
 
-         Solo si existen datos antiguos o inconsistentes.
+         Solo para registros antiguos o inconsistentes.
       ===================================================== */
 
       const lotesSinManzana =
@@ -426,60 +510,24 @@ export const obtenerReporteManzanasLotes =
         ) || [];
 
       if (
-        lotesSinManzana.length
+        lotesSinManzana.length >
+        0
       ) {
         const detalle =
           lotesSinManzana.map(
-            (
-              lote
-            ) => ({
-              _id:
-                lote._id,
-
-              codigo:
-                texto(
-                  lote.codigo
-                ) ||
-                "—",
-
-              tipo:
-                texto(
-                  lote.tipo
-                ) ||
-                "—",
-
-              area:
-                obtenerAreaLote(
-                  lote
-                ),
-
-              valor:
-                obtenerValorLote(
-                  lote
-                ),
-
-              estado:
-                obtenerEstadoLote(
-                  lote
-                ),
-
-              vendido:
-                normalizarTexto(
-                  obtenerEstadoLote(
-                    lote
-                  )
-                ) ===
-                "vendido",
-
-              disponible:
-                normalizarTexto(
-                  obtenerEstadoLote(
-                    lote
-                  )
-                ) ===
-                "disponible",
-            })
+            construirLoteDetalle
           );
+
+        const datos =
+          calcularDatosManzana({
+            manzana: {
+              areaM2:
+                null,
+            },
+
+            lotes:
+              detalle,
+          });
 
         registros.push({
           _id:
@@ -488,76 +536,13 @@ export const obtenerReporteManzanasLotes =
           codigo:
             "Sin manzana",
 
-          metrosTotales:
-            0,
+          nombre:
+            "Sin manzana",
 
-          cantidadLotes:
-            detalle.length,
+          estado:
+            "—",
 
-          lotesDisponibles:
-            detalle.filter(
-              (
-                lote
-              ) =>
-                lote.disponible
-            ).length,
-
-          lotesVendidos:
-            detalle.filter(
-              (
-                lote
-              ) =>
-                lote.vendido
-            ).length,
-
-          areaLotes:
-            detalle.reduce(
-              (
-                total,
-                lote
-              ) =>
-                total +
-                numero(
-                  lote.area
-                ),
-              0
-            ),
-
-          diferenciaArea:
-            0,
-
-          valorTotalLotes:
-            detalle.reduce(
-              (
-                total,
-                lote
-              ) =>
-                total +
-                numero(
-                  lote.valor
-                ),
-              0
-            ),
-
-          valorInventarioDisponible:
-            detalle
-              .filter(
-                (
-                  lote
-                ) =>
-                  lote.disponible
-              )
-              .reduce(
-                (
-                  total,
-                  lote
-                ) =>
-                  total +
-                  numero(
-                    lote.valor
-                  ),
-                0
-              ),
+          ...datos,
 
           createdAt:
             null,
@@ -571,7 +556,7 @@ export const obtenerReporteManzanasLotes =
       }
 
       /* =====================================================
-         FILTRO MANZANA
+         FILTRO DE MANZANA
       ===================================================== */
 
       if (
@@ -586,9 +571,7 @@ export const obtenerReporteManzanasLotes =
 
         registros =
           registros.filter(
-            (
-              registro
-            ) =>
+            (registro) =>
               normalizarTexto(
                 registro._id
               ) ===
@@ -601,11 +584,7 @@ export const obtenerReporteManzanasLotes =
       }
 
       /* =====================================================
-         FILTRAR LOTES POR ESTADO / TIPO
-
-         Importante:
-         la manzana se conserva si después del filtro tiene
-         al menos un lote.
+         FILTROS DE ESTADO Y TIPO
       ===================================================== */
 
       if (
@@ -658,83 +637,29 @@ export const obtenerReporteManzanasLotes =
                     }
                   );
 
+                const datos =
+                  calcularDatosManzana({
+                    manzana: {
+                      areaM2:
+                        registro.areaTotalManzana,
+                    },
+
+                    lotes:
+                      lotesFiltrados,
+                  });
+
                 return {
                   ...registro,
 
+                  ...datos,
+
                   lotes:
                     lotesFiltrados,
-
-                  cantidadLotes:
-                    lotesFiltrados.length,
-
-                  lotesDisponibles:
-                    lotesFiltrados.filter(
-                      (
-                        lote
-                      ) =>
-                        lote.disponible
-                    ).length,
-
-                  lotesVendidos:
-                    lotesFiltrados.filter(
-                      (
-                        lote
-                      ) =>
-                        lote.vendido
-                    ).length,
-
-                  areaLotes:
-                    lotesFiltrados.reduce(
-                      (
-                        total,
-                        lote
-                      ) =>
-                        total +
-                        numero(
-                          lote.area
-                        ),
-                      0
-                    ),
-
-                  valorTotalLotes:
-                    lotesFiltrados.reduce(
-                      (
-                        total,
-                        lote
-                      ) =>
-                        total +
-                        numero(
-                          lote.valor
-                        ),
-                      0
-                    ),
-
-                  valorInventarioDisponible:
-                    lotesFiltrados
-                      .filter(
-                        (
-                          lote
-                        ) =>
-                          lote.disponible
-                      )
-                      .reduce(
-                        (
-                          total,
-                          lote
-                        ) =>
-                          total +
-                          numero(
-                            lote.valor
-                          ),
-                        0
-                      ),
                 };
               }
             )
             .filter(
-              (
-                registro
-              ) =>
+              (registro) =>
                 registro.lotes.length >
                 0
             );
@@ -761,10 +686,17 @@ export const obtenerReporteManzanasLotes =
                 registro
               ) => {
                 const coincideManzana =
-                  normalizarTexto(
-                    registro.codigo
-                  ).includes(
-                    busqueda
+                  [
+                    registro.codigo,
+                    registro.nombre,
+                    registro.estado,
+                  ].some(
+                    (campo) =>
+                      normalizarTexto(
+                        campo
+                      ).includes(
+                        busqueda
+                      )
                   );
 
                 if (
@@ -780,6 +712,7 @@ export const obtenerReporteManzanasLotes =
                     ) => {
                       const campos = [
                         lote.codigo,
+                        lote.numeroLote,
                         lote.tipo,
                         lote.estado,
                         lote.area,
@@ -787,9 +720,7 @@ export const obtenerReporteManzanasLotes =
                       ];
 
                       return campos.some(
-                        (
-                          campo
-                        ) =>
+                        (campo) =>
                           normalizarTexto(
                             campo
                           ).includes(
@@ -799,75 +730,24 @@ export const obtenerReporteManzanasLotes =
                     }
                   );
 
+                const datos =
+                  calcularDatosManzana({
+                    manzana: {
+                      areaM2:
+                        registro.areaTotalManzana,
+                    },
+
+                    lotes:
+                      lotesCoincidentes,
+                  });
+
                 return {
                   ...registro,
+
+                  ...datos,
+
                   lotes:
                     lotesCoincidentes,
-
-                  cantidadLotes:
-                    lotesCoincidentes.length,
-
-                  lotesDisponibles:
-                    lotesCoincidentes.filter(
-                      (
-                        lote
-                      ) =>
-                        lote.disponible
-                    ).length,
-
-                  lotesVendidos:
-                    lotesCoincidentes.filter(
-                      (
-                        lote
-                      ) =>
-                        lote.vendido
-                    ).length,
-
-                  areaLotes:
-                    lotesCoincidentes.reduce(
-                      (
-                        total,
-                        lote
-                      ) =>
-                        total +
-                        numero(
-                          lote.area
-                        ),
-                      0
-                    ),
-
-                  valorTotalLotes:
-                    lotesCoincidentes.reduce(
-                      (
-                        total,
-                        lote
-                      ) =>
-                        total +
-                        numero(
-                          lote.valor
-                        ),
-                      0
-                    ),
-
-                  valorInventarioDisponible:
-                    lotesCoincidentes
-                      .filter(
-                        (
-                          lote
-                        ) =>
-                          lote.disponible
-                      )
-                      .reduce(
-                        (
-                          total,
-                          lote
-                        ) =>
-                          total +
-                          numero(
-                            lote.valor
-                          ),
-                        0
-                      ),
                 };
               }
             )
@@ -881,27 +761,26 @@ export const obtenerReporteManzanasLotes =
                   registro.codigo
                 ).includes(
                   busqueda
+                ) ||
+                normalizarTexto(
+                  registro.nombre
+                ).includes(
+                  busqueda
                 )
             );
       }
 
       /* =====================================================
          DETALLE PLANO DE LOTES
-
-         Esto facilitará PDF / Excel / HTML.
       ===================================================== */
 
       const detalleLotes =
         [];
 
       registros.forEach(
-        (
-          registro
-        ) => {
+        (registro) => {
           registro.lotes.forEach(
-            (
-              lote
-            ) => {
+            (lote) => {
               detalleLotes.push({
                 _id:
                   lote._id,
@@ -913,12 +792,18 @@ export const obtenerReporteManzanasLotes =
                   codigo:
                     registro.codigo,
 
-                  metrosTotales:
-                    registro.metrosTotales,
+                  nombre:
+                    registro.nombre,
+
+                  areaM2:
+                    registro.areaTotalManzana,
                 },
 
                 codigo:
                   lote.codigo,
+
+                numeroLote:
+                  lote.numeroLote,
 
                 tipo:
                   lote.tipo,
@@ -949,20 +834,25 @@ export const obtenerReporteManzanasLotes =
 
       const lotesDisponibles =
         detalleLotes.filter(
-          (
-            lote
-          ) =>
+          (lote) =>
             normalizarTexto(
               lote.estado
             ) ===
             "disponible"
         ).length;
 
+      const lotesReservados =
+        detalleLotes.filter(
+          (lote) =>
+            normalizarTexto(
+              lote.estado
+            ) ===
+            "reservado"
+        ).length;
+
       const lotesVendidos =
         detalleLotes.filter(
-          (
-            lote
-          ) =>
+          (lote) =>
             normalizarTexto(
               lote.estado
             ) ===
@@ -971,9 +861,7 @@ export const obtenerReporteManzanasLotes =
 
       const lotesRegulares =
         detalleLotes.filter(
-          (
-            lote
-          ) =>
+          (lote) =>
             normalizarTexto(
               lote.tipo
             ) ===
@@ -982,13 +870,30 @@ export const obtenerReporteManzanasLotes =
 
       const lotesIrregulares =
         detalleLotes.filter(
-          (
-            lote
-          ) =>
+          (lote) =>
             normalizarTexto(
               lote.tipo
             ) ===
             "irregular"
+        ).length;
+
+      /*
+        Solo sumamos las manzanas que
+        realmente tienen área registrada.
+      */
+
+      const manzanasConAreaRegistrada =
+        registros.filter(
+          (registro) =>
+            registro.areaTotalManzana !==
+            null
+        ).length;
+
+      const manzanasSinAreaRegistrada =
+        registros.filter(
+          (registro) =>
+            registro.areaTotalManzana ===
+            null
         ).length;
 
       const areaTotalManzanas =
@@ -998,24 +903,50 @@ export const obtenerReporteManzanasLotes =
             registro
           ) =>
             total +
-            numero(
-              registro.metrosTotales
+            (
+              registro.areaTotalManzana ===
+              null
+                ? 0
+                : numero(
+                    registro.areaTotalManzana
+                  )
             ),
           0
         );
 
       const areaTotalLotes =
-        detalleLotes.reduce(
-          (
-            total,
-            lote
-          ) =>
-            total +
-            numero(
-              lote.area
-            ),
-          0
+        Number(
+          detalleLotes
+            .reduce(
+              (
+                total,
+                lote
+              ) =>
+                total +
+                numero(
+                  lote.area
+                ),
+              0
+            )
+            .toFixed(2)
         );
+
+      /*
+        La diferencia global solamente es válida
+        si TODAS las manzanas incluidas tienen
+        área total registrada.
+      */
+
+      const diferenciaArea =
+        manzanasSinAreaRegistrada >
+        0
+          ? null
+          : Number(
+              (
+                areaTotalManzanas -
+                areaTotalLotes
+              ).toFixed(2)
+            );
 
       const valorTotalLotes =
         detalleLotes.reduce(
@@ -1033,9 +964,7 @@ export const obtenerReporteManzanasLotes =
       const valorDisponible =
         detalleLotes
           .filter(
-            (
-              lote
-            ) =>
+            (lote) =>
               normalizarTexto(
                 lote.estado
               ) ===
@@ -1093,22 +1022,23 @@ export const obtenerReporteManzanasLotes =
 
           lotesDisponibles,
 
+          lotesReservados,
+
           lotesVendidos,
 
           lotesRegulares,
 
           lotesIrregulares,
 
+          manzanasConAreaRegistrada,
+
+          manzanasSinAreaRegistrada,
+
           areaTotalManzanas,
 
           areaTotalLotes,
 
-          diferenciaArea:
-            areaTotalManzanas >
-            0
-              ? areaTotalManzanas -
-                areaTotalLotes
-              : 0,
+          diferenciaArea,
 
           valorTotalLotes,
 

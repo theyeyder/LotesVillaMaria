@@ -86,14 +86,18 @@ export default function ManzanasLotes({
     totalLotes: 0,
 
     lotesDisponibles: 0,
+    lotesReservados: 0,
     lotesVendidos: 0,
 
     lotesRegulares: 0,
     lotesIrregulares: 0,
 
+    manzanasConAreaRegistrada: 0,
+    manzanasSinAreaRegistrada: 0,
+
     areaTotalManzanas: 0,
     areaTotalLotes: 0,
-    diferenciaArea: 0,
+    diferenciaArea: null,
 
     valorTotalLotes: 0,
     valorDisponible: 0,
@@ -274,78 +278,90 @@ export default function ManzanasLotes({
         setResumen({
           totalManzanas:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.totalManzanas
             ),
 
           totalLotes:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.totalLotes
             ),
 
           lotesDisponibles:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.lotesDisponibles
+            ),
+
+          lotesReservados:
+            numero(
+              respuesta?.resumen
+                ?.lotesReservados
             ),
 
           lotesVendidos:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.lotesVendidos
             ),
 
           lotesRegulares:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.lotesRegulares
             ),
 
           lotesIrregulares:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.lotesIrregulares
+            ),
+
+          manzanasConAreaRegistrada:
+            numero(
+              respuesta?.resumen
+                ?.manzanasConAreaRegistrada
+            ),
+
+          manzanasSinAreaRegistrada:
+            numero(
+              respuesta?.resumen
+                ?.manzanasSinAreaRegistrada
             ),
 
           areaTotalManzanas:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.areaTotalManzanas
             ),
 
           areaTotalLotes:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.areaTotalLotes
             ),
 
           diferenciaArea:
-            numero(
-              respuesta
-                ?.resumen
-                ?.diferenciaArea
-            ),
+            respuesta?.resumen
+              ?.diferenciaArea === null ||
+            respuesta?.resumen
+              ?.diferenciaArea === undefined
+              ? null
+              : numero(
+                  respuesta.resumen
+                    .diferenciaArea
+                ),
 
           valorTotalLotes:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.valorTotalLotes
             ),
 
           valorDisponible:
             numero(
-              respuesta
-                ?.resumen
+              respuesta?.resumen
                 ?.valorDisponible
             ),
         });
@@ -467,9 +483,11 @@ export default function ManzanasLotes({
           (registro) => {
             const campos = [
               registro.codigo,
-              registro.metrosTotales,
+              registro.nombre,
+              registro.areaTotalManzana,
               registro.cantidadLotes,
               registro.lotesDisponibles,
+              registro.lotesReservados,
               registro.lotesVendidos,
             ];
 
@@ -611,118 +629,70 @@ export default function ManzanasLotes({
 
   const columnasManzanas = [
     {
-      titulo:
-        "Manzana",
-      clave:
-        "codigo",
-      ancho:
-        16,
-      anchoPDF:
-        18,
+      titulo: "Manzana",
+      clave: "codigo",
+      ancho: 16,
+      anchoPDF: 18,
     },
-
     {
-      titulo:
-        "Metros totales",
-      clave:
-        "metrosTotales",
-      tipo:
-        "numero",
-      ancho:
-        17,
-      anchoPDF:
-        18,
+      titulo: "Área total manzana",
+      clave: "areaTotalManzanaTexto",
+      ancho: 22,
+      anchoPDF: 23,
     },
-
     {
-      titulo:
-        "Cantidad lotes",
-      clave:
-        "cantidadLotes",
-      tipo:
-        "numero",
-      ancho:
-        16,
-      anchoPDF:
-        17,
+      titulo: "Cantidad lotes",
+      clave: "cantidadLotes",
+      tipo: "numero",
+      ancho: 16,
+      anchoPDF: 17,
     },
-
     {
-      titulo:
-        "Disponibles",
-      clave:
-        "lotesDisponibles",
-      tipo:
-        "numero",
-      ancho:
-        15,
-      anchoPDF:
-        16,
+      titulo: "Disponibles",
+      clave: "lotesDisponibles",
+      tipo: "numero",
+      ancho: 15,
+      anchoPDF: 16,
     },
-
     {
-      titulo:
-        "Vendidos",
-      clave:
-        "lotesVendidos",
-      tipo:
-        "numero",
-      ancho:
-        15,
-      anchoPDF:
-        16,
+      titulo: "Reservados",
+      clave: "lotesReservados",
+      tipo: "numero",
+      ancho: 15,
+      anchoPDF: 16,
     },
-
     {
-      titulo:
-        "Área lotes",
-      clave:
-        "areaLotes",
-      tipo:
-        "numero",
-      ancho:
-        16,
-      anchoPDF:
-        18,
+      titulo: "Vendidos",
+      clave: "lotesVendidos",
+      tipo: "numero",
+      ancho: 15,
+      anchoPDF: 16,
     },
-
     {
-      titulo:
-        "Diferencia área",
-      clave:
-        "diferenciaArea",
-      tipo:
-        "numero",
-      ancho:
-        17,
-      anchoPDF:
-        18,
+      titulo: "Área ocupada por lotes",
+      clave: "areaLotesTexto",
+      ancho: 22,
+      anchoPDF: 23,
     },
-
     {
-      titulo:
-        "Valor total lotes",
-      clave:
-        "valorTotalLotes",
-      tipo:
-        "moneda",
-      ancho:
-        21,
-      anchoPDF:
-        24,
+      titulo: "Área restante",
+      clave: "diferenciaAreaTexto",
+      ancho: 20,
+      anchoPDF: 21,
     },
-
     {
-      titulo:
-        "Inventario disponible",
-      clave:
-        "valorInventarioDisponible",
-      tipo:
-        "moneda",
-      ancho:
-        23,
-      anchoPDF:
-        25,
+      titulo: "Valor total lotes",
+      clave: "valorTotalLotes",
+      tipo: "moneda",
+      ancho: 21,
+      anchoPDF: 24,
+    },
+    {
+      titulo: "Inventario disponible",
+      clave: "valorInventarioDisponible",
+      tipo: "moneda",
+      ancho: 23,
+      anchoPDF: 25,
     },
   ];
 
@@ -739,10 +709,14 @@ export default function ManzanasLotes({
               registro.codigo ||
               "—",
 
-            metrosTotales:
-              numero(
-                registro.metrosTotales
-              ),
+            areaTotalManzanaTexto:
+              registro.areaTotalManzana === null ||
+              registro.areaTotalManzana === undefined
+                ? "No registrada"
+                : `${formatearNumero(
+                    registro.areaTotalManzana,
+                    2
+                  )} m²`,
 
             cantidadLotes:
               numero(
@@ -754,20 +728,30 @@ export default function ManzanasLotes({
                 registro.lotesDisponibles
               ),
 
+            lotesReservados:
+              numero(
+                registro.lotesReservados
+              ),
+
             lotesVendidos:
               numero(
                 registro.lotesVendidos
               ),
 
-            areaLotes:
-              numero(
-                registro.areaLotes
-              ),
+            areaLotesTexto:
+              `${formatearNumero(
+                registro.areaLotes,
+                2
+              )} m²`,
 
-            diferenciaArea:
-              numero(
-                registro.diferenciaArea
-              ),
+            diferenciaAreaTexto:
+              registro.diferenciaArea === null ||
+              registro.diferenciaArea === undefined
+                ? "No calculable"
+                : `${formatearNumero(
+                    registro.diferenciaArea,
+                    2
+                  )} m²`,
 
             valorTotalLotes:
               numero(
@@ -943,7 +927,7 @@ export default function ManzanasLotes({
         "azul",
 
       detalle:
-        `${resumen.lotesDisponibles} disponible(s) · ${resumen.lotesVendidos} vendido(s)`,
+        `${resumen.lotesDisponibles} disponible(s) · ${resumen.lotesReservados} reservado(s) · ${resumen.lotesVendidos} vendido(s)`,
     },
 
     {
@@ -958,28 +942,35 @@ export default function ManzanasLotes({
 
       detalle:
         `${formatearNumero(
-          resumen.areaTotalLotes
+          resumen.areaTotalLotes,
+          2
         )} m² distribuidos`,
     },
 
     {
       label:
-        "Diferencia de área",
+        "Área restante",
 
       valor:
-        resumen.diferenciaArea,
+        resumen.diferenciaArea === null
+          ? "No calculable"
+          : resumen.diferenciaArea,
 
       tipo:
-        "numero",
+        resumen.diferenciaArea === null
+          ? undefined
+          : "numero",
 
       color:
-        resumen.diferenciaArea <
-        0
+        resumen.diferenciaArea !== null &&
+        resumen.diferenciaArea < 0
           ? "rojo"
           : "dorado",
 
       detalle:
-        "Diferencia entre área registrada y lotes",
+        resumen.manzanasSinAreaRegistrada > 0
+          ? `${resumen.manzanasSinAreaRegistrada} manzana(s) sin área total registrada`
+          : "Área total menos área ocupada por lotes",
     },
 
     {
@@ -1418,6 +1409,32 @@ export default function ManzanasLotes({
 
           <div>
             <span>
+              Reservados
+            </span>
+
+            <strong className="texto-dorado">
+              {formatearNumero(
+                resumen.lotesReservados
+              )}
+            </strong>
+
+            <small>
+              Lotes reservados
+            </small>
+          </div>
+
+        </article>
+
+        <article className="manzanas-lotes-stat">
+
+          <i className="dorado">
+            <LandPlot
+              size={20}
+            />
+          </i>
+
+          <div>
+            <span>
               Vendidos
             </span>
 
@@ -1449,7 +1466,8 @@ export default function ManzanasLotes({
 
             <strong>
               {formatearNumero(
-                resumen.areaTotalLotes
+                resumen.areaTotalLotes,
+                2
               )} m²
             </strong>
 
@@ -1488,687 +1506,588 @@ export default function ManzanasLotes({
 
       </section>
 
-      {/* ===================================================
-          FILTROS
-      =================================================== */}
+     {/* ===================================================
+    VISTAS
+=================================================== */}
 
-      <section className="manzanas-lotes-filtros">
+<section className="manzanas-lotes-vistas">
 
-        <div className="manzanas-lotes-search">
+  <button
+    type="button"
+    className={
+      vista ===
+      "manzanas"
+        ? "active"
+        : ""
+    }
+    onClick={() =>
+      cambiarVista(
+        "manzanas"
+      )
+    }
+  >
+    <MapPinned
+      size={16}
+    />
 
-          <Search
-            size={16}
-          />
+    Resumen por manzana
 
-          <input
-            type="text"
-            value={
-              buscar
-            }
-            onChange={(
-              event
-            ) => {
-              setBuscar(
-                event.target.value
-              );
+    <span>
+      {manzanasVisibles.length}
+    </span>
+  </button>
 
-              setPagina(
-                1
-              );
-            }}
-            placeholder="Buscar manzana, lote, tipo, estado..."
-          />
+  <button
+    type="button"
+    className={
+      vista ===
+      "lotes"
+        ? "active"
+        : ""
+    }
+    onClick={() =>
+      cambiarVista(
+        "lotes"
+      )
+    }
+  >
+    <LayoutList
+      size={16}
+    />
 
-        </div>
+    Detalle de lotes
 
-        <label className="manzanas-lotes-field">
+    <span>
+      {lotesVisibles.length}
+    </span>
+  </button>
 
-          <span>
-            Manzana
-          </span>
+</section>
+{/* ===================================================
+    EXPORTACIÓN
+=================================================== */}
 
-          <select
-            value={
-              manzana
-            }
-            onChange={(
-              event
-            ) =>
-              setManzana(
-                event.target.value
-              )
-            }
-          >
-            <option value="">
-              Todas
-            </option>
+<section className="manzanas-lotes-export">
 
-            {opcionesManzana.map(
-              (opcion) => (
-                <option
-                  key={
-                    opcion.id
-                  }
-                  value={
-                    opcion.id
-                  }
+  <div>
+
+    <strong>
+      {vista ===
+      "lotes"
+        ? "Detalle de lotes"
+        : "Resumen por manzana"}
+    </strong>
+
+    <span>
+      {datosVista.length} registro(s) encontrados
+    </span>
+
+  </div>
+
+  <div className="manzanas-lotes-export-buttons">
+
+    <button
+      type="button"
+      className="pdf"
+      onClick={
+        generarPDF
+      }
+      disabled={
+        cargando
+      }
+    >
+      <FileText
+        size={17}
+      />
+
+      PDF
+    </button>
+
+    <button
+      type="button"
+      className="excel"
+      onClick={
+        generarExcel
+      }
+      disabled={
+        cargando
+      }
+    >
+      <FileSpreadsheet
+        size={17}
+      />
+
+      Excel XLSX
+    </button>
+
+    <button
+      type="button"
+      className="html"
+      onClick={
+        generarHTML
+      }
+      disabled={
+        cargando
+      }
+    >
+      <Globe2
+        size={17}
+      />
+
+      HTML
+    </button>
+
+  </div>
+
+</section>
+{/* ===================================================
+    ERROR
+=================================================== */}
+
+{error && (
+  <div className="manzanas-lotes-error">
+
+    <TriangleAlert
+      size={17}
+    />
+
+    <span>
+      {error}
+    </span>
+
+    <button
+      type="button"
+      onClick={
+        aplicarFiltros
+      }
+    >
+      Reintentar
+    </button>
+
+  </div>
+)}
+{/* ===================================================
+    TABLA
+=================================================== */}
+
+<section className="manzanas-lotes-panel">
+
+  {cargando ? (
+    <div className="manzanas-lotes-loading">
+
+      <RefreshCw
+        size={25}
+        className="manzanas-lotes-spin"
+      />
+
+      <span>
+        Generando informe...
+      </span>
+
+    </div>
+  ) : vista ===
+    "lotes" ? (
+    <>
+      {/* ===============================================
+          DETALLE DE LOTES
+      =============================================== */}
+
+      <div className="manzanas-lotes-table-wrapper">
+
+        <table className="manzanas-lotes-table lotes">
+
+          <thead>
+            <tr>
+              <th>Manzana</th>
+              <th>Lote</th>
+              <th>Tipo</th>
+              <th>Área</th>
+              <th>Valor</th>
+              <th>Estado</th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {datosPagina.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={6}
+                  className="manzanas-lotes-empty"
                 >
-                  {opcion.codigo}
-                </option>
+                  No hay lotes que coincidan con los filtros seleccionados.
+                </td>
+              </tr>
+            ) : (
+              datosPagina.map(
+                (
+                  lote,
+                  indice
+                ) => (
+                  <tr
+                    key={
+                      lote._id ||
+                      indice
+                    }
+                  >
+
+                    <td>
+                      <strong className="manzanas-lotes-codigo">
+                        {lote.manzana?.codigo ||
+                          "—"}
+                      </strong>
+                    </td>
+
+                    <td>
+                      <strong>
+                        {lote.codigo ||
+                          "—"}
+                      </strong>
+                    </td>
+
+                    <td>
+                      <span className="manzanas-lotes-tipo">
+                        {lote.tipo ||
+                          "—"}
+                      </span>
+                    </td>
+
+                    <td>
+                      {formatearNumero(
+                        lote.area,
+                        2
+                      )}{" "}
+                      m²
+                    </td>
+
+                    <td>
+                      <strong className="manzanas-lotes-money">
+                        {formatearDinero(
+                          lote.valor
+                        )}
+                      </strong>
+                    </td>
+
+                    <td>
+                      <span
+                        className={`manzanas-lotes-estado ${String(
+                          lote.estado ||
+                            ""
+                        ).toLowerCase()}`}
+                      >
+                        {lote.estado ||
+                          "—"}
+                      </span>
+                    </td>
+
+                  </tr>
+                )
               )
             )}
 
-          </select>
+          </tbody>
 
-        </label>
+        </table>
 
-        <label className="manzanas-lotes-field">
+      </div>
+    </>
+  ) : (
+    <>
+      {/* ===============================================
+          RESUMEN POR MANZANA
+      =============================================== */}
 
-          <span>
-            Estado lote
-          </span>
+      <div className="manzanas-lotes-table-wrapper">
 
-          <select
-            value={
-              estado
-            }
-            onChange={(
-              event
-            ) =>
-              setEstado(
-                event.target.value
+        <table className="manzanas-lotes-table manzanas">
+
+          <thead>
+            <tr>
+              <th>
+                Manzana
+              </th>
+
+              <th>
+                Área total manzana
+              </th>
+
+              <th>
+                Lotes
+              </th>
+
+              <th>
+                Disponibles
+              </th>
+
+              <th>
+                Reservados
+              </th>
+
+              <th>
+                Vendidos
+              </th>
+
+              <th>
+                Área ocupada por lotes
+              </th>
+
+              <th>
+                Área restante
+              </th>
+
+              <th>
+                Valor total
+              </th>
+
+              <th>
+                Inventario disponible
+              </th>
+            </tr>
+          </thead>
+
+          <tbody>
+
+            {datosPagina.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={10}
+                  className="manzanas-lotes-empty"
+                >
+                  No hay manzanas que coincidan con los filtros seleccionados.
+                </td>
+              </tr>
+            ) : (
+              datosPagina.map(
+                (
+                  registro,
+                  indice
+                ) => (
+                  <tr
+                    key={
+                      registro._id ||
+                      indice
+                    }
+                  >
+
+                    {/* MANZANA */}
+
+                    <td>
+                      <strong className="manzanas-lotes-codigo">
+                        {registro.codigo ||
+                          "—"}
+                      </strong>
+                    </td>
+
+                    {/* ÁREA TOTAL MANZANA */}
+
+                    <td>
+                      {registro.areaTotalManzana ===
+                        null ||
+                      registro.areaTotalManzana ===
+                        undefined ? (
+                        <span className="manzanas-lotes-sin-area">
+                          No registrada
+                        </span>
+                      ) : (
+                        <>
+                          {formatearNumero(
+                            registro.areaTotalManzana,
+                            2
+                          )}{" "}
+                          m²
+                        </>
+                      )}
+                    </td>
+
+                    {/* TOTAL LOTES */}
+
+                    <td>
+                      <span className="manzanas-lotes-contador">
+                        {registro.cantidadLotes ||
+                          0}
+                      </span>
+                    </td>
+
+                    {/* DISPONIBLES */}
+
+                    <td>
+                      <span className="manzanas-lotes-contador disponible">
+                        {registro.lotesDisponibles ||
+                          0}
+                      </span>
+                    </td>
+
+                    {/* RESERVADOS */}
+
+                    <td>
+                      <span className="manzanas-lotes-contador reservado">
+                        {registro.lotesReservados ||
+                          0}
+                      </span>
+                    </td>
+
+                    {/* VENDIDOS */}
+
+                    <td>
+                      <span className="manzanas-lotes-contador vendido">
+                        {registro.lotesVendidos ||
+                          0}
+                      </span>
+                    </td>
+
+                    {/* ÁREA OCUPADA */}
+
+                    <td>
+                      {formatearNumero(
+                        registro.areaLotes,
+                        2
+                      )}{" "}
+                      m²
+                    </td>
+
+                    {/* ÁREA RESTANTE */}
+
+                    <td>
+                      {registro.diferenciaArea ===
+                        null ||
+                      registro.diferenciaArea ===
+                        undefined ? (
+                        <span className="manzanas-lotes-sin-area">
+                          No calculable
+                        </span>
+                      ) : (
+                        <strong
+                          className={
+                            registro.diferenciaArea <
+                            0
+                              ? "manzanas-lotes-diferencia negativa"
+                              : "manzanas-lotes-diferencia"
+                          }
+                        >
+                          {formatearNumero(
+                            registro.diferenciaArea,
+                            2
+                          )}{" "}
+                          m²
+                        </strong>
+                      )}
+                    </td>
+
+                    {/* VALOR TOTAL */}
+
+                    <td>
+                      <strong className="manzanas-lotes-money">
+                        {formatearDinero(
+                          registro.valorTotalLotes
+                        )}
+                      </strong>
+                    </td>
+
+                    {/* INVENTARIO DISPONIBLE */}
+
+                    <td>
+                      <strong className="manzanas-lotes-money disponible">
+                        {formatearDinero(
+                          registro.valorInventarioDisponible
+                        )}
+                      </strong>
+                    </td>
+
+                  </tr>
+                )
               )
-            }
-          >
-            <option value="">
-              Todos
-            </option>
+            )}
 
-            <option value="Disponible">
-              Disponible
-            </option>
+          </tbody>
 
-            <option value="Vendido">
-              Vendido
-            </option>
+        </table>
 
-          </select>
+      </div>
+    </>
+  )}
 
-        </label>
+  {/* =================================================
+      PAGINACIÓN
+  ================================================= */}
 
-        <label className="manzanas-lotes-field">
+  {!cargando && (
+    <footer className="manzanas-lotes-table-footer">
 
-          <span>
-            Tipo de lote
-          </span>
+      <span>
+        Mostrando{" "}
+        {datosVista.length === 0
+          ? 0
+          : (
+              paginaActual -
+              1
+            ) *
+              REGISTROS_POR_PAGINA +
+            1}
+        {" - "}
+        {Math.min(
+          paginaActual *
+            REGISTROS_POR_PAGINA,
+          datosVista.length
+        )}
+        {" de "}
+        {datosVista.length}
+      </span>
 
-          <select
-            value={
-              tipo
-            }
-            onChange={(
-              event
-            ) =>
-              setTipo(
-                event.target.value
-              )
-            }
-          >
-            <option value="">
-              Todos
-            </option>
-
-            <option value="Regular">
-              Regular
-            </option>
-
-            <option value="Irregular">
-              Irregular
-            </option>
-
-          </select>
-
-        </label>
+      <div className="manzanas-lotes-pagination">
 
         <button
           type="button"
-          className="manzanas-lotes-aplicar"
-          onClick={
-            aplicarFiltros
-          }
           disabled={
-            cargando
-          }
-        >
-          Aplicar
-        </button>
-
-        <button
-          type="button"
-          className="manzanas-lotes-limpiar"
-          onClick={
-            limpiarFiltros
-          }
-          disabled={
-            cargando
-          }
-        >
-          <X
-            size={14}
-          />
-
-          Limpiar
-        </button>
-
-      </section>
-
-      {/* ===================================================
-          VISTAS
-      =================================================== */}
-
-      <section className="manzanas-lotes-vistas">
-
-        <button
-          type="button"
-          className={
-            vista ===
-            "manzanas"
-              ? "active"
-              : ""
+            paginaActual <= 1
           }
           onClick={() =>
-            cambiarVista(
-              "manzanas"
+            setPagina(
+              (actual) =>
+                Math.max(
+                  1,
+                  actual - 1
+                )
             )
           }
         >
-          <MapPinned
-            size={16}
-          />
-
-          Resumen por manzana
-
-          <span>
-            {manzanasVisibles.length}
-          </span>
+          Anterior
         </button>
+
+        <strong>
+          Página{" "}
+          {paginaActual}
+          {" de "}
+          {totalPaginas}
+        </strong>
 
         <button
           type="button"
-          className={
-            vista ===
-            "lotes"
-              ? "active"
-              : ""
+          disabled={
+            paginaActual >=
+            totalPaginas
           }
           onClick={() =>
-            cambiarVista(
-              "lotes"
+            setPagina(
+              (actual) =>
+                Math.min(
+                  totalPaginas,
+                  actual + 1
+                )
             )
           }
         >
-          <LayoutList
-            size={16}
-          />
-
-          Detalle de lotes
-
-          <span>
-            {lotesVisibles.length}
-          </span>
+          Siguiente
         </button>
 
-      </section>
+      </div>
 
-      {/* ===================================================
-          EXPORTACIÓN
-      =================================================== */}
+    </footer>
+  )}
 
-      <section className="manzanas-lotes-export">
+</section>
 
-        <div>
-
-          <strong>
-            {vista ===
-            "lotes"
-              ? "Detalle de lotes"
-              : "Resumen por manzana"}
-          </strong>
-
-          <span>
-            {datosVista.length} registro(s) encontrados
-          </span>
-
-        </div>
-
-        <div className="manzanas-lotes-export-buttons">
-
-          <button
-            type="button"
-            className="pdf"
-            onClick={
-              generarPDF
-            }
-            disabled={
-              cargando
-            }
-          >
-            <FileText
-              size={17}
-            />
-
-            PDF
-          </button>
-
-          <button
-            type="button"
-            className="excel"
-            onClick={
-              generarExcel
-            }
-            disabled={
-              cargando
-            }
-          >
-            <FileSpreadsheet
-              size={17}
-            />
-
-            Excel XLSX
-          </button>
-
-          <button
-            type="button"
-            className="html"
-            onClick={
-              generarHTML
-            }
-            disabled={
-              cargando
-            }
-          >
-            <Globe2
-              size={17}
-            />
-
-            HTML
-          </button>
-
-        </div>
-
-      </section>
-
-      {/* ===================================================
-          ERROR
-      =================================================== */}
-
-      {error && (
-        <div className="manzanas-lotes-error">
-
-          <TriangleAlert
-            size={17}
-          />
-
-          <span>
-            {error}
-          </span>
-
-          <button
-            type="button"
-            onClick={
-              aplicarFiltros
-            }
-          >
-            Reintentar
-          </button>
-
-        </div>
-      )}
-
-      {/* ===================================================
-          TABLA
-      =================================================== */}
-
-      <section className="manzanas-lotes-panel">
-
-        {cargando ? (
-          <div className="manzanas-lotes-loading">
-
-            <RefreshCw
-              size={25}
-              className="manzanas-lotes-spin"
-            />
-
-            <span>
-              Generando informe...
-            </span>
-
-          </div>
-        ) : vista ===
-          "lotes" ? (
-          <>
-            <div className="manzanas-lotes-table-wrapper">
-
-              <table className="manzanas-lotes-table lotes">
-
-                <thead>
-
-                  <tr>
-                    <th>Manzana</th>
-                    <th>Lote</th>
-                    <th>Tipo</th>
-                    <th>Área</th>
-                    <th>Valor</th>
-                    <th>Estado</th>
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {datosPagina.length ===
-                  0 ? (
-                    <tr>
-
-                      <td
-                        colSpan={6}
-                        className="manzanas-lotes-empty"
-                      >
-                        No hay lotes que coincidan con los filtros seleccionados.
-                      </td>
-
-                    </tr>
-                  ) : (
-                    datosPagina.map(
-                      (
-                        lote,
-                        indice
-                      ) => (
-                        <tr
-                          key={
-                            lote._id ||
-                            indice
-                          }
-                        >
-
-                          <td>
-                            <strong className="manzanas-lotes-codigo">
-                              {lote.manzana
-                                ?.codigo ||
-                                "—"}
-                            </strong>
-                          </td>
-
-                          <td>
-                            <strong>
-                              {lote.codigo ||
-                                "—"}
-                            </strong>
-                          </td>
-
-                          <td>
-                            <span className="manzanas-lotes-tipo">
-                              {lote.tipo ||
-                                "—"}
-                            </span>
-                          </td>
-
-                          <td>
-                            {formatearNumero(
-                              lote.area
-                            )}{" "}
-                            m²
-                          </td>
-
-                          <td>
-                            <strong className="manzanas-lotes-money">
-                              {formatearDinero(
-                                lote.valor
-                              )}
-                            </strong>
-                          </td>
-
-                          <td>
-                            <span
-                              className={`manzanas-lotes-estado ${String(
-                                lote.estado ||
-                                  ""
-                              ).toLowerCase()}`}
-                            >
-                              {lote.estado ||
-                                "—"}
-                            </span>
-                          </td>
-
-                        </tr>
-                      )
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="manzanas-lotes-table-wrapper">
-
-              <table className="manzanas-lotes-table manzanas">
-
-                <thead>
-
-                  <tr>
-                    <th>Manzana</th>
-                    <th>Metros totales</th>
-                    <th>Lotes</th>
-                    <th>Disponibles</th>
-                    <th>Vendidos</th>
-                    <th>Área lotes</th>
-                    <th>Diferencia área</th>
-                    <th>Valor total</th>
-                    <th>Inventario disponible</th>
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {datosPagina.length ===
-                  0 ? (
-                    <tr>
-
-                      <td
-                        colSpan={9}
-                        className="manzanas-lotes-empty"
-                      >
-                        No hay manzanas que coincidan con los filtros seleccionados.
-                      </td>
-
-                    </tr>
-                  ) : (
-                    datosPagina.map(
-                      (
-                        registro,
-                        indice
-                      ) => (
-                        <tr
-                          key={
-                            registro._id ||
-                            indice
-                          }
-                        >
-
-                          <td>
-                            <strong className="manzanas-lotes-codigo">
-                              {registro.codigo ||
-                                "—"}
-                            </strong>
-                          </td>
-
-                          <td>
-                            {formatearNumero(
-                              registro.metrosTotales
-                            )}{" "}
-                            m²
-                          </td>
-
-                          <td>
-                            <span className="manzanas-lotes-contador">
-                              {registro.cantidadLotes ||
-                                0}
-                            </span>
-                          </td>
-
-                          <td>
-                            <span className="manzanas-lotes-contador disponible">
-                              {registro.lotesDisponibles ||
-                                0}
-                            </span>
-                          </td>
-
-                          <td>
-                            <span className="manzanas-lotes-contador vendido">
-                              {registro.lotesVendidos ||
-                                0}
-                            </span>
-                          </td>
-
-                          <td>
-                            {formatearNumero(
-                              registro.areaLotes
-                            )}{" "}
-                            m²
-                          </td>
-
-                          <td>
-                            <strong
-                              className={
-                                numero(
-                                  registro.diferenciaArea
-                                ) <
-                                0
-                                  ? "manzanas-lotes-diferencia negativa"
-                                  : "manzanas-lotes-diferencia"
-                              }
-                            >
-                              {formatearNumero(
-                                registro.diferenciaArea
-                              )}{" "}
-                              m²
-                            </strong>
-                          </td>
-
-                          <td>
-                            <strong className="manzanas-lotes-money">
-                              {formatearDinero(
-                                registro.valorTotalLotes
-                              )}
-                            </strong>
-                          </td>
-
-                          <td>
-                            <strong className="manzanas-lotes-money disponible">
-                              {formatearDinero(
-                                registro.valorInventarioDisponible
-                              )}
-                            </strong>
-                          </td>
-
-                        </tr>
-                      )
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-          </>
-        )}
-
-        {!cargando && (
-          <footer className="manzanas-lotes-table-footer">
-
-            <span>
-              Mostrando{" "}
-              {datosVista.length ===
-              0
-                ? 0
-                : (
-                    paginaActual -
-                    1
-                  ) *
-                    REGISTROS_POR_PAGINA +
-                  1}
-              {" - "}
-              {Math.min(
-                paginaActual *
-                  REGISTROS_POR_PAGINA,
-                datosVista.length
-              )}
-              {" de "}
-              {datosVista.length}
-            </span>
-
-            <div className="manzanas-lotes-pagination">
-
-              <button
-                type="button"
-                disabled={
-                  paginaActual <=
-                  1
-                }
-                onClick={() =>
-                  setPagina(
-                    (actual) =>
-                      Math.max(
-                        1,
-                        actual -
-                          1
-                      )
-                  )
-                }
-              >
-                Anterior
-              </button>
-
-              <strong>
-                Página{" "}
-                {paginaActual}
-                {" de "}
-                {totalPaginas}
-              </strong>
-
-              <button
-                type="button"
-                disabled={
-                  paginaActual >=
-                  totalPaginas
-                }
-                onClick={() =>
-                  setPagina(
-                    (actual) =>
-                      Math.min(
-                        totalPaginas,
-                        actual +
-                          1
-                      )
-                  )
-                }
-              >
-                Siguiente
-              </button>
-
-            </div>
-
-          </footer>
-        )}
-
-      </section>
-
-    </div>
+</div>
   );
 }
+      
+    

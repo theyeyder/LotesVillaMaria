@@ -673,7 +673,7 @@
 }
 
 .manzanas-lotes-table.manzanas {
-  min-width: 1400px;
+  min-width: 1550px;
 }
 
 .manzanas-lotes-table.lotes {
@@ -769,6 +769,12 @@
   color: #2f6b4a;
 }
 
+.manzanas-lotes-contador.reservado {
+  background: #eef0f8;
+
+  color: #56658a;
+}
+
 .manzanas-lotes-contador.vendido {
   background: #f5edd8;
 
@@ -835,6 +841,32 @@
 }
 
 /* =========================================================
+   ÁREA NO REGISTRADA / NO CALCULABLE
+========================================================= */
+
+.manzanas-lotes-sin-area {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border: 1px solid #e3ddd0;
+  border-radius: 999px;
+
+  background: #f6f4ee;
+
+  color: #858b87;
+
+  font-size: 8px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
    ESTADOS
 ========================================================= */
 
@@ -859,6 +891,12 @@
   background: #e7f2ea;
 
   color: #2f6b4a;
+}
+
+.manzanas-lotes-estado.reservado {
+  background: #eef0f8;
+
+  color: #56658a;
 }
 
 .manzanas-lotes-estado.vendido {
