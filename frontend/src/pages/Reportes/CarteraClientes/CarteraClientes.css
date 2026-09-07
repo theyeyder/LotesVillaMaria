@@ -1,0 +1,1186 @@
+/* =========================================================
+   INFORME CARTERA POR CLIENTE
+   LOTES VILLA MARÍA
+========================================================= */
+
+.cartera-clientes-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.cartera-clientes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.cartera-clientes-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.cartera-clientes-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.cartera-clientes-back:hover {
+  transform: translateY(-1px);
+
+  background: #f5f2e9;
+}
+
+.cartera-clientes-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.cartera-clientes-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.cartera-clientes-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cartera-clientes-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.cartera-clientes-refresh:hover {
+  background: #1e4d37;
+}
+
+.cartera-clientes-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS DE RESUMEN
+========================================================= */
+
+.cartera-clientes-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.cartera-clientes-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.cartera-clientes-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #eef0e9;
+
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.cartera-clientes-stat i.azul {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.cartera-clientes-stat i.verde {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.cartera-clientes-stat i.dorado {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.cartera-clientes-stat i.rojo {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.cartera-clientes-stat > div {
+  min-width: 0;
+}
+
+.cartera-clientes-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.cartera-clientes-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.cartera-clientes-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.cartera-clientes-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.cartera-clientes-stat .texto-dorado {
+  color: #8a6827;
+}
+
+.cartera-clientes-stat .texto-rojo {
+  color: #a33f35;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.cartera-clientes-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(145px, 0.65fr)
+    minmax(145px, 0.65fr)
+    minmax(210px, 0.9fr)
+    minmax(155px, 0.7fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.cartera-clientes-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.cartera-clientes-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.cartera-clientes-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.cartera-clientes-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.cartera-clientes-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.cartera-clientes-field select,
+.cartera-clientes-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.cartera-clientes-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.cartera-clientes-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.cartera-clientes-date input {
+  padding-left: 31px;
+}
+
+.cartera-clientes-search input:focus,
+.cartera-clientes-field select:focus,
+.cartera-clientes-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTROS
+========================================================= */
+
+.cartera-clientes-aplicar,
+.cartera-clientes-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.cartera-clientes-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.cartera-clientes-aplicar:hover {
+  background: #1e4d37;
+}
+
+.cartera-clientes-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.cartera-clientes-limpiar:hover {
+  background: #eeeae0;
+}
+
+.cartera-clientes-aplicar:disabled,
+.cartera-clientes-limpiar:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.cartera-clientes-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.cartera-clientes-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.cartera-clientes-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.cartera-clientes-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.cartera-clientes-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+  font-size: 8px;
+}
+
+.cartera-clientes-vistas button.active span {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.15
+    );
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.cartera-clientes-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.cartera-clientes-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.cartera-clientes-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.cartera-clientes-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.cartera-clientes-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.cartera-clientes-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.cartera-clientes-export-buttons button:disabled {
+  opacity: 0.55;
+
+  cursor: not-allowed;
+}
+
+.cartera-clientes-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.cartera-clientes-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.cartera-clientes-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.cartera-clientes-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.cartera-clientes-error span {
+  flex: 1;
+}
+
+.cartera-clientes-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.cartera-clientes-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.cartera-clientes-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.cartera-clientes-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.cartera-clientes-table.clientes {
+  min-width: 1700px;
+}
+
+.cartera-clientes-table.detalle {
+  min-width: 1900px;
+}
+
+.cartera-clientes-table thead {
+  background: #173d2b;
+}
+
+.cartera-clientes-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.cartera-clientes-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.cartera-clientes-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.cartera-clientes-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGO
+========================================================= */
+
+.cartera-clientes-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PERSONA / CLIENTE
+========================================================= */
+
+.cartera-clientes-persona {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 160px;
+}
+
+.cartera-clientes-persona strong {
+  color: #344139;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.cartera-clientes-persona span {
+  color: #8c948f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.cartera-clientes-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.cartera-clientes-money.pagado {
+  color: #2f6b4a;
+}
+
+.cartera-clientes-money.pendiente {
+  color: #8a6827;
+}
+
+.cartera-clientes-money.vencido {
+  color: #a33f35;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.cartera-clientes-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 28px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.cartera-clientes-contador.pendiente {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.cartera-clientes-contador.vencida {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.cartera-clientes-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.cartera-clientes-estado.pagada {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.cartera-clientes-estado.pendiente {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.cartera-clientes-estado.vencida {
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.cartera-clientes-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.cartera-clientes-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.cartera-clientes-loading svg {
+  color: #315f46;
+}
+
+.cartera-clientes-spin {
+  animation:
+    cartera-clientes-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes cartera-clientes-spin {
+  to {
+    transform: rotate(
+      360deg
+    );
+  }
+}
+
+/* =========================================================
+   FOOTER TABLA
+========================================================= */
+
+.cartera-clientes-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.cartera-clientes-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cartera-clientes-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.cartera-clientes-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.cartera-clientes-pagination button:hover:not(:disabled) {
+  background: #f4f1e8;
+}
+
+.cartera-clientes-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.cartera-clientes-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.cartera-clientes-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.cartera-clientes-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.cartera-clientes-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1300px
+) {
+  .cartera-clientes-filtros {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .cartera-clientes-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (
+  max-width: 1100px
+) {
+  .cartera-clientes-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .cartera-clientes-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .cartera-clientes-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .cartera-clientes-header {
+    flex-direction: column;
+  }
+
+  .cartera-clientes-refresh {
+    width: 100%;
+  }
+
+  .cartera-clientes-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cartera-clientes-vistas button {
+    justify-content: space-between;
+  }
+
+  .cartera-clientes-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cartera-clientes-export-buttons {
+    width: 100%;
+  }
+
+  .cartera-clientes-export-buttons button {
+    flex: 1;
+  }
+
+  .cartera-clientes-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .cartera-clientes-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (
+  max-width: 600px
+) {
+  .cartera-clientes-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cartera-clientes-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .cartera-clientes-search {
+    grid-column:
+      auto;
+  }
+
+  .cartera-clientes-export-buttons {
+    flex-direction: column;
+  }
+
+  .cartera-clientes-export-buttons button {
+    width: 100%;
+  }
+
+  .cartera-clientes-header h1 {
+    font-size: 24px;
+  }
+}

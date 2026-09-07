@@ -16,6 +16,18 @@ import {
   obtenerReporteManzanasLotes,
 } from "./manzanasLotes.controller.js";
 
+import {
+  obtenerReporteVentasVendedor,
+} from "./ventasVendedor.controller.js";
+
+import {
+  obtenerReporteCarteraClientes,
+} from "./carteraClientes.controller.js";
+
+import {
+  obtenerReporteRecaudoClientes,
+} from "./recaudoClientes.controller.js";
+
 const router = Router();
 
 /* =========================================================
@@ -43,6 +55,33 @@ router.get(
 router.get(
   "/manzanas-lotes",
   obtenerReporteManzanasLotes
+);
+
+/* =========================================================
+   INFORME DE VENTAS POR VENDEDOR
+========================================================= */
+
+router.get(
+  "/ventas-vendedor",
+  obtenerReporteVentasVendedor
+);
+
+/* =========================================================
+   INFORME DE CARTERA POR CLIENTE
+========================================================= */
+
+router.get(
+  "/cartera-clientes",
+  obtenerReporteCarteraClientes
+);
+
+/* =========================================================
+   INFORME DE RECAUDO POR CLIENTE
+========================================================= */
+
+router.get(
+  "/recaudo-clientes",
+  obtenerReporteRecaudoClientes
 );
 
 /* =========================================================

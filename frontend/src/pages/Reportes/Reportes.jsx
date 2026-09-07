@@ -28,6 +28,12 @@ import ReporteComisiones
 import ManzanasLotes
   from "./ManzanasLotes/ManzanasLotes";
 
+import VentasVendedor
+  from "./VentasVendedor/VentasVendedor";
+
+import CarteraClientes
+  from "./CarteraClientes/CarteraClientes";
+
 import "./Reportes.css";
 
 /* =========================================================
@@ -109,7 +115,7 @@ const INFORMES = [
       UserRoundCheck,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Ventas",
@@ -129,7 +135,7 @@ const INFORMES = [
       WalletCards,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Cartera",
@@ -238,8 +244,6 @@ const INFORMES = [
 
 /* =========================================================
    COMPONENTES DISPONIBLES
-
-   Cada informe tendrá su propio componente.
 ========================================================= */
 
 const COMPONENTES_INFORMES = {
@@ -251,6 +255,12 @@ const COMPONENTES_INFORMES = {
 
   "manzanas-lotes":
     ManzanasLotes,
+
+  "ventas-vendedor":
+    VentasVendedor,
+
+  "cartera-clientes":
+    CarteraClientes,
 };
 
 /* =========================================================
@@ -502,6 +512,7 @@ export default function Reportes() {
                       size={15}
                     />
                   )}
+
                 </button>
 
               </article>

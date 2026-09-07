@@ -1,0 +1,1157 @@
+/* =========================================================
+   INFORME VENTAS POR VENDEDOR
+   LOTES VILLA MARÍA
+========================================================= */
+
+.ventas-vendedor-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.ventas-vendedor-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.ventas-vendedor-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.ventas-vendedor-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.ventas-vendedor-back:hover {
+  transform: translateY(-1px);
+
+  background: #f5f2e9;
+}
+
+.ventas-vendedor-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.ventas-vendedor-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.ventas-vendedor-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.ventas-vendedor-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.ventas-vendedor-refresh:hover {
+  background: #1e4d37;
+}
+
+.ventas-vendedor-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS DE RESUMEN
+========================================================= */
+
+.ventas-vendedor-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.ventas-vendedor-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.ventas-vendedor-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #e8f0ea;
+
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.ventas-vendedor-stat i.azul {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.ventas-vendedor-stat i.verde {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.ventas-vendedor-stat i.dorado {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.ventas-vendedor-stat > div {
+  min-width: 0;
+}
+
+.ventas-vendedor-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.ventas-vendedor-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.ventas-vendedor-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.ventas-vendedor-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.ventas-vendedor-stat .texto-dorado {
+  color: #8a6827;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.ventas-vendedor-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(145px, 0.65fr)
+    minmax(145px, 0.65fr)
+    minmax(190px, 0.85fr)
+    minmax(150px, 0.65fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.ventas-vendedor-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.ventas-vendedor-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.ventas-vendedor-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.ventas-vendedor-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ventas-vendedor-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.ventas-vendedor-field select,
+.ventas-vendedor-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.ventas-vendedor-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.ventas-vendedor-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.ventas-vendedor-date input {
+  padding-left: 31px;
+}
+
+.ventas-vendedor-search input:focus,
+.ventas-vendedor-field select:focus,
+.ventas-vendedor-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTROS
+========================================================= */
+
+.ventas-vendedor-aplicar,
+.ventas-vendedor-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.ventas-vendedor-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.ventas-vendedor-aplicar:hover {
+  background: #1e4d37;
+}
+
+.ventas-vendedor-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.ventas-vendedor-limpiar:hover {
+  background: #eeeae0;
+}
+
+.ventas-vendedor-aplicar:disabled,
+.ventas-vendedor-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.ventas-vendedor-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.ventas-vendedor-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.ventas-vendedor-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.ventas-vendedor-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.ventas-vendedor-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background: rgba(
+    0,
+    0,
+    0,
+    0.06
+  );
+
+  font-size: 8px;
+}
+
+.ventas-vendedor-vistas button.active span {
+  background: rgba(
+    255,
+    255,
+    255,
+    0.15
+  );
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.ventas-vendedor-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.ventas-vendedor-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.ventas-vendedor-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.ventas-vendedor-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.ventas-vendedor-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.ventas-vendedor-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.ventas-vendedor-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ventas-vendedor-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.ventas-vendedor-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.ventas-vendedor-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.ventas-vendedor-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.ventas-vendedor-error span {
+  flex: 1;
+}
+
+.ventas-vendedor-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.ventas-vendedor-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.ventas-vendedor-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.ventas-vendedor-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.ventas-vendedor-table.vendedores {
+  min-width: 1450px;
+}
+
+.ventas-vendedor-table.detalle {
+  min-width: 2050px;
+}
+
+.ventas-vendedor-table thead {
+  background: #173d2b;
+}
+
+.ventas-vendedor-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(255, 255, 255, 0.08);
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.ventas-vendedor-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.ventas-vendedor-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.ventas-vendedor-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGO
+========================================================= */
+
+.ventas-vendedor-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   PERSONA / VENDEDOR
+========================================================= */
+
+.ventas-vendedor-persona {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 145px;
+}
+
+.ventas-vendedor-persona strong {
+  color: #344139;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.ventas-vendedor-persona span {
+  color: #9b7a36;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.ventas-vendedor-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.ventas-vendedor-money.pendiente {
+  color: #8a6827;
+}
+
+.ventas-vendedor-money.comision {
+  color: #9b762c;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.ventas-vendedor-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 28px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.ventas-vendedor-contador.activa {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.ventas-vendedor-contador.pagada {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   ESTADOS
+========================================================= */
+
+.ventas-vendedor-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.ventas-vendedor-estado.activa {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.ventas-vendedor-estado.pagada {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.ventas-vendedor-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   LOADING
+========================================================= */
+
+.ventas-vendedor-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.ventas-vendedor-loading svg {
+  color: #315f46;
+}
+
+.ventas-vendedor-spin {
+  animation:
+    ventas-vendedor-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes ventas-vendedor-spin {
+  to {
+    transform: rotate(
+      360deg
+    );
+  }
+}
+
+/* =========================================================
+   FOOTER TABLA
+========================================================= */
+
+.ventas-vendedor-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.ventas-vendedor-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ventas-vendedor-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.ventas-vendedor-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.ventas-vendedor-pagination button:hover:not(:disabled) {
+  background: #f4f1e8;
+}
+
+.ventas-vendedor-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.ventas-vendedor-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.ventas-vendedor-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.ventas-vendedor-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.ventas-vendedor-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (
+  max-width: 1300px
+) {
+  .ventas-vendedor-filtros {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
+  }
+
+  .ventas-vendedor-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (
+  max-width: 1100px
+) {
+  .ventas-vendedor-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .ventas-vendedor-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .ventas-vendedor-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (
+  max-width: 800px
+) {
+  .ventas-vendedor-header {
+    flex-direction: column;
+  }
+
+  .ventas-vendedor-refresh {
+    width: 100%;
+  }
+
+  .ventas-vendedor-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ventas-vendedor-vistas button {
+    justify-content: space-between;
+  }
+
+  .ventas-vendedor-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ventas-vendedor-export-buttons {
+    width: 100%;
+  }
+
+  .ventas-vendedor-export-buttons button {
+    flex: 1;
+  }
+
+  .ventas-vendedor-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ventas-vendedor-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (
+  max-width: 600px
+) {
+  .ventas-vendedor-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .ventas-vendedor-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .ventas-vendedor-search {
+    grid-column:
+      auto;
+  }
+
+  .ventas-vendedor-export-buttons {
+    flex-direction: column;
+  }
+
+  .ventas-vendedor-export-buttons button {
+    width: 100%;
+  }
+
+  .ventas-vendedor-header h1 {
+    font-size: 24px;
+  }
+}
