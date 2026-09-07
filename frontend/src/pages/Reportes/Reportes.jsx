@@ -34,6 +34,9 @@ import VentasVendedor
 import CarteraClientes
   from "./CarteraClientes/CarteraClientes";
 
+import RecaudoClientes
+  from "./RecaudoClientes/RecaudoClientes";
+
 import "./Reportes.css";
 
 /* =========================================================
@@ -155,7 +158,7 @@ const INFORMES = [
       ReceiptText,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Pagos",
@@ -261,6 +264,9 @@ const COMPONENTES_INFORMES = {
 
   "cartera-clientes":
     CarteraClientes,
+
+  "recaudo-clientes":
+    RecaudoClientes,
 };
 
 /* =========================================================
