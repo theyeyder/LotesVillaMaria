@@ -149,21 +149,54 @@ const obtenerCodigoManzana = (
 };
 
 /* =========================================================
-   ÁREA DEL LOTE
+   FORMATEAR MEDIDA DEL LOTE
+========================================================= */
 
-   Se dejan varias alternativas para soportar registros
-   antiguos.
+const obtenerMedidaLote = (
+  metros = 0,
+  centimetros = 0
+) => {
+  const m =
+    numero(
+      metros
+    );
+
+  const cm =
+    numero(
+      centimetros
+    );
+
+  if (
+    m === 0 &&
+    cm === 0
+  ) {
+    return "—";
+  }
+
+  if (
+    cm === 0
+  ) {
+    return `${m} m`;
+  }
+
+  if (
+    m === 0
+  ) {
+    return `${cm} cm`;
+  }
+
+  return `${m} m ${cm} cm`;
+};
+
+/* =========================================================
+   ÁREA OFICIAL DEL LOTE
 ========================================================= */
 
 const obtenerAreaLote = (
   lote
 ) => {
   return numero(
-    lote?.area ??
-      lote?.metros ??
-      lote?.metrosCuadrados ??
-      lote?.areaTotal ??
-      0
+    lote?.areaM2
   );
 };
 
@@ -650,8 +683,20 @@ export const obtenerClientesLotesVendidos =
 
                 tipo:
                   lote
-                    ?.tipo ||
+                    ?.tipoLote ||
                   "",
+
+                frente:
+                  obtenerMedidaLote(
+                    lote?.frenteMetros,
+                    lote?.frenteCentimetros
+                  ),
+
+                fondo:
+                  obtenerMedidaLote(
+                    lote?.fondoMetros,
+                    lote?.fondoCentimetros
+                  ),
 
                 area:
                   obtenerAreaLote(

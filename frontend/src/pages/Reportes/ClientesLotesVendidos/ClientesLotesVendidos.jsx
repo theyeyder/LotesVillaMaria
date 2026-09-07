@@ -707,15 +707,37 @@ export default function ClientesLotesVendidos({
 
     {
       titulo:
+        "Frente",
+      clave:
+        "frente",
+      ancho:
+        14,
+      anchoPDF:
+        15,
+    },
+
+    {
+      titulo:
+        "Fondo",
+      clave:
+        "fondo",
+      ancho:
+        14,
+      anchoPDF:
+        15,
+    },
+
+    {
+      titulo:
         "Área m²",
       clave:
         "area",
       tipo:
         "numero",
       ancho:
-        12,
+        14,
       anchoPDF:
-        13,
+        15,
     },
 
     {
@@ -874,6 +896,16 @@ export default function ClientesLotesVendidos({
             lote:
               registro.lote
                 ?.codigo ||
+              "—",
+
+            frente:
+              registro.lote
+                ?.frente ||
+              "—",
+
+            fondo:
+              registro.lote
+                ?.fondo ||
               "—",
 
             area:
@@ -1930,7 +1962,15 @@ export default function ClientesLotesVendidos({
                     </th>
 
                     <th>
-                      Área
+                      Frente
+                    </th>
+
+                    <th>
+                      Fondo
+                    </th>
+
+                    <th>
+                      Área m²
                     </th>
 
                     <th>
@@ -1979,7 +2019,7 @@ export default function ClientesLotesVendidos({
                     <tr>
 
                       <td
-                        colSpan={17}
+                        colSpan={19}
                         className="clientes-lotes-empty"
                       >
                         No hay ventas que coincidan con los filtros seleccionados.
@@ -2055,9 +2095,22 @@ export default function ClientesLotesVendidos({
                           </td>
 
                           <td>
+                            {registro.lote
+                              ?.frente ||
+                              "—"}
+                          </td>
+
+                          <td>
+                            {registro.lote
+                              ?.fondo ||
+                              "—"}
+                          </td>
+
+                          <td>
                             {formatearNumero(
                               registro.lote
-                                ?.area
+                                ?.area,
+                              2
                             )}{" "}
                             m²
                           </td>

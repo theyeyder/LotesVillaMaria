@@ -624,7 +624,7 @@
 
 .clientes-lotes-table {
   width: 100%;
-  min-width: 2100px;
+  min-width: 2350px;
 
   border-collapse: collapse;
 }
@@ -674,6 +674,32 @@
 
 .clientes-lotes-table tbody tr:hover {
   background: #f7f4ea;
+}
+
+/* =========================================================
+   MEDIDAS DEL LOTE
+   FRENTE / FONDO / ÁREA
+========================================================= */
+
+.clientes-lotes-table th:nth-child(8),
+.clientes-lotes-table th:nth-child(9),
+.clientes-lotes-table th:nth-child(10),
+.clientes-lotes-table td:nth-child(8),
+.clientes-lotes-table td:nth-child(9),
+.clientes-lotes-table td:nth-child(10) {
+  white-space: nowrap;
+}
+
+.clientes-lotes-table th:nth-child(8),
+.clientes-lotes-table th:nth-child(9),
+.clientes-lotes-table td:nth-child(8),
+.clientes-lotes-table td:nth-child(9) {
+  min-width: 82px;
+}
+
+.clientes-lotes-table th:nth-child(10),
+.clientes-lotes-table td:nth-child(10) {
+  min-width: 90px;
 }
 
 /* =========================================================
