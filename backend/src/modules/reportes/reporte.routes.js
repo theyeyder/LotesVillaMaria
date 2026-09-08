@@ -32,6 +32,18 @@ import {
   obtenerReporteLotesDisponibles,
 } from "./lotesDisponibles.controller.js";
 
+import {
+  obtenerReporteEgresos,
+} from "./egresosReporte.controller.js";
+
+import {
+  obtenerReporteMaquinaria,
+} from "./maquinariaReporte.controller.js";
+
+import {
+  obtenerResumenFinanciero,
+} from "./resumenFinanciero.controller.js";
+
 const router = Router();
 
 /* =========================================================
@@ -95,6 +107,33 @@ router.get(
 router.get(
   "/lotes-disponibles",
   obtenerReporteLotesDisponibles
+);
+
+/* =========================================================
+   INFORME DE EGRESOS
+========================================================= */
+
+router.get(
+  "/egresos",
+  obtenerReporteEgresos
+);
+
+/* =========================================================
+   INFORME DE MAQUINARIA
+========================================================= */
+
+router.get(
+  "/maquinaria",
+  obtenerReporteMaquinaria
+);
+
+/* =========================================================
+   RESUMEN FINANCIERO
+========================================================= */
+
+router.get(
+  "/resumen-financiero",
+  obtenerResumenFinanciero
 );
 
 /* =========================================================

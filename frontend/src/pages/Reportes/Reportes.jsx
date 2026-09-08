@@ -37,6 +37,15 @@ import CarteraClientes
 import RecaudoClientes
   from "./RecaudoClientes/RecaudoClientes";
 
+import LotesDisponibles
+  from "./LotesDisponibles/LotesDisponibles";
+
+import ReporteEgresos
+  from "./Egresos/ReporteEgresos";
+
+import ReporteMaquinaria
+  from "./Maquinaria/ReporteMaquinaria";
+
 import "./Reportes.css";
 
 /* =========================================================
@@ -178,7 +187,7 @@ const INFORMES = [
       Map,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Inventario",
@@ -198,7 +207,7 @@ const INFORMES = [
       ArrowDownCircle,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Tesorería",
@@ -218,7 +227,7 @@ const INFORMES = [
       Tractor,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Operación",
@@ -267,6 +276,15 @@ const COMPONENTES_INFORMES = {
 
   "recaudo-clientes":
     RecaudoClientes,
+
+  "lotes-disponibles":
+    LotesDisponibles,
+
+  "egresos":
+    ReporteEgresos,
+
+  "maquinaria":
+    ReporteMaquinaria,
 };
 
 /* =========================================================

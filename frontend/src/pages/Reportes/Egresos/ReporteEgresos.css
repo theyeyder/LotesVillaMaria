@@ -1,0 +1,1302 @@
+/* =========================================================
+   INFORME DE EGRESOS
+   LOTES VILLA MARÍA
+========================================================= */
+
+.reporte-egresos {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.reporte-egresos-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.reporte-egresos-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.reporte-egresos-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.reporte-egresos-back:hover {
+  transform: translateY(-1px);
+  background: #f5f2e9;
+}
+
+.reporte-egresos-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.reporte-egresos-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.reporte-egresos-header p {
+  max-width: 780px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.reporte-egresos-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.reporte-egresos-refresh:hover {
+  background: #1e4d37;
+}
+
+.reporte-egresos-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS RESUMEN
+========================================================= */
+
+.reporte-egresos-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.reporte-egresos-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.reporte-egresos-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #eef0e9;
+
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.reporte-egresos-stat i.azul {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.reporte-egresos-stat i.verde {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.reporte-egresos-stat i.dorado {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.reporte-egresos-stat i.rojo {
+  background: #f9e7e4;
+  color: #a33f35;
+}
+
+.reporte-egresos-stat > div {
+  min-width: 0;
+}
+
+.reporte-egresos-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.reporte-egresos-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.reporte-egresos-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.reporte-egresos-stat .texto-rojo {
+  color: #a33f35;
+}
+
+.reporte-egresos-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.reporte-egresos-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(250px, 1.5fr)
+    minmax(145px, 0.65fr)
+    minmax(145px, 0.65fr)
+    minmax(180px, 0.8fr)
+    minmax(155px, 0.7fr)
+    minmax(170px, 0.75fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.reporte-egresos-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.reporte-egresos-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.reporte-egresos-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.reporte-egresos-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.reporte-egresos-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.reporte-egresos-field select,
+.reporte-egresos-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.reporte-egresos-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.reporte-egresos-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.reporte-egresos-date input {
+  padding-left: 31px;
+}
+
+.reporte-egresos-search input:focus,
+.reporte-egresos-field select:focus,
+.reporte-egresos-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTRO
+========================================================= */
+
+.reporte-egresos-aplicar,
+.reporte-egresos-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.reporte-egresos-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.reporte-egresos-aplicar:hover {
+  background: #1e4d37;
+}
+
+.reporte-egresos-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.reporte-egresos-limpiar:hover {
+  background: #eeeae0;
+}
+
+.reporte-egresos-aplicar:disabled,
+.reporte-egresos-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.reporte-egresos-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.reporte-egresos-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.reporte-egresos-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.reporte-egresos-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.reporte-egresos-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+  font-size: 8px;
+}
+
+.reporte-egresos-vistas button.active span {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.15
+    );
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.reporte-egresos-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.reporte-egresos-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.reporte-egresos-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.reporte-egresos-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.reporte-egresos-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.reporte-egresos-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.reporte-egresos-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.reporte-egresos-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.reporte-egresos-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.reporte-egresos-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.reporte-egresos-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.reporte-egresos-error span {
+  flex: 1;
+}
+
+.reporte-egresos-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.reporte-egresos-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.reporte-egresos-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.reporte-egresos-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.reporte-egresos-table.tipos {
+  min-width: 1100px;
+}
+
+.reporte-egresos-table.detalle {
+  min-width: 2200px;
+}
+
+.reporte-egresos-table thead {
+  background: #173d2b;
+}
+
+.reporte-egresos-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.reporte-egresos-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.reporte-egresos-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.reporte-egresos-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   CÓDIGO EGRESO
+========================================================= */
+
+.reporte-egresos-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TIPO DE EGRESO
+========================================================= */
+
+.reporte-egresos-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-egresos-tipo.comision {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.reporte-egresos-tipo.horasmaquinaria {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.reporte-egresos-tipo.otro {
+  background: #edf1ed;
+
+  color: #57645c;
+}
+
+/* =========================================================
+   MOVIMIENTO
+========================================================= */
+
+.reporte-egresos-movimiento {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-egresos-movimiento.abono {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.reporte-egresos-movimiento.pago {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   BENEFICIARIO
+========================================================= */
+
+.reporte-egresos-beneficiario {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 150px;
+}
+
+.reporte-egresos-beneficiario strong {
+  color: #344139;
+
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.reporte-egresos-beneficiario span {
+  color: #9a7a36;
+
+  font-size: 7.5px;
+  font-weight: 750;
+}
+
+/* =========================================================
+   CONCEPTO
+========================================================= */
+
+.reporte-egresos-concepto {
+  display: block;
+
+  min-width: 180px;
+  max-width: 280px;
+
+  color: #5f6962;
+
+  line-height: 1.4;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.reporte-egresos-money {
+  color: #59645d;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.reporte-egresos-money.principal {
+  color: #a33f35;
+
+  font-size: 9.5px;
+}
+
+.reporte-egresos-money.saldo {
+  color: #8a6827;
+}
+
+.reporte-egresos-money.abono {
+  color: #8a6827;
+}
+
+.reporte-egresos-money.pago {
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   FORMA DE PAGO
+========================================================= */
+
+.reporte-egresos-forma {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  background: #eaf1ec;
+
+  color: #315e45;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   ORIGEN
+========================================================= */
+
+.reporte-egresos-origen {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 140px;
+}
+
+.reporte-egresos-origen strong {
+  color: #344139;
+
+  font-size: 8.5px;
+  font-weight: 800;
+}
+
+.reporte-egresos-origen span {
+  color: #8c948f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   TIPO - RESUMEN
+========================================================= */
+
+.reporte-egresos-tipo-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 150px;
+}
+
+.reporte-egresos-tipo-info strong {
+  color: #173d2b;
+
+  font-size: 9.5px;
+  font-weight: 850;
+}
+
+.reporte-egresos-tipo-info span {
+  color: #8c948f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.reporte-egresos-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 29px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.reporte-egresos-contador.principal {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.reporte-egresos-contador.abono {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+.reporte-egresos-contador.pago {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.reporte-egresos-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.reporte-egresos-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.reporte-egresos-loading svg {
+  color: #315f46;
+}
+
+.reporte-egresos-spin {
+  animation:
+    reporte-egresos-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes reporte-egresos-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER TABLA
+========================================================= */
+
+.reporte-egresos-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.reporte-egresos-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.reporte-egresos-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.reporte-egresos-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.reporte-egresos-pagination button:hover:not(:disabled) {
+  background: #f4f1e8;
+}
+
+.reporte-egresos-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.reporte-egresos-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.reporte-egresos-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.reporte-egresos-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.reporte-egresos-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1450px) {
+  .reporte-egresos-filtros {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-egresos-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (max-width: 1100px) {
+  .reporte-egresos-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-egresos-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .reporte-egresos-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (max-width: 800px) {
+  .reporte-egresos-header {
+    flex-direction: column;
+  }
+
+  .reporte-egresos-refresh {
+    width: 100%;
+  }
+
+  .reporte-egresos-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-egresos-vistas button {
+    justify-content: space-between;
+  }
+
+  .reporte-egresos-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-egresos-export-buttons {
+    width: 100%;
+  }
+
+  .reporte-egresos-export-buttons button {
+    flex: 1;
+  }
+
+  .reporte-egresos-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reporte-egresos-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .reporte-egresos-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte-egresos-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .reporte-egresos-search {
+    grid-column:
+      auto;
+  }
+
+  .reporte-egresos-export-buttons {
+    flex-direction: column;
+  }
+
+  .reporte-egresos-export-buttons button {
+    width: 100%;
+  }
+
+  .reporte-egresos-header h1 {
+    font-size: 24px;
+  }
+}
