@@ -1,0 +1,1189 @@
+/* =========================================================
+   RESUMEN FINANCIERO
+   LOTES VILLA MARÍA
+========================================================= */
+
+.resumen-financiero {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.resumen-financiero-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.resumen-financiero-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.resumen-financiero-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.resumen-financiero-back:hover {
+  transform: translateY(-1px);
+  background: #f5f2e9;
+}
+
+.resumen-financiero-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.resumen-financiero-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.resumen-financiero-header p {
+  max-width: 780px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.resumen-financiero-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.resumen-financiero-refresh:hover {
+  background: #1e4d37;
+}
+
+.resumen-financiero-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   NOTA
+========================================================= */
+
+.resumen-financiero-nota {
+  padding: 11px 14px;
+
+  border: 1px solid #dfd4ad;
+  border-radius: 11px;
+
+  background: #fbf7e9;
+
+  color: #776335;
+
+  font-size: 9px;
+  line-height: 1.5;
+}
+
+/* =========================================================
+   TARJETAS PRINCIPALES
+========================================================= */
+
+.resumen-financiero-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.resumen-financiero-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.resumen-financiero-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #eef0e9;
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.resumen-financiero-stat i.azul {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.resumen-financiero-stat i.verde {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.resumen-financiero-stat i.dorado {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.resumen-financiero-stat i.rojo {
+  background: #f9e7e4;
+  color: #a33f35;
+}
+
+.resumen-financiero-stat > div {
+  min-width: 0;
+}
+
+.resumen-financiero-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.resumen-financiero-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.resumen-financiero-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.resumen-financiero-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+.resumen-financiero-stat .texto-rojo {
+  color: #a33f35;
+}
+
+/* =========================================================
+   DETALLES SECUNDARIOS
+========================================================= */
+
+.resumen-financiero-detalles {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 10px;
+}
+
+.resumen-financiero-detalles article {
+  padding: 13px 14px;
+
+  border: 1px solid #e5e1d7;
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff,
+      #faf8f2
+    );
+}
+
+.resumen-financiero-detalles article span {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #737d76;
+
+  font-size: 8.5px;
+  font-weight: 750;
+}
+
+.resumen-financiero-detalles article strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+
+  overflow-wrap: anywhere;
+}
+
+.resumen-financiero-detalles article small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.resumen-financiero-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(170px, 0.7fr)
+    minmax(170px, 0.7fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+.resumen-financiero-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.resumen-financiero-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.resumen-financiero-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.resumen-financiero-date {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.resumen-financiero-date > svg {
+  position: absolute;
+
+  left: 10px;
+
+  color: #9b823e;
+
+  pointer-events: none;
+}
+
+.resumen-financiero-date input {
+  padding-left: 31px;
+}
+
+.resumen-financiero-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTRO
+========================================================= */
+
+.resumen-financiero-aplicar,
+.resumen-financiero-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 14px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.resumen-financiero-aplicar {
+  border: none;
+
+  background: #173d2b;
+  color: #ffffff;
+}
+
+.resumen-financiero-aplicar:hover {
+  background: #1e4d37;
+}
+
+.resumen-financiero-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+  color: #626b65;
+}
+
+.resumen-financiero-limpiar:hover {
+  background: #eeeae0;
+}
+
+.resumen-financiero-aplicar:disabled,
+.resumen-financiero-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.resumen-financiero-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.resumen-financiero-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.resumen-financiero-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.resumen-financiero-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+  color: #ffffff;
+}
+
+.resumen-financiero-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+  font-size: 8px;
+}
+
+.resumen-financiero-vistas button.active span {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.15
+    );
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.resumen-financiero-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.resumen-financiero-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.resumen-financiero-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.resumen-financiero-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.resumen-financiero-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.resumen-financiero-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.resumen-financiero-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.resumen-financiero-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+  color: #a33f35;
+}
+
+.resumen-financiero-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.resumen-financiero-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.resumen-financiero-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.resumen-financiero-error span {
+  flex: 1;
+}
+
+.resumen-financiero-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.resumen-financiero-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.resumen-financiero-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.resumen-financiero-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.resumen-financiero-table.periodos {
+  min-width: 1300px;
+}
+
+.resumen-financiero-table.egresos {
+  min-width: 800px;
+}
+
+.resumen-financiero-table thead {
+  background: #173d2b;
+}
+
+.resumen-financiero-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.resumen-financiero-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.resumen-financiero-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.resumen-financiero-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   PERIODO
+========================================================= */
+
+.resumen-financiero-periodo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   TIPO EGRESO
+========================================================= */
+
+.resumen-financiero-tipo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.resumen-financiero-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 29px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.resumen-financiero-contador.pago {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.resumen-financiero-contador.egreso {
+  background: #f9e7e4;
+  color: #a33f35;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.resumen-financiero-money {
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.resumen-financiero-money.venta {
+  color: #8a6827;
+}
+
+.resumen-financiero-money.recaudo {
+  color: #2f6b4a;
+}
+
+.resumen-financiero-money.egreso {
+  color: #a33f35;
+}
+
+/* =========================================================
+   FLUJO NETO
+========================================================= */
+
+.resumen-financiero-flujo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8.5px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.resumen-financiero-flujo.positivo {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.resumen-financiero-flujo.negativo {
+  background: #f9e7e4;
+  color: #a33f35;
+}
+
+/* =========================================================
+   PARTICIPACIÓN EGRESOS
+========================================================= */
+
+.resumen-financiero-participacion {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+
+  min-width: 180px;
+}
+
+.resumen-financiero-participacion strong {
+  color: #59645d;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.resumen-financiero-participacion > div {
+  width: 100%;
+  height: 7px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #eeeae0;
+}
+
+.resumen-financiero-participacion > div > span {
+  display: block;
+
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #b58d3d,
+      #d1ad61
+    );
+
+  transition:
+    width 0.3s ease;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.resumen-financiero-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.resumen-financiero-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.resumen-financiero-loading svg {
+  color: #315f46;
+}
+
+.resumen-financiero-spin {
+  animation:
+    resumen-financiero-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes resumen-financiero-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.resumen-financiero-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.resumen-financiero-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resumen-financiero-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.resumen-financiero-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.resumen-financiero-pagination button:hover:not(:disabled) {
+  background: #f4f1e8;
+}
+
+.resumen-financiero-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.resumen-financiero-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.resumen-financiero-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.resumen-financiero-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.resumen-financiero-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1200px) {
+  .resumen-financiero-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .resumen-financiero-detalles {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+}
+
+@media (max-width: 900px) {
+  .resumen-financiero-header {
+    flex-direction: column;
+  }
+
+  .resumen-financiero-refresh {
+    width: 100%;
+  }
+
+  .resumen-financiero-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .resumen-financiero-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resumen-financiero-vistas button {
+    justify-content: space-between;
+  }
+
+  .resumen-financiero-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resumen-financiero-export-buttons {
+    width: 100%;
+  }
+
+  .resumen-financiero-export-buttons button {
+    flex: 1;
+  }
+
+  .resumen-financiero-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .resumen-financiero-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .resumen-financiero-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .resumen-financiero-detalles {
+    grid-template-columns:
+      1fr;
+  }
+
+  .resumen-financiero-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .resumen-financiero-export-buttons {
+    flex-direction: column;
+  }
+
+  .resumen-financiero-export-buttons button {
+    width: 100%;
+  }
+
+  .resumen-financiero-header h1 {
+    font-size: 24px;
+  }
+}

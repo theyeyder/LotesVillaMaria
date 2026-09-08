@@ -46,6 +46,9 @@ import ReporteEgresos
 import ReporteMaquinaria
   from "./Maquinaria/ReporteMaquinaria";
 
+import ResumenFinanciero
+  from "./ResumenFinanciero/ResumenFinanciero";
+
 import "./Reportes.css";
 
 /* =========================================================
@@ -247,7 +250,7 @@ const INFORMES = [
       BarChart3,
 
     disponible:
-      false,
+      true,
 
     categoria:
       "Financiero",
@@ -285,6 +288,9 @@ const COMPONENTES_INFORMES = {
 
   "maquinaria":
     ReporteMaquinaria,
+
+  "resumen-financiero":
+    ResumenFinanciero,
 };
 
 /* =========================================================
@@ -296,10 +302,6 @@ export default function Reportes() {
     informeActivo,
     setInformeActivo,
   ] = useState(null);
-
-  /* =======================================================
-     ABRIR INFORME
-  ======================================================= */
 
   const abrirInforme = (
     informe
@@ -314,10 +316,6 @@ export default function Reportes() {
       informe.id
     );
   };
-
-  /* =======================================================
-     INFORME ACTIVO
-  ======================================================= */
 
   if (
     informeActivo
@@ -342,16 +340,8 @@ export default function Reportes() {
     }
   }
 
-  /* =======================================================
-     MENÚ PRINCIPAL
-  ======================================================= */
-
   return (
     <div className="reportes-home">
-
-      {/* ===================================================
-          HEADER
-      =================================================== */}
 
       <header className="reportes-home-header">
 
@@ -406,10 +396,6 @@ export default function Reportes() {
 
       </header>
 
-      {/* ===================================================
-          INFORMACIÓN
-      =================================================== */}
-
       <section className="reportes-home-info">
 
         <div>
@@ -454,10 +440,6 @@ export default function Reportes() {
         </div>
 
       </section>
-
-      {/* ===================================================
-          GRID DE INFORMES
-      =================================================== */}
 
       <section className="reportes-home-grid">
 
