@@ -28,6 +28,10 @@ import {
   obtenerReporteRecaudoClientes,
 } from "./recaudoClientes.controller.js";
 
+import {
+  obtenerReporteLotesDisponibles,
+} from "./lotesDisponibles.controller.js";
+
 const router = Router();
 
 /* =========================================================
@@ -82,6 +86,15 @@ router.get(
 router.get(
   "/recaudo-clientes",
   obtenerReporteRecaudoClientes
+);
+
+/* =========================================================
+   INFORME DE LOTES DISPONIBLES
+========================================================= */
+
+router.get(
+  "/lotes-disponibles",
+  obtenerReporteLotesDisponibles
 );
 
 /* =========================================================

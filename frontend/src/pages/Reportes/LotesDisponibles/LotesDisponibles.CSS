@@ -1,0 +1,1186 @@
+/* =========================================================
+   INFORME LOTES DISPONIBLES
+   LOTES VILLA MARÍA
+========================================================= */
+
+.lotes-disponibles-reporte {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  width: 100%;
+  min-width: 0;
+}
+
+/* =========================================================
+   HEADER
+========================================================= */
+
+.lotes-disponibles-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.lotes-disponibles-header-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+
+  min-width: 0;
+}
+
+.lotes-disponibles-back {
+  display: grid;
+  place-items: center;
+
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 10px;
+
+  background: #ffffff;
+
+  color: #173d2b;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease,
+    background 0.16s ease;
+}
+
+.lotes-disponibles-back:hover {
+  transform: translateY(-1px);
+  background: #f5f2e9;
+}
+
+.lotes-disponibles-kicker {
+  display: inline-block;
+
+  margin-bottom: 5px;
+
+  color: #b58d3d;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.lotes-disponibles-header h1 {
+  margin: 0;
+
+  color: #173d2b;
+
+  font-size: 29px;
+  font-weight: 850;
+
+  line-height: 1.15;
+}
+
+.lotes-disponibles-header p {
+  max-width: 760px;
+
+  margin: 7px 0 0;
+
+  color: #68736c;
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.lotes-disponibles-refresh {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 41px;
+
+  padding: 0 14px;
+
+  flex-shrink: 0;
+
+  border: none;
+  border-radius: 10px;
+
+  background: #173d2b;
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 16px
+    rgba(23, 61, 43, 0.15);
+}
+
+.lotes-disponibles-refresh:hover {
+  background: #1e4d37;
+}
+
+.lotes-disponibles-refresh:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   TARJETAS RESUMEN
+========================================================= */
+
+.lotes-disponibles-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      3,
+      minmax(0, 1fr)
+    );
+
+  gap: 12px;
+}
+
+.lotes-disponibles-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  min-width: 0;
+
+  padding: 15px;
+
+  border: 1px solid #e4e0d5;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 7px 21px
+    rgba(44, 57, 49, 0.045);
+}
+
+.lotes-disponibles-stat i {
+  display: grid;
+  place-items: center;
+
+  width: 42px;
+  height: 42px;
+
+  flex-shrink: 0;
+
+  border-radius: 12px;
+
+  background: #eef0e9;
+
+  color: #315f46;
+
+  font-style: normal;
+}
+
+.lotes-disponibles-stat i.azul {
+  background: #e8f1f5;
+  color: #426b82;
+}
+
+.lotes-disponibles-stat i.verde {
+  background: #e7f2ea;
+  color: #2f6b4a;
+}
+
+.lotes-disponibles-stat i.dorado {
+  background: #f5edd8;
+  color: #8a6827;
+}
+
+.lotes-disponibles-stat > div {
+  min-width: 0;
+}
+
+.lotes-disponibles-stat span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #737d76;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.lotes-disponibles-stat strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 16px;
+  font-weight: 850;
+
+  line-height: 1.2;
+
+  overflow-wrap: anywhere;
+}
+
+.lotes-disponibles-stat small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #929a95;
+
+  font-size: 8px;
+}
+
+.lotes-disponibles-stat .texto-verde {
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   FILTROS
+========================================================= */
+
+.lotes-disponibles-filtros {
+  display: grid;
+
+  grid-template-columns:
+    minmax(240px, 1.45fr)
+    minmax(160px, 0.8fr)
+    minmax(130px, 0.6fr)
+    minmax(125px, 0.55fr)
+    minmax(125px, 0.55fr)
+    minmax(145px, 0.7fr)
+    minmax(145px, 0.7fr)
+    auto
+    auto;
+
+  gap: 9px;
+
+  align-items: end;
+
+  padding: 14px;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 6px 20px
+    rgba(44, 57, 49, 0.04);
+}
+
+/* =========================================================
+   BUSCADOR
+========================================================= */
+
+.lotes-disponibles-search {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+}
+
+.lotes-disponibles-search > svg {
+  position: absolute;
+
+  left: 12px;
+
+  color: #8d958f;
+
+  pointer-events: none;
+}
+
+.lotes-disponibles-search input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 12px 0 38px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 11px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CAMPOS
+========================================================= */
+
+.lotes-disponibles-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.lotes-disponibles-field > span {
+  color: #606b64;
+
+  font-size: 9px;
+  font-weight: 750;
+}
+
+.lotes-disponibles-field select,
+.lotes-disponibles-field input {
+  width: 100%;
+  height: 41px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd9ce;
+  border-radius: 9px;
+
+  background: #faf9f5;
+
+  color: #29372e;
+
+  font-size: 10px;
+
+  outline: none;
+
+  box-sizing: border-box;
+}
+
+.lotes-disponibles-search input:focus,
+.lotes-disponibles-field select:focus,
+.lotes-disponibles-field input:focus {
+  border-color: #b99a54;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(185, 154, 84, 0.1);
+}
+
+/* =========================================================
+   BOTONES FILTROS
+========================================================= */
+
+.lotes-disponibles-aplicar,
+.lotes-disponibles-limpiar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  height: 41px;
+
+  padding: 0 13px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+.lotes-disponibles-aplicar {
+  border: none;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.lotes-disponibles-aplicar:hover {
+  background: #1e4d37;
+}
+
+.lotes-disponibles-limpiar {
+  border: 1px solid #ddd9ce;
+
+  background: #f6f4ee;
+
+  color: #626b65;
+}
+
+.lotes-disponibles-limpiar:hover {
+  background: #eeeae0;
+}
+
+.lotes-disponibles-aplicar:disabled,
+.lotes-disponibles-limpiar:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   VISTAS
+========================================================= */
+
+.lotes-disponibles-vistas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px;
+
+  border: 1px solid #e3dfd4;
+  border-radius: 13px;
+
+  background: #ffffff;
+}
+
+.lotes-disponibles-vistas button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border: 1px solid transparent;
+  border-radius: 9px;
+
+  background: transparent;
+
+  color: #6f7872;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    background 0.16s ease,
+    color 0.16s ease,
+    border-color 0.16s ease;
+}
+
+.lotes-disponibles-vistas button:hover {
+  background: #f6f3eb;
+}
+
+.lotes-disponibles-vistas button.active {
+  border-color: #173d2b;
+
+  background: #173d2b;
+
+  color: #ffffff;
+}
+
+.lotes-disponibles-vistas button span {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 23px;
+  height: 21px;
+
+  padding: 0 5px;
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      0.06
+    );
+
+  font-size: 8px;
+}
+
+.lotes-disponibles-vistas button.active span {
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.15
+    );
+}
+
+/* =========================================================
+   EXPORTACIONES
+========================================================= */
+
+.lotes-disponibles-export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+
+  padding: 14px 16px;
+
+  border: 1px solid #ded9cc;
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fbfaf6,
+      #f5f0e4
+    );
+}
+
+.lotes-disponibles-export > div:first-child strong {
+  display: block;
+
+  color: #173d2b;
+
+  font-size: 13px;
+  font-weight: 850;
+}
+
+.lotes-disponibles-export > div:first-child span {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #7c857f;
+
+  font-size: 9px;
+}
+
+.lotes-disponibles-export-buttons {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+
+  flex-shrink: 0;
+}
+
+.lotes-disponibles-export-buttons button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 38px;
+
+  padding: 0 12px;
+
+  border-radius: 9px;
+
+  font-size: 10px;
+  font-weight: 850;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.16s ease;
+}
+
+.lotes-disponibles-export-buttons button:hover {
+  transform: translateY(-1px);
+}
+
+.lotes-disponibles-export-buttons button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.lotes-disponibles-export-buttons .pdf {
+  border: 1px solid #e2b8b2;
+
+  background: #f9e7e4;
+
+  color: #a33f35;
+}
+
+.lotes-disponibles-export-buttons .excel {
+  border: 1px solid #b9d7c2;
+
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.lotes-disponibles-export-buttons .html {
+  border: 1px solid #d7c99d;
+
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+.lotes-disponibles-error {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  padding: 11px 13px;
+
+  border: 1px solid #efc3bd;
+  border-radius: 10px;
+
+  background: #fff0ee;
+
+  color: #963c32;
+
+  font-size: 10px;
+}
+
+.lotes-disponibles-error span {
+  flex: 1;
+}
+
+.lotes-disponibles-error button {
+  padding: 7px 11px;
+
+  border: none;
+  border-radius: 8px;
+
+  background: #963c32;
+
+  color: #ffffff;
+
+  font-size: 9px;
+  font-weight: 800;
+
+  cursor: pointer;
+}
+
+/* =========================================================
+   PANEL
+========================================================= */
+
+.lotes-disponibles-panel {
+  min-width: 0;
+
+  overflow: hidden;
+
+  border: 1px solid #e5e1d6;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 24px
+    rgba(43, 57, 49, 0.05);
+}
+
+/* =========================================================
+   TABLA
+========================================================= */
+
+.lotes-disponibles-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.lotes-disponibles-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.lotes-disponibles-table.manzanas {
+  min-width: 1250px;
+}
+
+.lotes-disponibles-table.detalle {
+  min-width: 1450px;
+}
+
+.lotes-disponibles-table thead {
+  background: #173d2b;
+}
+
+.lotes-disponibles-table th {
+  padding: 11px 9px;
+
+  border-right:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  border-bottom:
+    2px solid #d9aa58;
+
+  color: #ffffff;
+
+  font-size: 7.5px;
+  font-weight: 850;
+
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+
+  text-align: left;
+
+  white-space: nowrap;
+}
+
+.lotes-disponibles-table td {
+  padding: 11px 9px;
+
+  border-bottom: 1px solid #efede6;
+
+  color: #354139;
+
+  font-size: 9px;
+
+  vertical-align: middle;
+}
+
+.lotes-disponibles-table tbody tr:nth-child(even) {
+  background: #fcfbf7;
+}
+
+.lotes-disponibles-table tbody tr:hover {
+  background: #f7f4ea;
+}
+
+/* =========================================================
+   MANZANA
+========================================================= */
+
+.lotes-disponibles-manzana,
+.lotes-disponibles-codigo {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.lotes-disponibles-manzana-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+
+  min-width: 95px;
+}
+
+.lotes-disponibles-manzana-info strong {
+  color: #173d2b;
+
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.lotes-disponibles-manzana-info span {
+  color: #8c948f;
+
+  font-size: 7.5px;
+}
+
+/* =========================================================
+   TIPO DE LOTE
+========================================================= */
+
+.lotes-disponibles-tipo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.lotes-disponibles-tipo.regular {
+  background: #e8f1f5;
+
+  color: #426b82;
+}
+
+.lotes-disponibles-tipo.irregular {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   MEDIDAS
+========================================================= */
+
+.lotes-disponibles-medida {
+  display: inline-flex;
+  align-items: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 7px;
+
+  background: #f2f1ec;
+
+  color: #5f6962;
+
+  font-size: 8px;
+  font-weight: 750;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   ÁREA
+========================================================= */
+
+.lotes-disponibles-area {
+  color: #426b82;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+/* =========================================================
+   DINERO
+========================================================= */
+
+.lotes-disponibles-money {
+  color: #315e45;
+
+  font-size: 9px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.lotes-disponibles-money.principal {
+  color: #2f6b4a;
+
+  font-size: 9.5px;
+}
+
+/* =========================================================
+   CONTADORES
+========================================================= */
+
+.lotes-disponibles-contador {
+  display: inline-grid;
+  place-items: center;
+
+  min-width: 29px;
+  height: 25px;
+
+  padding: 0 7px;
+
+  border-radius: 999px;
+
+  background: #edf1ed;
+
+  color: #57645c;
+
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.lotes-disponibles-contador.principal {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+.lotes-disponibles-contador.irregular {
+  background: #f5edd8;
+
+  color: #8a6827;
+}
+
+/* =========================================================
+   ESTADO
+========================================================= */
+
+.lotes-disponibles-estado {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 24px;
+
+  padding: 0 8px;
+
+  border-radius: 999px;
+
+  font-size: 8px;
+  font-weight: 850;
+
+  white-space: nowrap;
+}
+
+.lotes-disponibles-estado.disponible {
+  background: #e7f2ea;
+
+  color: #2f6b4a;
+}
+
+/* =========================================================
+   SIN REGISTROS
+========================================================= */
+
+.lotes-disponibles-empty {
+  height: 190px;
+
+  color: #888f8a !important;
+
+  text-align: center !important;
+
+  font-size: 10px !important;
+}
+
+/* =========================================================
+   CARGANDO
+========================================================= */
+
+.lotes-disponibles-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+
+  min-height: 260px;
+
+  color: #77817a;
+
+  font-size: 10px;
+}
+
+.lotes-disponibles-loading svg {
+  color: #315f46;
+}
+
+.lotes-disponibles-spin {
+  animation:
+    lotes-disponibles-spin
+    0.9s
+    linear
+    infinite;
+}
+
+@keyframes lotes-disponibles-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.lotes-disponibles-table-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+
+  padding: 12px 14px;
+
+  border-top: 1px solid #e8e4da;
+
+  background: #faf9f5;
+
+  color: #707a73;
+
+  font-size: 9px;
+}
+
+/* =========================================================
+   PAGINACIÓN
+========================================================= */
+
+.lotes-disponibles-pagination {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lotes-disponibles-pagination strong {
+  color: #59645d;
+
+  font-size: 9px;
+}
+
+.lotes-disponibles-pagination button {
+  min-height: 31px;
+
+  padding: 0 10px;
+
+  border: 1px solid #ddd8ca;
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #4b574f;
+
+  font-size: 9px;
+  font-weight: 750;
+
+  cursor: pointer;
+}
+
+.lotes-disponibles-pagination button:hover:not(:disabled) {
+  background: #f4f1e8;
+}
+
+.lotes-disponibles-pagination button:disabled {
+  opacity: 0.4;
+
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+.lotes-disponibles-table-wrapper::-webkit-scrollbar {
+  height: 9px;
+}
+
+.lotes-disponibles-table-wrapper::-webkit-scrollbar-track {
+  background: #f0eee7;
+}
+
+.lotes-disponibles-table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+
+  background: #bcb7aa;
+}
+
+.lotes-disponibles-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #9f998b;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 1500px) {
+  .lotes-disponibles-filtros {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
+  }
+
+  .lotes-disponibles-search {
+    grid-column:
+      span 2;
+  }
+}
+
+@media (max-width: 1100px) {
+  .lotes-disponibles-stats {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .lotes-disponibles-filtros {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+  .lotes-disponibles-search {
+    grid-column:
+      1 / -1;
+  }
+}
+
+@media (max-width: 800px) {
+  .lotes-disponibles-header {
+    flex-direction: column;
+  }
+
+  .lotes-disponibles-refresh {
+    width: 100%;
+  }
+
+  .lotes-disponibles-vistas {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lotes-disponibles-vistas button {
+    justify-content: space-between;
+  }
+
+  .lotes-disponibles-export {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lotes-disponibles-export-buttons {
+    width: 100%;
+  }
+
+  .lotes-disponibles-export-buttons button {
+    flex: 1;
+  }
+
+  .lotes-disponibles-table-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .lotes-disponibles-pagination {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 600px) {
+  .lotes-disponibles-stats {
+    grid-template-columns:
+      1fr;
+  }
+
+  .lotes-disponibles-filtros {
+    grid-template-columns:
+      1fr;
+  }
+
+  .lotes-disponibles-search {
+    grid-column:
+      auto;
+  }
+
+  .lotes-disponibles-export-buttons {
+    flex-direction: column;
+  }
+
+  .lotes-disponibles-export-buttons button {
+    width: 100%;
+  }
+
+  .lotes-disponibles-header h1 {
+    font-size: 24px;
+  }
+}
