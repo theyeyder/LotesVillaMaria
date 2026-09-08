@@ -1,0 +1,469 @@
+/* =========================================================
+   LOTES VILLA MARÍA
+   REPORTE DE HORAS DE MAQUINARIA
+========================================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  padding: 28px;
+  background: #eeeae0;
+  color: #26332c;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* =========================================================
+   BARRA SUPERIOR
+========================================================= */
+
+.acciones-impresion {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto 14px;
+}
+
+.acciones-impresion button {
+  height: 42px;
+  padding: 0 18px;
+
+  border-radius: 9px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.btn-cerrar {
+  border: 1px solid #d1ccc1;
+  background: #ffffff;
+  color: #56605a;
+}
+
+.btn-cerrar:hover {
+  background: #f7f5ef;
+}
+
+.btn-imprimir {
+  border: 1px solid #173f2e;
+  background: #173f2e;
+  color: #ffffff;
+}
+
+.btn-imprimir:hover {
+  background: #20583f;
+}
+
+/* =========================================================
+   HOJA DEL REPORTE
+========================================================= */
+
+.reporte-contenedor {
+  width: 100%;
+  max-width: 1250px;
+
+  margin: 0 auto;
+
+  padding: 32px 35px;
+
+  border-radius: 12px;
+
+  background: #ffffff;
+
+  box-shadow:
+    0 8px 30px
+    rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   ENCABEZADO
+========================================================= */
+
+.horas-print-header {
+  display: block !important;
+
+  position: relative;
+
+  margin-bottom: 26px;
+  padding-bottom: 19px;
+
+  border-bottom: 3px solid #173f2e;
+
+  text-align: center;
+}
+
+.horas-print-header::after {
+  content: "";
+
+  position: absolute;
+
+  bottom: -3px;
+  left: 50%;
+
+  width: 150px;
+  height: 3px;
+
+  transform: translateX(-50%);
+
+  background: #c99a4b;
+}
+
+.horas-print-header h1 {
+  margin: 0;
+
+  color: #173f2e;
+
+  font-size: 27px;
+  font-weight: 800;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+.horas-print-header h2 {
+  margin: 5px 0 16px;
+
+  color: #9a712e;
+
+  font-size: 16px;
+  font-weight: 700;
+}
+
+/* Información de filtros */
+
+.horas-print-info {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  gap: 10px 14px;
+}
+
+.horas-print-info p {
+  margin: 0;
+  padding: 7px 12px;
+
+  border: 1px solid #e0dbd0;
+  border-radius: 7px;
+
+  background: #faf8f2;
+
+  color: #4d5851;
+
+  font-size: 11px;
+}
+
+.horas-print-info strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   SECCIONES
+========================================================= */
+
+.horas-print-operarios,
+.horas-print-detalle {
+  display: block !important;
+  width: 100%;
+}
+
+.horas-print-operarios {
+  margin-bottom: 30px;
+}
+
+.horas-print-operarios h3,
+.horas-print-detalle h3 {
+  margin: 0 0 11px;
+  padding-left: 10px;
+
+  border-left: 4px solid #c99a4b;
+
+  color: #173f2e;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   TABLAS
+========================================================= */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+th {
+  padding: 9px 7px;
+
+  border: 1px solid #173f2e;
+
+  background: #173f2e;
+
+  color: #ffffff;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  text-align: center;
+
+  text-transform: uppercase;
+}
+
+td {
+  padding: 8px 7px;
+
+  border: 1px solid #ddd8ce;
+
+  color: #36423b;
+
+  font-size: 10px;
+
+  vertical-align: middle;
+}
+
+td:not(:first-child) {
+  text-align: center;
+}
+
+tbody tr:nth-child(even) {
+  background: #faf8f3;
+}
+
+/* =========================================================
+   RESUMEN POR OPERARIO
+========================================================= */
+
+.horas-print-operarios td:first-child {
+  color: #173f2e;
+  font-weight: 700;
+}
+
+.horas-print-operarios td:last-child {
+  font-weight: 800;
+}
+
+/* =========================================================
+   TOTAL GENERAL
+========================================================= */
+
+.horas-print-total-row {
+  background: #f4ead6 !important;
+}
+
+.horas-print-total-row td {
+  border-top: 2px solid #b98a3e;
+
+  color: #173f2e;
+
+  font-weight: 800;
+}
+
+/* =========================================================
+   DETALLE DE JORNADAS
+========================================================= */
+
+.horas-print-detalle {
+  margin-top: 5px;
+}
+
+.horas-print-detalle th,
+.horas-print-detalle td {
+  font-size: 9px;
+}
+
+.horas-print-detalle th {
+  padding: 8px 5px;
+}
+
+.horas-print-detalle td {
+  padding: 7px 5px;
+}
+
+.horas-print-detalle td:first-child {
+  min-width: 115px;
+}
+
+.horas-print-detalle td:nth-child(2) {
+  min-width: 100px;
+}
+
+.horas-print-detalle td:nth-child(4),
+.horas-print-detalle td:nth-child(5),
+.horas-print-detalle td:nth-child(6) {
+  white-space: nowrap;
+}
+
+.horas-print-detalle strong {
+  color: #173f2e;
+}
+
+/* =========================================================
+   IMPRESIÓN EN PAPEL
+========================================================= */
+
+@media print {
+  @page {
+    size: A4 landscape;
+    margin: 9mm;
+  }
+
+  html,
+  body {
+    width: 100%;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+  }
+
+  .acciones-impresion {
+    display: none !important;
+  }
+
+  .reporte-contenedor {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
+    padding: 0;
+
+    border-radius: 0;
+
+    box-shadow: none;
+  }
+
+  .horas-print-header {
+    margin-bottom: 18px;
+    padding-bottom: 13px;
+
+    border-bottom: 2px solid #000000;
+  }
+
+  .horas-print-header::after {
+    display: none;
+  }
+
+  .horas-print-header h1 {
+    color: #000000;
+
+    font-size: 22px;
+  }
+
+  .horas-print-header h2 {
+    margin-bottom: 10px;
+
+    color: #000000;
+
+    font-size: 14px;
+  }
+
+  .horas-print-info p {
+    padding: 4px 8px;
+
+    border: 1px solid #aaaaaa;
+
+    background: #ffffff;
+
+    color: #000000;
+
+    font-size: 9px;
+  }
+
+  .horas-print-info strong {
+    color: #000000;
+  }
+
+  .horas-print-operarios {
+    margin-bottom: 20px;
+  }
+
+  .horas-print-operarios h3,
+  .horas-print-detalle h3 {
+    margin-bottom: 7px;
+
+    border-left: 3px solid #000000;
+
+    color: #000000;
+
+    font-size: 12px;
+  }
+
+  th {
+    padding: 6px 5px;
+
+    border: 1px solid #777777;
+
+    background: #e9e9e9 !important;
+
+    color: #000000 !important;
+
+    font-size: 8px;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  td {
+    padding: 5px;
+
+    border: 1px solid #999999;
+
+    color: #000000;
+
+    font-size: 8px;
+  }
+
+  .horas-print-detalle th,
+  .horas-print-detalle td {
+    font-size: 7.5px;
+  }
+
+  .horas-print-total-row {
+    background: #eeeeee !important;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .horas-print-total-row td {
+    border-top: 2px solid #000000;
+
+    color: #000000;
+  }
+
+  tbody tr:nth-child(even) {
+    background: #ffffff;
+  }
+
+  thead {
+    display: table-header-group;
+  }
+
+  tfoot {
+    display: table-footer-group;
+  }
+
+  tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+}
