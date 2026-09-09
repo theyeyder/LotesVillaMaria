@@ -2,10 +2,6 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 
-import path from "path";
-import { fileURLToPath } from "url";
-import { existsSync } from "fs";
-
 import clientesRouter from "./modules/clientes/cliente.routes.js";
 import maquinariaRouter from "./modules/maquinaria/maquinaria.routes.js";
 import horasMaquinariaRouter from "./modules/horasMaquinaria/horaMaquinaria.routes.js";
@@ -21,41 +17,6 @@ import comprobanteRoutes from "./modules/comprobantes/comprobante.routes.js";
 import carteraRoutes from "./modules/cartera/cartera.routes.js";
 import reporteRoutes from "./modules/reportes/reporte.routes.js";
 
-/* =========================================================
-   RUTAS INTERNAS
-========================================================= */
-
-const __filename =
-  fileURLToPath(
-    import.meta.url
-  );
-
-const __dirname =
-  path.dirname(
-    __filename
-  );
-
-/*
-  Estructura esperada:
-
-  LotesVillaMaria/
-  ├── backend/
-  │   └── src/
-  │       └── app.js
-  │
-  └── frontend/
-      └── dist/
-*/
-
-const frontendDistPath =
-  path.resolve(
-    __dirname,
-    "../../frontend/dist"
-  );
-
-/* =========================================================
-   APP
-========================================================= */
 
 const app = express();
 
@@ -63,17 +24,11 @@ const app = express();
    MIDDLEWARES
 ========================================================= */
 
-app.use(
-  cors()
-);
+app.use(cors());
 
-app.use(
-  express.json()
-);
+app.use(express.json());
 
-app.use(
-  morgan("dev")
-);
+app.use(morgan("dev"));
 
 /* =========================================================
    HEALTH
@@ -90,7 +45,7 @@ app.get(
 );
 
 /* =========================================================
-   RUTAS API
+   RUTAS
 ========================================================= */
 
 app.use(
@@ -142,7 +97,6 @@ app.use(
   "/api/comisiones",
   comisionRoutes
 );
-
 app.use(
   "/api/egresos",
   egresoRoutes
@@ -162,83 +116,6 @@ app.use(
   "/api/reportes",
   reporteRoutes
 );
-
-/* =========================================================
-   FRONTEND COMPILADO
-========================================================= */
-
-/*
-  Cuando ejecutemos:
-
-  npm run build
-
-  dentro de frontend, Vite creará:
-
-  frontend/dist
-
-  Express servirá esa carpeta directamente.
-*/
-
-if (
-  existsSync(
-    frontendDistPath
-  )
-) {
-  console.log(
-    `Frontend encontrado en: ${frontendDistPath}`
-  );
-
-  /* =======================================================
-     ARCHIVOS ESTÁTICOS
-  ======================================================= */
-
-  app.use(
-    express.static(
-      frontendDistPath
-    )
-  );
-
-  /* =======================================================
-     REACT SPA
-  ======================================================= */
-
-  app.use(
-    (
-      req,
-      res,
-      next
-    ) => {
-      /*
-        No interferir con:
-        /api/clientes
-        /api/ventas
-        /api/reportes
-        etc.
-      */
-
-      if (
-        req.method !==
-          "GET" ||
-        req.path.startsWith(
-          "/api"
-        )
-      ) {
-        return next();
-      }
-
-      return res.sendFile(
-        path.join(
-          frontendDistPath,
-          "index.html"
-        )
-      );
-    }
-  );
-} else {
-  console.log(
-    "Frontend compilado aún no encontrado. Falta ejecutar npm run build en frontend."
-  );
-}
 
 /* =========================================================
    RUTA NO ENCONTRADA

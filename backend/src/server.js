@@ -5,58 +5,50 @@ import { networkInterfaces } from "os";
 import app from "./app.js";
 import { connectDB } from "./config/db.js";
 
-/* =========================================================
-   CONFIGURACIÓN
-========================================================= */
-
 const PORT =
-  process.env.PORT ||
-  5000;
+  process.env.PORT || 5000;
 
 const HOST =
   "0.0.0.0";
 
 /* =========================================================
-   OBTENER DIRECCIONES IP DE LA RED LOCAL
+   OBTENER IP LOCAL
 ========================================================= */
 
-const obtenerIPsLocales =
-  () => {
-    const interfaces =
-      networkInterfaces();
+const obtenerIPsLocales = () => {
+  const interfaces =
+    networkInterfaces();
 
-    const ips = [];
+  const ips = [];
 
-    Object.values(
-      interfaces
-    ).forEach(
-      (lista) => {
-        if (
-          !Array.isArray(
-            lista
-          )
-        ) {
-          return;
-        }
-
-        lista.forEach(
-          (interfaz) => {
-            if (
-              interfaz.family ===
-                "IPv4" &&
-              !interfaz.internal
-            ) {
-              ips.push(
-                interfaz.address
-              );
-            }
-          }
-        );
+  Object.values(
+    interfaces
+  ).forEach(
+    (lista) => {
+      if (
+        !Array.isArray(lista)
+      ) {
+        return;
       }
-    );
 
-    return ips;
-  };
+      lista.forEach(
+        (interfaz) => {
+          if (
+            interfaz.family ===
+              "IPv4" &&
+            !interfaz.internal
+          ) {
+            ips.push(
+              interfaz.address
+            );
+          }
+        }
+      );
+    }
+  );
+
+  return ips;
+};
 
 /* =========================================================
    INICIAR SERVIDOR
@@ -65,47 +57,32 @@ const obtenerIPsLocales =
 const iniciarServidor =
   async () => {
     try {
-      /* ===================================================
-         MONGODB
-      =================================================== */
-
       await connectDB();
-
-      /* ===================================================
-         EXPRESS
-      =================================================== */
 
       app.listen(
         PORT,
         HOST,
         () => {
+          console.log("");
           console.log(
-            ""
+            "=============================================="
+          );
+
+          console.log(
+            "   LOTES VILLA MARIA"
           );
 
           console.log(
             "=============================================="
           );
 
-          console.log(
-            "   LOTES VILLA MARÍA"
-          );
-
-          console.log(
-            "=============================================="
-          );
-
-          console.log(
-            ""
-          );
+          console.log("");
 
           console.log(
             `Servidor ejecutándose en puerto ${PORT}`
           );
 
-          console.log(
-            ""
-          );
+          console.log("");
 
           console.log(
             "Acceso desde este computador:"
@@ -119,15 +96,12 @@ const iniciarServidor =
             obtenerIPsLocales();
 
           if (
-            ips.length >
-            0
+            ips.length > 0
           ) {
-            console.log(
-              ""
-            );
+            console.log("");
 
             console.log(
-              "Acceso desde otros dispositivos de la red:"
+              "Acceso desde otros dispositivos:"
             );
 
             ips.forEach(
@@ -139,38 +113,21 @@ const iniciarServidor =
             );
           }
 
-          console.log(
-            ""
-          );
-
+          console.log("");
           console.log(
             "=============================================="
           );
-
-          console.log(
-            ""
-          );
+          console.log("");
         }
       );
-    } catch (
-      error
-    ) {
+    } catch (error) {
       console.error(
-        "No fue posible iniciar LotesVillaMaria:"
-      );
-
-      console.error(
+        "Error iniciando LotesVillaMaria:",
         error
       );
 
-      process.exit(
-        1
-      );
+      process.exit(1);
     }
   };
-
-/* =========================================================
-   EJECUTAR
-========================================================= */
 
 iniciarServidor();
