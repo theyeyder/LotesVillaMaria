@@ -2,14 +2,19 @@
   position: sticky;
   top: 0;
   z-index: 90;
+
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  min-height: 92px;
-  padding: 18px 28px;
+  justify-content: flex-start;
+
+  min-height: 64px;
+
+  padding: 11px 22px;
+
   border-bottom: 1px solid #e8e1d4;
+
   background: rgba(255, 253, 247, 0.95);
+
   backdrop-filter: blur(12px);
 }
 
@@ -39,11 +44,13 @@
   color: #7d857f;
   font-size: 13px;
 }
-
 .navbar-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+
+  width: 100%;
+
   gap: 10px;
 }
 

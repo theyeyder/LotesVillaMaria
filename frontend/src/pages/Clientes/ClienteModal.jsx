@@ -233,9 +233,9 @@ export default function ClienteModal({
                 />
 
                 <datalist id="ciudades-colombia">
-                  <option value="Ibagué" />
-                  <option value="Bogotá" />
-                  <option value="Medellín" />
+                  <option value="Sampues" />
+                  <option value="Sincelejo" />
+                  <option value="ACHIOTE" />
                   <option value="Cali" />
                   <option value="Barranquilla" />
                   <option value="Armenia" />

@@ -168,38 +168,6 @@
   gap: 10px;
 }
 
-.clientes-print-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 7px;
-
-  min-height: 44px;
-  padding: 0 14px;
-
-  border: 1px solid #d6c49e;
-  border-radius: 12px;
-
-  background: #fffaf0;
-  color: #8c6525;
-
-  font-size: 13px;
-  font-weight: 800;
-
-  cursor: pointer;
-
-  transition:
-    background 0.18s ease,
-    border 0.18s ease,
-    transform 0.18s ease;
-}
-
-.clientes-print-button:hover {
-  transform: translateY(-1px);
-  border-color: #d9aa58;
-  background: #f8edd8;
-}
-
 .clientes-filter {
   min-height: 44px;
   padding: 0 38px 0 13px;
@@ -416,6 +384,22 @@
   transform: translateY(-1px);
 }
 
+/* =========================
+   IMPRIMIR CLIENTE
+========================= */
+
+.cliente-action-button.print {
+  border-color: #dfcfaa;
+  background: #fff8e8;
+  color: #9a7028;
+}
+
+.cliente-action-button.print:hover {
+  border-color: #d9aa58;
+  background: #f8edd8;
+  color: #7d581d;
+}
+
 .cliente-action-button.edit {
   border-color: #cfded5;
   background: #eef5f1;
@@ -471,10 +455,6 @@
 
 .clientes-table-footer strong {
   color: #173f2e;
-}
-
-.clientes-print-header {
-  display: none;
 }
 
 /* =========================
@@ -704,116 +684,6 @@
 }
 
 /* =========================
-   IMPRESIÓN
-========================= */
-
-@media print {
-  @page {
-    size: landscape;
-    margin: 12mm;
-  }
-
-  body {
-    background: #ffffff !important;
-  }
-
-  .sidebar,
-  .navbar,
-  .clientes-header,
-  .clientes-stats,
-  .clientes-toolbar,
-  .clientes-table-footer,
-  .cliente-modal-overlay,
-  .toast {
-    display: none !important;
-  }
-
-  .app-shell,
-  .app-main,
-  .app-content,
-  .clientes-page,
-  .clientes-panel {
-    display: block !important;
-    width: 100% !important;
-    min-height: auto !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    border: none !important;
-    background: #ffffff !important;
-    box-shadow: none !important;
-  }
-
-  .clientes-print-header {
-    display: block;
-    margin-bottom: 20px;
-    text-align: center;
-  }
-
-  .clientes-print-header h1 {
-    margin: 0;
-    color: #173f2e;
-    font-size: 24px;
-  }
-
-  .clientes-print-header h2 {
-    margin: 5px 0;
-    font-size: 17px;
-    font-weight: 700;
-  }
-
-  .clientes-print-header p {
-    margin: 4px 0 0;
-    font-size: 12px;
-  }
-
-  .clientes-table-wrapper {
-    overflow: visible !important;
-  }
-
-  .clientes-table {
-    width: 100% !important;
-    min-width: 0 !important;
-    border-collapse: collapse;
-  }
-
-  .clientes-table th,
-  .clientes-table td {
-    padding: 8px 7px !important;
-    border: 1px solid #cccccc !important;
-    color: #000000 !important;
-    font-size: 10px !important;
-  }
-
-  .clientes-table thead {
-    background: #eeeeee !important;
-  }
-
-  .cliente-avatar {
-    display: none !important;
-  }
-
-  .cliente-name-cell {
-    min-width: 0 !important;
-  }
-
-  .cliente-name-cell span {
-    max-width: none !important;
-    color: #444444 !important;
-  }
-
-  .cliente-status {
-    padding: 0 !important;
-    background: transparent !important;
-    color: #000000 !important;
-  }
-
-  .clientes-actions-title,
-  .cliente-actions {
-    display: none !important;
-  }
-}
-
-/* =========================
    RESPONSIVE
 ========================= */
 
@@ -871,7 +741,7 @@
 
   .cliente-field-full {
     grid-column: auto;
-  }
+  } 
 
   .cliente-modal-overlay {
     align-items: flex-end;
@@ -899,4 +769,56 @@
   .cliente-btn-primary {
     width: 100%;
   }
+}
+/* =========================
+   BOTÓN IMPRIMIR CLIENTES
+========================= */
+
+.clientes-print-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 44px;
+  padding: 0 16px;
+
+  border: 1px solid #d6c49e;
+  border-radius: 12px;
+
+  background: #fff8e8;
+  color: #8c6525;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 14px rgba(185, 133, 50, 0.1);
+
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.clientes-print-button:hover {
+  transform: translateY(-1px);
+
+  border-color: #d9aa58;
+
+  background: #f8edd8;
+  color: #79551d;
+
+  box-shadow: 0 7px 17px rgba(185, 133, 50, 0.16);
+}
+
+.clientes-print-button:active {
+  transform: translateY(0);
+}
+
+.clientes-print-button svg {
+  flex: 0 0 auto;
 }
