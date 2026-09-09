@@ -32,9 +32,9 @@ export default function Login({ onLogin }) {
           <label>Contraseña<div className="login-input"><LockKeyhole /><input type={show?"text":"password"} value={password} onChange={e=>setPassword(e.target.value)} required /><button type="button" onClick={()=>setShow(v=>!v)}>{show?<EyeOff/>:<Eye/>}</button></div></label>
           {error && <div className="login-error">{error}</div>}
           <Button className="login-submit"><KeyRound /> Ingresar</Button>
-          <p className="login-demo">Acceso temporal de diseño: <b>admin</b> / <b>Admin123*</b></p>
+       
         </form>
       </section>
     </div>
-  </main>;
+  </main>;  
 }
