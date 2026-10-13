@@ -30,12 +30,14 @@ const obtenerEgresoCompleto =
     return Egreso.findById(
       egresoId
     )
+
       .populate({
         path: "vendedor",
 
         select:
           "codigo nombres apellidos documento telefono correo",
       })
+
       .populate({
         path: "comision",
 
@@ -46,12 +48,14 @@ const obtenerEgresoCompleto =
             select:
               "codigo fechaVenta valorVenta",
           },
+
           {
             path: "cliente",
 
             select:
               "nombres apellidos documento telefono",
           },
+
           {
             path: "lote",
 
@@ -64,6 +68,7 @@ const obtenerEgresoCompleto =
           },
         ],
       })
+
       .populate({
         path: "horaMaquinaria",
 
@@ -76,6 +81,28 @@ const obtenerEgresoCompleto =
           select:
             "codigo nombre tipo placa marca modelo",
         },
+      })
+
+      /* ===================================================
+         BENEFICIARIO DE PAGO MANUAL
+      =================================================== */
+
+      .populate({
+        path: "beneficiario",
+
+        select:
+          "nombre tipoDocumento documento telefono observaciones estado",
+      })
+
+      /* ===================================================
+         PAGO MANUAL RELACIONADO
+      =================================================== */
+
+      .populate({
+        path: "pagoManual",
+
+        select:
+          "beneficiarioNombre beneficiarioDocumento motivo valor fechaPago formaPago referenciaPago observaciones",
       });
   };
 
@@ -409,6 +436,7 @@ const obtenerUltimoMovimientoMaquinaria =
    Filtros:
 
    ?tipo=Comision
+   ?tipo=PagoManual
    ?tipoMovimiento=Abono
    ?vendedor=
    ?comision=
@@ -442,6 +470,7 @@ export const obtenerEgresos =
           ![
             "Comision",
             "HorasMaquinaria",
+            "PagoManual",
             "Otro",
           ].includes(
             tipo
@@ -608,6 +637,18 @@ export const obtenerEgresos =
             select:
               "codigo valorComision totalPagado saldoPendiente estado",
           })
+          .populate({
+            path: "beneficiario",
+
+            select:
+              "nombre tipoDocumento documento telefono estado",
+          })
+          .populate({
+            path: "pagoManual",
+
+            select:
+              "motivo valor fechaPago formaPago referenciaPago observaciones",
+          })
           .sort({
             fechaPago: -1,
             createdAt: -1,
@@ -650,6 +691,16 @@ export const obtenerEgresos =
 
             if (
               egreso.tipo ===
+              "PagoManual"
+            ) {
+              acumulado.totalPagosManuales +=
+                Number(
+                  egreso.valor
+                ) || 0;
+            }
+
+            if (
+              egreso.tipo ===
               "Otro"
             ) {
               acumulado.totalOtros +=
@@ -671,6 +722,9 @@ export const obtenerEgresos =
               0,
 
             totalMaquinaria:
+              0,
+
+            totalPagosManuales:
               0,
 
             totalOtros:

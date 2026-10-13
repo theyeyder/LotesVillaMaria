@@ -11,6 +11,7 @@ import mongoose from "mongoose";
 
    - Comisión de vendedor
    - Horas de maquinaria
+   - Pago manual
    - Otro gasto
 
    Cada ABONO o PAGO genera un egreso.
@@ -46,6 +47,7 @@ const egresoSchema =
         enum: [
           "Comision",
           "HorasMaquinaria",
+          "PagoManual",
           "Otro",
         ],
 
@@ -62,7 +64,9 @@ const egresoSchema =
          paga solo una parte.
 
          Pago:
-         cancela todo el saldo pendiente.
+         cancela todo el saldo pendiente
+         o representa una salida completa
+         como en Pagos Manuales.
       ===================================================== */
 
       tipoMovimiento: {
@@ -100,12 +104,9 @@ const egresoSchema =
       /* =====================================================
          HORA DE MAQUINARIA RELACIONADA
 
-         Solo se utilizará cuando:
+         Solo se utiliza cuando:
 
          tipo = "HorasMaquinaria"
-
-         La conectaremos cuando integremos
-         ese módulo.
       ===================================================== */
 
       horaMaquinaria: {
@@ -114,6 +115,27 @@ const egresoSchema =
             .ObjectId,
 
         ref: "HoraMaquinaria",
+
+        default: null,
+      },
+
+      /* =====================================================
+         PAGO MANUAL RELACIONADO
+
+         Solo se utiliza cuando:
+
+         tipo = "PagoManual"
+
+         Permite conocer qué registro de
+         pago manual originó este egreso.
+      ===================================================== */
+
+      pagoManual: {
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "PagoManual",
 
         default: null,
       },
@@ -135,14 +157,43 @@ const egresoSchema =
       },
 
       /* =====================================================
-         BENEFICIARIO
+         BENEFICIARIO RELACIONADO
 
-         Guardamos también el nombre como
-         histórico.
+         Se utiliza principalmente en
+         Pagos Manuales.
 
-         Esto permite conservar el comprobante
-         incluso si después cambia algún dato
-         del vendedor u operario.
+         Ejemplos:
+
+         - Proveedor de café
+         - Persona que realizó transporte
+         - Trabajador ocasional
+         - Proveedor de materiales
+
+         La referencia permite reutilizar
+         la persona en futuros pagos.
+      ===================================================== */
+
+      beneficiario: {
+        type:
+          mongoose.Schema.Types
+            .ObjectId,
+
+        ref: "Beneficiario",
+
+        default: null,
+      },
+
+      /* =====================================================
+         BENEFICIARIO HISTÓRICO
+
+         Guardamos nombre y documento aunque
+         exista una relación con Beneficiario.
+
+         Esto permite conservar exactamente
+         cómo estaba el comprobante cuando
+         se realizó el egreso, incluso si
+         posteriormente cambian los datos
+         de la persona.
       ===================================================== */
 
       beneficiarioNombre: {
@@ -172,6 +223,7 @@ const egresoSchema =
          "Abono comisión CM-0001"
          "Pago comisión CM-0002"
          "Pago horas maquinaria agosto"
+         "Pago manual - Compra de café"
       ===================================================== */
 
       concepto: {
@@ -209,7 +261,10 @@ const egresoSchema =
       /* =====================================================
          SALDO ANTES DEL PAGO
 
-         Lo guardamos como histórico.
+         Para Comisiones y Maquinaria
+         puede representar saldo pendiente.
+
+         Para Pago Manual normalmente será 0.
       ===================================================== */
 
       saldoAntes: {
@@ -226,7 +281,7 @@ const egresoSchema =
       /* =====================================================
          SALDO DESPUÉS DEL PAGO
 
-         También queda como histórico.
+         Para Pago Manual normalmente será 0.
       ===================================================== */
 
       saldoDespues: {
@@ -261,8 +316,10 @@ const egresoSchema =
          REFERENCIA DEL PAGO
 
          Ejemplo:
-         número de transferencia,
-         comprobante bancario, etc.
+
+         - Número de transferencia
+         - Comprobante bancario
+         - Referencia de consignación
       ===================================================== */
 
       referenciaPago: {
@@ -323,6 +380,24 @@ egresoSchema.index({
 
 egresoSchema.index({
   horaMaquinaria: 1,
+  fechaPago: -1,
+});
+
+/* =========================================================
+   ÍNDICE PAGOS MANUALES
+========================================================= */
+
+egresoSchema.index({
+  pagoManual: 1,
+  fechaPago: -1,
+});
+
+/* =========================================================
+   ÍNDICE BENEFICIARIOS
+========================================================= */
+
+egresoSchema.index({
+  beneficiario: 1,
   fechaPago: -1,
 });
 

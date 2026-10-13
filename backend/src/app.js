@@ -17,6 +17,13 @@ import comprobanteRoutes from "./modules/comprobantes/comprobante.routes.js";
 import carteraRoutes from "./modules/cartera/cartera.routes.js";
 import reporteRoutes from "./modules/reportes/reporte.routes.js";
 
+/* =========================================================
+   NUEVOS MÓDULOS
+========================================================= */
+
+import beneficiarioRoutes from "./modules/beneficiarios/beneficiario.routes.js";
+
+import pagoManualRoutes from "./modules/pagosManuales/pagoManual.routes.js";
 
 const app = express();
 
@@ -97,6 +104,7 @@ app.use(
   "/api/comisiones",
   comisionRoutes
 );
+
 app.use(
   "/api/egresos",
   egresoRoutes
@@ -115,6 +123,24 @@ app.use(
 app.use(
   "/api/reportes",
   reporteRoutes
+);
+
+/* =========================================================
+   BENEFICIARIOS
+========================================================= */
+
+app.use(
+  "/api/beneficiarios",
+  beneficiarioRoutes
+);
+
+/* =========================================================
+   PAGOS MANUALES
+========================================================= */
+
+app.use(
+  "/api/pagos-manuales",
+  pagoManualRoutes
 );
 
 /* =========================================================
